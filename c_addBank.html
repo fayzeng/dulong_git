@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	<title>添加银行卡</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+</head>
+
+<body>
+	<header class="bp_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">添加银行卡</h1>
+	</header>
+</body>
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/ws.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	//var self = null, sub = null, url;
+	var self = null;
+	
+	mui.init({
+		subpages: [{
+			id: 'c_addBankSub.html',
+			url: 'c_addBankSub.html',
+			styles: {
+				top: '64px',
+				bottom: '0',
+				bounce: 'vertical'
+			}
+		}]
+	});
+	
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+	});
+	
+//	mui.plusReady(function(){
+//		self = plus.webview.currentWebview();
+//		url = 'c_addBankSub.html';
+//		//url = 'https://news.browser.miui.com/#page=index&cate=%E6%8E%A8%E8%8D%90&utm_source=xmpush&utm_campaign=2016-08-16%2008%3A25%231154399%23%E4%BC%98%E6%AD%A5%E5%8F%B8%E6%9C%BA%E5%85%88%E8%A6%81%E5%A5%BD%E8%AF%84%20%E5%A5%B3%E4%B9%98%E5%AE%A2%E5%A9%89%E6%8B%92%E8%A2%AB%E5%B0%BE%E9%9A%8F%E8%84%B1%E8%A3%A4%E5%AD%90&from_push=1';
+//		
+//		openNewWin();
+//	});
+//	
+//	function openNewWin(){
+//		//create and open is different, you can see the power.
+//		sub = plus.webview.create(url, url, {top:'44px',bottom:'0'});
+//		self.append(sub);
+//	}
+	
+	var oldBack = mui.back;
+	
+	mui.back = function() {
+		if(self.pUrl){
+			plus.webview.getWebviewById(self.pUrl).evalJS('reLink()');
+		}
+		evalId('c_bankCard.html', ['fnEval']);
+//		plus.webview.getWebviewById('c_bankCard.html').evalJS('fnEval()');
+		oldBack();
+	};
+	
+</script>

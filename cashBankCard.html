@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	
+	<title>绑定提现银行卡</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+<style type="text/css">
+#bankExplain { display: block; margin-top: 12px; padding: 0 20px; line-height: 24px; color: #448aca; text-decoration: underline; text-align: right; }
+#bankExplain:active { opacity: .8; }
+</style>
+</head>
+
+<body>
+	<header class="bp_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">绑定提现银行卡</h1>
+	</header>
+	
+	<div class="wrapper">
+		<p class="abank_tip">注：不支持对公账户和信用卡的绑定，若需使用对公账户的商户，请联系4006770099</p>
+		
+		<div class="abank_cont">
+			<div class="abank_row">
+				<span>持卡人</span>
+				<p>
+					<input id="abName" name="truename" type="text" placeholder="请输入持卡人姓名" value="" />
+				</p>
+			</div>
+			<div class="abank_row">
+				<span>手机号</span>
+				<p>
+					<input id="abPhone" name="phoneNo" type="tel" placeholder="请输入银行预留手机号" value="" />
+				</p>
+			</div>
+			<div class="abank_row">
+				<span>身份证</span>
+				<p>
+					<input id="abIdent" name="certifId" type="text" placeholder="请输入身份证" value="" />
+				</p>
+			</div>
+			<div class="abank_row">
+				<span>卡号</span>
+				<p>
+					<input id="addBank" name="accNo" type="tel" placeholder="请输入卡号" value="" />
+				</p>
+			</div>
+			<input id="aBankSub" type="submit" value="提交" />
+			<a id="bankExplain" data-href="bank_explain.html">支持银行说明</a>
+		</div>
+	</div>
+</body>
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var oName, oPhone, oIdent, oBank;
+	
+//	mui.init({
+//		subpages: [{
+//			id: 'cashBankCardSub.html',
+//			url: 'cashBankCardSub.html',
+//			styles: {
+//				top: '44px',
+//				bottom: '0',
+//				bounce: 'vertical'
+//			}
+//		}]
+//	});
+	
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		plus.webview.currentWebview().setStyle({
+		    softinputMode: "adjustResize"  // 弹出软键盘时自动改变webview的高度
+		});
+		oName = document.getElementById('abName');
+		oPhone = document.getElementById('abPhone');
+		oIdent = document.getElementById('abIdent');
+		oBank = document.getElementById('addBank');
+	});
+	
+	//提交
+	document.getElementById('aBankSub').addEventListener('tap', function(){
+		if(!oName.value){
+			mui.toast('持卡人姓名不能为空');
+			return false;
+		}
+		
+		if(!isMobile(oPhone.value)){
+			mui.toast('手机格式错误');
+			return false;
+		}
+		
+		if(!isIdentity(oIdent.value)){
+			mui.toast('身份证格式错误');
+			return false;
+		}
+		
+		if(!isBank(oBank.value.replace(/\s/g,''))){
+			mui.toast('银行卡格式错误');
+			return false;
+		}
+		
+		bankAjax();
+	});
+	
+	function bankAjax(){
+		bpAjax('/app/user/saveBankInfo', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			truename: oName.value,
+			phone: oPhone.value,
+			accNo: oBank.value,
+			userCard: oIdent.value,
+			b01id: self.comId,
+			sign:''
+		}, function(d){
+			mui.toast(d.info);
+			self.close();
+			closeId(['c_myInfo.html']);
+			evalId('draw_cash.html', ['drawRefresh']);
+			evalId('secondTo.html', ['drawRefresh']);
+			evalId('income_code.html', ['drawRefresh']);
+			evalId('store_info.html', ['getData']);
+			closeId(['Three_separate.html']);
+			evalId('infomation.html', ['companyAjax']);
+		}, function(d){
+			mui.toast(d.info);
+		}, 3, '商户添加银行卡')
+		
+//		var url = host + '/app/user/saveBankInfo';
+//		var dataType = 'json';
+//		var data = {
+//			deviceid: deviceid,
+//			username: JSON.parse(localStorage.getItem('userInfo')).username,
+//			truename: oName.value,
+//			phone: oPhone.value,
+//			accNo: oBank.value,
+//			userCard: oIdent.value,
+//			b01id: self.comId
+//		}
+//		
+//		console.log('传给余毅的银行卡信息'+JSON.stringify(data))
+//		mui.post(url, data, function(data){
+//			console.log('从后台获取的银行卡信息'+data); 
+//			var d = JSON.parse(data);
+//			
+//			if(d.msg == '1'){
+//				mui.toast(d.info);
+//				self.close();
+//				
+//				var com = plus.webview.getWebviewById('completeInfo.html');
+//				var draw = plus.webview.getWebviewById('draw_cash.html');
+//				var sec = plus.webview.getWebviewById('secondTo.html');
+//				var code = plus.webview.getWebviewById('income_code.html');
+//				var store = plus.webview.getWebviewById('store_info.html');
+//				var three = plus.webview.getWebviewById('Three_separate.html');
+//				var informationList = plus.webview.getWebviewById('infomation.html');
+//				if(com){
+//					com.close();
+//				}
+//				if(draw){
+//					draw.evalJS('drawRefresh()');
+//				}
+//				if(sec){
+//					sec.evalJS('drawRefresh()');
+//				}
+//				if(code){
+//					code.evalJS('drawRefresh()')
+//				} 
+//				if(store){
+//					store.evalJS('getData()');
+//				}
+//				if(three){
+//					three.close();
+//				}
+//				if(informationList){
+//					informationList.evalJS('companyAjax()');
+//				}
+//				
+//			}else if(d.msg == '3'){
+//				plus.nativeUI.closeWaiting();
+//				mui.toast(d.info);
+//				localStorage.removeItem('userInfo');
+//				localStorage.removeItem('identType');
+//				clearTimeout(wtTimer);
+//							
+//				var loginView = plus.webview.getWebviewById('login.html');
+//				if(loginView){
+//					plus.webview.show(loginView, 300);
+//				}else{
+//					mui.openWindow({
+//						id: 'login.html',
+//						url: 'login.html',
+//						waiting:{
+//							autoShow: true,
+//							options:{
+//								background:'rgba(100,100,100,0.8)'
+//							}
+//						}
+//					});
+//				}
+//				return false;
+//			}else{
+//				mui.toast(d.info);
+//			}
+//			
+//		});
+	}
+	
+	//支持银行说明
+	document.getElementById('bankExplain').addEventListener('tap', function(){
+		var id = this.getAttribute('data-href');
+		openWV(id, {})
+	});
+</script>
+

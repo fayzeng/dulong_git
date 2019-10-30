@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>快捷支付短信验证码</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.quick_explain {
+				color: #979797;
+				padding: 0 10px;
+				line-height: 30px;
+				font-size: 15px;
+			}
+			
+			.quick_infor {
+				width: 100%;
+				padding-left: 10px;
+				height: 30px;
+				line-height: 30px;
+			}
+			
+			.quick_infor .quick_input {
+				width: 90%;
+				border-bottom: 1px solid #979797;
+			}
+			
+			.quick_one {
+				padding: 0 10px;
+				line-height: 25px;
+				margin-top: 10px;
+				font-size: 15px;
+			}
+			
+			.quick_two {
+				padding: 0 10px;
+				line-height: 25px;
+				color: #979797;
+			}
+			
+			.wrapper .quick_submit {
+				display: block;
+				width: 80%;
+				height: 40px;
+				background: #CCCCCC;
+				color: #FFFCFF;
+				margin: 0 auto;
+				margin-top: 20px;
+				font-size: 18px;
+			}
+			
+			.reg_item li {
+				border-top: 1px solid #dcdcdc;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title" id="head_title">输入验证码</h1>
+		</header>
+		<div class="wrapper">
+			<p class="quick_explain">为保证您的安全，本次交易需输入短信验证码</p>
+			<ul class="reg_item">
+				<li>
+					<input id="regVerify" class="getVerify" type="button" value="获取验证码" />
+					<p>
+						<input id="regGetv" type="tel" placeholder="请输入验证码" />
+					</p>
+				</li>
+			</ul>
+			<!--<div class="quick_infor">
+				<input type="text" placeholder="请输入验证码" class="quick_input" id="quick_input"/>
+			</div>-->
+			<p class="quick_one">收不到短信验证码</p>
+			<p class="quick_two">1:请确认当前手机是否为银行预留手机号</p>
+			<p class="quick_two">2:请检查短信是否被安全软件拦截</p>
+			<p class="quick_two">3:超过5分钟仍未收到验证码，请尝试手动重发验证码</p>
+			<input type="submit" value="确认" class="quick_submit" id="quick_submit" disabled="disabled" />
+		</div>
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/ws.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var timerY;
+	var oVerify = document.getElementById('regVerify'); //获取验证码
+
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		countdown();
+	});
+	$('#regGetv').on('blur', function() {
+		if($(this).val()) {
+			$('#quick_submit').removeAttr('disabled');
+			$('#quick_submit').css('background', '#3e75c7');
+		} else {
+			$('#quick_submit').attr('disabled', 'disabled');
+			$('#quick_submit').css('background', '#CCCCCC');
+		}
+	});
+	$('#regGetv').on('input propertychange', function(){
+		if($('#regGetv').val().length == 6){
+			$('#quick_submit').removeAttr('disabled');
+			$('#quick_submit').css('background', '#3e75c7');			
+		} else{
+			$('#quick_submit').attr('disabled', 'disabled');
+			$('#quick_submit').css('background', '#CCCCCC');			
+		}
+	})
+	//点击确认 
+	$('#quick_submit').on('tap', function() {
+		var inforVal = $('#regGetv').val();
+		if(self.pUrl == 'c_quicklypassword.html') {
+			bpAjax('/purse/quickpay/checkVerificationCode', {
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				sign: '',
+				code: inforVal,
+				reqNo: self.reqNo
+			}, function(d) {
+				//还需刷新首页账单
+				evalId('wallet.html', ['moneyExchange']);
+				openWin(floatNum(d.data.userFee / 100), floatNum((d.data.allFee / 100)), floatNum(((d.data.ticketFee / 100))), d.data.ticketName, notNull(d.data.merchntName), d.data.tNo, d.data.bankNo, d.data.ddCreatetime, d.data.ddStatus);
+				setTimeout(function() {
+					closeId(['Sweep_payment.html'])
+					self.close();
+				}, 2000)
+				mui.toast(d.info);
+			}, function(d) {
+				mui.toast(d.info);
+			}, 3, '输入验证码');
+		} else{
+			console.log('快捷支付');
+			bpAjax('/purse/quickpay/checkVerificationCode', {
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				sign: '',
+				code: inforVal,
+				reqNo: self.reqNo
+			}, function(d) {
+				//还需刷新首页账单
+				evalId('wallet.html', ['moneyExchange']);
+				setTimeout(function() {
+//					closeId(['wallet_recharge.html']);
+					self.close();
+				}, 2000)
+				mui.toast(d.info);
+			}, function(d) {
+				mui.toast(d.info);
+			}, 3, '输入验证码');			
+		}
+	})
+	//验证码的计时器
+	document.getElementById('regVerify').addEventListener('tap', function() {
+		clearInterval(timerY);
+		countdown();
+		//		var tn = 60;
+		//		oVerify.style.color = '#999';
+		//		oVerify.disabled = "disabled";
+		//		timerY = setInterval(function() {
+		//			oVerify.value = '重发验证码(' + tn + 's)';
+		//			tn--;
+		//			if(tn < 1) {
+		//				oVerify.value = '重发验证码';
+		//				oVerify.style.color = '#448aca';
+		//				oVerify.disabled = "";
+		//				clearInterval(timerY);
+		//			}
+		//		}, 1000);
+		ajaxVerify();
+	}, false);
+	//定时器
+	function countdown() {
+		var tn = 60;
+		oVerify.style.color = '#999';
+		oVerify.disabled = "disabled";
+		timerY = setInterval(function() {
+			oVerify.value = '重发验证码(' + tn + 's)';
+			tn--;
+			if(tn < 1) {
+				oVerify.value = '重发验证码';
+				oVerify.style.color = '#448aca';
+				oVerify.disabled = "";
+				clearInterval(timerY);
+			}
+		}, 1000);
+	}
+	//重新获取验证码
+	function ajaxVerify() {
+		bpAjax('/purse/quickpay/checkVerificationCode', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			code: 'resend',
+			reqNo: self.reqNo
+		}, function(d) {
+			mui.toast(d.info);
+		}, function(d) {
+			mui.toast(d.info);
+		}, 3, '重发验证码');
+	}
+	//支付成功之后回调的函数
+	function openWin(aPrice, aPriceo, aHui, aTicket, aName, aAcct, aNum, aTime, aStatus) {
+		openWV('c_bill_detail.html', {
+			pUrl: pId,
+			hStatus: aStatus, //交易是否成功
+			hPrice: aPrice, //实付金额
+			hPriceo: aPriceo, //应付金额
+			hHui: aHui, //优惠金额
+			hName: aName, //商家信息
+			hAcct: aAcct, //交易单号
+			hNum: aNum, //交易卡号
+			hTime: aTime, //交易时间
+			hTicket: aTicket //优惠券信息
+		})
+	}
+	//	var oldBack = mui.back;
+	//	
+	//	mui.back = function() {
+	//		console.log('222');
+	//		if($('.mask').css('display') == 'none'){
+	//			if(self.pUrl){
+	//				plus.webview.getWebviewById(self.pUrl).evalJS('reLink()');
+	//			}
+	//			
+	//			oldBack();
+	//		}else{
+	//			$('.mask, .pop_bank, .pop_hui').hide();
+	//		}
+	//		
+	//	};
+</script>

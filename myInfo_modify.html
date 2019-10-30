@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>我的资料</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style>
+			.info-list {
+				width: 100%;
+				background: #fff;
+			}
+			
+			.info-list li {
+				height: 48px;
+				line-height: 48px;
+				position: relative;
+				padding: 0 20px;
+				font-size: 14px;
+				color: #b8b8b8;
+			}
+			
+			.info-list li span {
+				font-size: 16px;
+			}
+			
+			.info-list li:after {
+				content: '';
+				position: absolute;
+				right: 12px;
+				left: 12px;
+				bottom: 0;
+				height: 1px;
+				-webkit-transform: scaleY(.5);
+				transform: scaleY(.5);
+				background-color: #dcdcdc;
+			}
+			
+			.info-list li em {
+				position: absolute;
+				top: 17px;
+				right: 24px;
+			}
+			
+			.info-list li p.s-select {
+				height: 34px;
+				line-height: 34px;
+				position: absolute;
+				top: 7px;
+				left: 100px;
+				text-align: right;
+				color: #333;
+			}
+			/*.info-list li img.hp {
+				height: 50px;
+				position: absolute;
+				top: 7px;
+				right: 40px;
+				border-radius: 50%;
+			}*/
+			
+			.info-list li input {
+				width: 57%;
+				height: 34px;
+				line-height: 34px;
+				position: absolute;
+				top: 10px;
+				left: 100px;
+				text-align: left;
+				color: #333;
+			}
+			
+			.info-list li select {
+				width: 8%;
+				height: 34px;
+				line-height: 34px;
+				position: absolute;
+				top: 10px;
+				left: 100px;
+				text-align: right;
+				color: #333;
+			}
+			
+			.info-list li .male {
+				height: 34px;
+				line-height: 34px;
+				position: absolute;
+				top: 7px;
+				left: 100px;
+				text-align: right;
+				color: #333;
+			}
+			
+			.info-list li .male input {
+				width: 30px;
+				height: 20px;
+				position: absolute;
+				left: 25px;
+			}
+			
+			.info-list li .female {
+				height: 34px;
+				line-height: 34px;
+				position: absolute;
+				top: 7px;
+				left: 200px;
+				text-align: right;
+				color: #333;
+			}
+			
+			.info-list li .female input {
+				width: 30px;
+				height: 20px;
+				position: absolute;
+				left: 25px;
+			}
+			input[type=radio] {
+				display: inline-block;
+				vertical-align: middle;
+				width: 20px;
+				height: 20px;
+				-webkit-appearance: none;
+				background-color: transparent;
+				border: 0;
+				outline: 0 !important;
+				line-height: 20px;
+				color: #d8d8d8;
+			}
+			
+			input[type=radio]:after {
+				content: "";
+				display: block;
+				width: 15px;
+				height: 15px;
+				border-radius: 50%;
+				text-align: center;
+				line-height: 9px;
+				font-size: 12px;
+				color: #fff;
+				border: 3px solid #ddd;
+				background-color: #fff;
+				box-sizing: border-box;
+			}
+			
+			input[type=radio]:checked:after {
+				content: "L";
+				transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);
+				-webkit-transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);
+				border-color: #3E75C7;
+				background-color: #3E75C7;
+			}
+			
+			.portrait {
+				width: 95%;
+				height: 200px;
+				margin: 10px;
+				text-align: center;
+				background: url(images/myinfo.jpg)no-repeat;
+				background-size: 100% 100%;
+				position: relative;
+			}
+			
+			.portrait .icon-bianji {
+				width: 30px;
+				height: 30px;
+				border-radius: 50%;
+				background: #555;
+				position: absolute;
+				top: 55%;
+				right: 35%;
+				color: #fff;
+				font-size: 17px;
+				padding: 7px 0;
+			}
+			
+			.portrait .hp {
+				width: 100px;
+				border-radius: 50%;
+				margin-top: 50px;
+				border: 3px solid #fff;
+			}
+			
+			.Setup {
+				width: 90%;
+				height: 35px;
+				background: #77B9DC;
+				text-align: center;
+				margin: 0 auto;
+				color: #FFF;
+				font-size: 17px;
+				padding: 5px 0;
+				margin-top: 30px;
+				border-radius: 5px;
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<header class="DL_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">我的资料</h1>
+
+		</header>
+		<div class="wrapper" id="myinfo">
+			<div class="portrait" id="portrait" style="">
+				<img class="hp" :src="info.logopic">
+				<i class="iconfont icon-bianji"></i>
+			</div>
+
+			<ul class="info-list">
+				<!--<li id="portrait"><span>头像</span><img class="hp" :src="info.logopic"><em class="arrow12 fr"></em></li>-->
+				<li><span>昵称</span><input id="nickname" type="text" v-model="info.nickname" @blur="checkName($event)" placeholder="字母、数字、汉字以及下划线" maxlength="8"></li>
+				<li><span>登录手机</span>
+					<p class="s-select" style="color: #BBBBBB;">{{info.username}}</p>
+				</li>
+				<li>
+					<span>性别</span>
+					<label for="male" class="male"><input type="radio" v-model="info.sex" name="ab" id="male" value="1" checked="checked"/>男</label>
+					<label for="female" class="female"><input type="radio" v-model="info.sex" name="ab" id="female" value="2" />女</label>
+					<!--					<select v-model="info.sex" id="sex">-->
+					<!--<option value="1">男</option>
+						<option value="2">女</option>-->
+					<!--					</select>-->
+					<!--<em class="arrow12 fr"></em>-->
+				</li>
+				<li><span>生日</span>
+					<p class="s-select" id="birthday">{{info.birthday || '- 请选择 -'}}</p>
+					<!--<em class="arrow12 fr"></em>-->
+				</li>
+			</ul>
+
+			<div class="Setup" id="infoSave">保存</div>
+		</div>
+	</body>
+
+</html>
+<script type="text/javascript" src="js/mui.min.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/vue.min.js"></script>
+<script type="text/javascript" src="js/jsencrypt.js"></script>
+<script type="text/javascript" src="js/api.ini.js"></script>
+<script type="text/javascript" src="js/style.js"></script>
+<script type="text/javascript" src="js/getImgUrl.js"></script>
+<script type="text/javascript">
+	var self = null;
+	var pId = '';
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		plus.webview.currentWebview().setStyle({
+			softinputMode: "adjustResize" // 弹出软键盘时自动改变webview的高度
+		});
+
+		getInfo();
+	});
+
+	var vm = new Vue({
+		el: "#myinfo",
+		data: {
+			info: {}
+		},
+		methods: {
+			checkName: function(event) {
+				var nickname = event.target.value;
+				var reg = /^[\u4E00-\u9FA5\w\d]+$/
+				if(!reg.test(nickname)) {
+					mui.toast("昵称只能包含数字、字母、中文及下划线")
+				}
+			}
+		}
+	})
+
+	$(function() {
+		$("#birthday").on("tap", function() {
+			//$("#sex").blur();
+			var maxd = new Date();
+			var birD = $(this).text();
+			var bir = birD.indexOf("请选择") < 0 ? birD : "1986-10-24"
+			//var birdM = bir.replace(/-(\d+)-/, function($1){
+			//	return "-" + ($1.substr(1,$1.length-2) - 1) + "-";
+			//})
+			var defaultd = new Date(bir);
+			plus.nativeUI.pickDate(function(e) {
+				var d = e.date.getFullYear() + "-" + (e.date.getMonth() + 1) + "-" + e.date.getDate();
+				$("#birthday").html(d);
+				Vue.set(vm.info, 'birthday', d)
+			}, function(e) {
+				console.log("未选择日期：" + e.message);
+			}, {
+				title: "选择生日",
+				maxDate: maxd,
+				date: defaultd
+			});
+		})
+
+		// 提交资料
+		$("#infoSave").on("tap", function() {
+			bpAjax('/app/user/updatePersonalData', {
+				token: getUserInfo('token'),
+				username: vm.info.username,
+				nickname: vm.info.nickname,
+				sex: vm.info.sex,
+				birthday: vm.info.birthday,
+				sign: ""
+			}, function(d) {
+				mui.toast(d.info);
+				upDataInfo(d.data); // 替换本地个人信息
+				evalId("tab_personal.html", ["userAjax"]);
+				getInfo()
+			}, function(d) {
+				mui.toast(d.info)
+			}, 1, "提交我的资料")
+		})
+
+		// 头像事件
+		$("#portrait").on("tap", function() {
+			$("#nickname").blur();
+			getImgURL.init({
+				success: function(p) {
+					openWV('myinfo_portrait.html', {
+						pUrl: pId,
+						imgUrl: p
+					})
+				}
+			})
+		})
+
+	})
+
+	// 更新vm数据
+	function getInfo() {
+		var d = {
+			logopic: unescape(getUserInfo("logopic")) || "images/girl.png",
+			nickname: getUserInfo("nickname") || "",
+			username: getUserInfo("username"),
+			sex: getUserInfo("sex"),
+			birthday: getUserInfo("birthday")
+		}
+		for(key in d) { // 在给data添加新属性时，需要使用set的方法，才能更新视图
+			Vue.set(vm.info, key, d[key])
+		}
+	}
+
+	// 裁剪头像完成后回调
+	function getImgData() {
+		var imgData = localStorage.getItem("DL_IMGDATA");
+		var imgData64 = imgData.substr(imgData.indexOf(",") + 1);
+		var typepic = imgData.substring(imgData.indexOf("/") + 1, imgData.indexOf(";"));
+		Vue.set(vm.info, "logopic", imgData)
+		var url = USERINFO.DL_HOST + '/app/user/updatePersonalData'
+		mui.ajax(url, {
+			data: {
+				token: getUserInfo('token'),
+				username: getUserInfo('username'),
+				logopic: imgData64,
+				typepic: typepic
+			},
+			dataType: 'json', //服务器返回json格式数据
+			type: 'post', //HTTP请求类型
+			timeout: 10000, //超时时间设置为10秒；
+			success: function(data) {
+				console.log("提交头像——" + data)
+				var d = JSON.parse(data);
+				mui.toast(d.info);
+				localStorage.removeItem("DL_IMGDATA");
+				if(d.msg == '1') {
+					upDataInfo(d.data)
+					evalId("tab_personal.html", ["userAjax"]);
+				}
+			},
+			error: function(xhr, type, errorThrown) {
+				console.log("提交头像——" + type)
+			}
+		});
+	}
+</script>

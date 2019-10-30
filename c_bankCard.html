@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	<title>银行卡</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+</head>
+
+<body>
+	<header class="bp_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">银行卡</h1>
+	    <a id="editBank" class="headBtn">编辑</a>
+	</header>
+	
+	<div class="wrapper">
+		<div class="bank_cont"></div>
+		
+		<div class="bank_add">
+			<a id="addB" data-href="c_addBank.html">
+				<em class="arrow12 fr"></em>
+				<p>+添加银行卡</p>
+			</a>
+		</div>
+	</div>
+</body>
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/ws.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var oEditBank, bank_id, acctName = '', n = 0;
+	var pId = '';
+	
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		if(self.getURL()){
+			pId = getPage(self.getURL());
+		}
+		oEditBank = document.getElementById('editBank');
+		
+		bankCardAjax();
+		
+	});
+
+	
+	
+	//编辑
+	document.getElementById('editBank').addEventListener('tap', function(){
+		//console.log('tap编辑');
+		if(oEditBank.innerHTML == '编辑'){
+			oEditBank.innerHTML = '完成';
+			$('.bank_close').show();
+		}else{
+			oEditBank.innerHTML = '编辑';
+			$('.bank_close').hide();
+		}
+	});
+	
+	mui('body').on('tap', '.bank_close', function(){
+		var that = this;
+		bank_id = this.getAttribute('data-id');
+		
+		plus.nativeUI.confirm('确定解绑该银行卡？', function(e){
+		 	if(0 == e.index){
+		 		offBank();
+
+//		 		$('.bank_cont').html("");
+		 		$(that).parents('.bank_row').remove();
+		 		$('.bank_cont').html("");
+		 		n --;
+		 	}else{
+		 		console.log('我取消了解绑银行卡');
+		 	}
+		 	
+		 }, '解绑银行卡', ['确定', '取消']);
+	});
+	
+	function bankCardAjax(){
+		evalId('wallet.html',['moneyExchange']);
+		bpAjax('/index/Member/cardInfo', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:''
+		}, function(d){
+			var len = d.data.length;
+			n = d.data.length;
+			if(n > 0){
+				oEditBank.style.display = 'block';
+			}else{
+				oEditBank.style.display = 'none';
+			}
+			
+			acctName = d.data[0].accountName;
+			if(!!acctName && n > 0){
+				localStorage.setItem('nbname',acctName);
+			}
+			
+			for(var i = 0; i < len; i++){
+				var html = '';
+				var item = document.createElement('div');
+				item.className = 'bank_row';
+				
+				html += '<div class="bank_logo fl">';
+					html += '<img src="images/bank/bankLogo'+ bankLogo(d.data[i].bankname) +'.png" />';
+				html += '</div>';
+				html += '<div class="bank_des">';
+					html += '<h3>'+ d.data[i].bankname +'</h3>';
+					html += '<h2>****&nbsp;****&nbsp;****&nbsp;'+ d.data[i].accountNo +'</h2>';
+				html += '</div>';
+				html += '<em class="bank_close iconfont icon-iconfontcha" data-id ='+ d.data[i].bankid+'></em>';
+				item.innerHTML = html;
+				
+				$('.bank_cont').append(item);
+			}
+		}, function(d){
+			mui.toast(d.info);
+			console.log('暂无绑定银行卡');
+		} , 3, '绑定银行卡')
+	}
+	
+	function offBank(){
+		bpAjax('/index/Member/deleteCard', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:'',
+			bankid: bank_id
+		}, function(d){
+			if(n == '1'){
+				localStorage.removeItem('nbname');
+				oEditBank.style.display = 'none';
+			}
+			bankCardAjax();
+	 		oEditBank.innerHTML = '编辑';
+		}, function(d){
+			mui.toast(d.info);
+		} , 3, '编辑')
+	}
+	
+		//添加银行卡
+	document.getElementById('addB').addEventListener('tap', function(){
+		oEditBank.innerHTML = '编辑';
+		$('.bank_close').hide();
+		var id = this.getAttribute('data-href');
+		bpAjax('/auth/User/checkPayPass', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:''
+		}, function(d){
+			var a = '设置支付密码';
+			plus.nativeUI.alert( "请先设置支付密码。", function(){
+				openWV('c_pwdPay.html', {pUrl: pId, sTitle: a, inFirst: '1'});
+			}, "独龙支付密码 ", "确定" );
+			
+		}, function(d){
+			openWV(id, {pUrl: pId});
+		} , 3, '添加银行卡')
+	});
+	
+	var oldBack = mui.back;
+	
+	mui.back = function() {
+		var selfType = self.type;
+		localStorage.removeItem('nbname');
+		if(self.pUrl){
+//			plus.webview.getWebviewById(self.pUrl).evalJS('reLink()');
+			if(selfType){
+				if(selfType.substr(1,1) == 'U'){
+					evalId('pay_password.html',['silverBank']);
+				} else if(selfType.substr(1,1) == 'Q'){
+					evalId('pay_password.html',['easyBank']);
+				}				
+			}
+			evalId('wallet.html',['moneyExchange']);
+			evalId('wallet_draw.html',['bankCardAjax']);
+		}
+		oldBack();
+	};
+	
+	function fnEval(){
+		$('.bank_cont').html("");
+		bankCardAjax();
+//		offBank();
+	}
+	
+</script>

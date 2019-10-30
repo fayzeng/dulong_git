@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>充值</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.rec_amount{width: 100%;padding: 10px 15px;margin-top: 10px;font-size: 15px;}
+			.amountunmber{font-size: 30px; margin-left: 20px;}
+			.privilege_box{width: 100%;padding: 15px;background: #fff;margin-top: 10px;font-size: 15px;}
+			.privilege{float: right;display: inline-block;width: 25%;}
+			.privilege select,.privilege span{display: inline-block;width: 70%;}
+			#cashSub {background: #ccc;}
+			.eject{width: 100%;height: 100%;z-index: 99;background: rgba(0,0,0,.8);position: fixed;top: 66px;left: 0;}
+			.payment{width: 70%;height: 40%;background: #fff;margin: 0 auto;margin-top: 14%;border-radius: 5px;}
+			.payment_head{padding: 10px;border-bottom: 1px solid #C9C9C9;margin: 0 5px;}
+			.payment_head em{font-size: 22px;padding-top: 3px;}
+			.payment_head span{font-size: 15px;padding-left: 15px;}
+			.transaction_amount{text-align: center;padding: 15px 20px;border-bottom: 1px solid #C9C9C9;margin: 0 15px;}
+			.transaction_amount h1{font-size: 15px;}
+			.transaction_amount p{font-size: 30px;}
+			.sd_pwd{width: 85%;height: 17%;}
+			.sd_pwd .epay-item{width: 16.6%;height: 100%}
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">充值</h1>
+		</header>
+
+		<div class="wrapper" style="bottom: 200px;">
+			<div class="rec_amount">
+				<span>充值金额</span>
+				<span class="amountunmber">￥<span id="money"></span></span>
+			</div>
+			<!--<div class="privilege_box">
+				<span>充值特权</span>
+				<div class="privilege">
+					<select name="">
+						<option value="">使用</option>
+						<option value="">不使用</option>
+					</select>
+					<em class="arrow12"></em>
+				</div>
+			</div>-->
+			<div class="privilege_box" >
+				<span>选择银行卡</span>
+				<div class="privilege">
+					<!--<span>2 <i>张</i></span>-->
+					<span id="sheet"></span>
+					<em class="arrow12"></em>
+				</div>
+			</div>
+			<div class="btnDiv">
+				<input id="cashSub" type="button" value="充值" disabled="disabled"/>
+			</div>
+			
+			<div id="passd" class="eject" style="display: none;">
+				<div class="payment">
+					<div class="payment_head">
+						<em class="iconfont icon-iconfontcha" id="psdClose"></em>
+						<span>请输入支付密码</span>
+					</div>
+					
+					<div class="transaction_amount">
+						<h1>交易金额</h1>
+						<p><em>¥</em><span id="drawmoney">29.99</span></p>
+					</div>
+					
+					<div class="sd_pwd cl">
+						<span class="epay-item">
+							<em class="epay-pot"></em>
+						</span>
+							<span class="epay-item">
+							<em class="epay-pot"></em>
+						</span>
+							<span class="epay-item">
+							<em class="epay-pot"></em>
+						</span>
+							<span class="epay-item">
+							<em class="epay-pot"></em>
+						</span>
+							<span class="epay-item">
+							<em class="epay-pot"></em>
+						</span>
+							<span class="epay-item">
+							<em class="epay-pot"></em>
+						</span>
+					</div>
+				</div>	
+			</div>
+		</div>
+	</body>
+
+</html>
+
+<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/zepto.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/channelPay.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/MD5.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/virtual-keyboard.js" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var stCode, str = '0';
+	var maxmoney=0;
+	var flag = false; //是否固定金额
+	var len = 6; //最大金额位数
+	var pId = '';	
+	var pwd = []; // 支付密码
+	var keyboard = null;
+	var pId = '';
+	var brray = [],order = [];
+	var allfmoney = 0,moneyn = [],allfn = [],cardnumber = '';
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		document.getElementById("money").innerHTML = self.pPrice;
+	});
+	function achContact(money,allf) {
+		moneyn = money;
+		var alllfn = allf.replace("\\",'');
+		var allfns = JSON.parse(alllfn);
+		var moneyns = JSON.parse(moneyn);
+		console.log(JSON.stringify(moneyns));
+		bank = moneyns[0].bank;
+		cardnumber = moneyns[0].cardnumber;
+		allfmoney = allfns[0].allf;
+		banknumber = allfns[0].banknumber
+		$('#money').html( allfmoney);
+		$('#sheet').html(banknumber+'张');
+	}
+	$('.privilege_box').on('tap', function(){
+		openWV('rec_selectbank.html', {pUrl: pId, pCode:self.pCode});
+	})	
+	
+	$(function(){
+		keyboard = new Keyboard({
+			add: function(k,type){
+				console.log(type)
+				if(type == 'bank'){
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					
+					if(!flag) {
+						if(!isPoint && num.length < len && k != '.'){ // 整数限制在len位
+							if(num != '0') {
+								num += k;
+							} else {
+								num = k;
+							}
+						}else if(isPoint && k != '.' && pLen < 2){ // 保留2位小数点
+							num += k;
+						}else if(!isPoint && num.length <= len && k == '.'){ // 整数达到上限加 小数点
+							num += k;
+						}
+						
+						if(k == '.' && num == '0'){ // 0后面加 小数点
+							num = '0' + k;
+						}
+					}
+				}else{
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = 0; i < els.length; i++) {
+						if(els[i].className === 'epay-pot') {
+							els[i].className = 'epay-pot act';
+							pwd.push(k);
+							if(i == 5) {
+								setTimeout(function(){
+									iscode();
+								},300)
+							}
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			},
+			del: function(key,type){
+				if(type == 'bank'){
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					if(!flag) {
+						var m = num.indexOf('.');
+						var n = num.substr(m + 1);
+						var l = num.substr(0, m);
+			
+						if(isPoint && pLen == 1) {
+							num = num.substr(0, num.length - 2);
+						} else {
+							if(num.length < 2) {
+								num = '0';
+							} else {
+								num = num.substr(0, num.length - 1);
+							}
+						}
+					}
+				}else{
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = els.length - 1; i >= 0; i--) {
+						if(els[i].className === 'epay-pot act') {
+							els[i].className = 'epay-pot';
+							pwd.pop();
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		})
+		$("#psdClose").on("tap", function(){
+			$(".epay-item").children().removeClass("act") ;
+			$("#passd").hide();
+			pwd = [];
+		})
+		
+	})
+	
+	//需要验签的参数放入第一个data中，再传值
+	function iscode(){
+		plus.nativeUI.showWaiting("正在跳转中...");
+		var url = USERINFO.DL_HOST + '/index/purse/applyMulticardRecharge';
+		var data = {
+			username: getUserInfo('username'),
+ 			sign: sign,
+ 			token: getUserInfo('token'),
+ 			payPass:md5(pwd.join('')),
+			total:allfmoney*100,
+		}
+		var sign = getRSA(data);
+		mui.ajax(url, {
+			data: {
+	 			username: getUserInfo('username'),
+	 			sign: sign,
+	 			token: getUserInfo('token'),
+	 			payPass:md5(pwd.join('')),
+				total:allfmoney*100,
+				order:moneyn
+			},
+			dataType: 'json',
+			type: 'post',
+			timeout: 8000,
+			async: false,
+			success: function(data){
+				console.log('多卡充值 '+data);
+//				console.log(' 多卡充值'+moneyn);
+				var d = JSON.parse(data);
+				if(d.msg == '1'){
+					plus.nativeUI.closeWaiting();
+					for(var i=0;i<d.data.order.length; i++){
+						if(d.data.order[i].reqNo != 0){
+							brray.push(d.data.order[i]);
+							console.log('跳转'+JSON.stringify(brray))
+						}
+					}
+					order = d.data.order;
+					openWV('rec_lodding.html',{pid:pId,yt01id:d.data.yt01id,bankNo:d.data.bankNo,cardnumber:cardnumber,banknumber:banknumber,brray:brray,order:order});
+					setTimeout(function(){self.close();}, 300)
+					plus.nativeUI.closeWaiting();
+				}else if(d.msg == '3'){
+					loginView(d);
+					mui.toast(d.info);
+					plus.nativeUI.closeWaiting();
+				}else{
+					if(d.data.code){
+						mui.toast(bank + d.info);
+					}else{
+						console.log('支付异常')
+						mui.toast(bank + d.info);
+						setTimeout(function(){self.close();},300);
+					}
+					plus.nativeUI.closeWaiting();
+				}
+			},
+			error: function(xhr, type, errorThrown){
+				mui.toast('请求超时');
+				plus.nativeUI.closeWaiting();
+//				console.log(' 多卡充值2'+moneyn);
+			}
+		});
+	}
+	
+	mui("body").on("tap",'.privilege_box',function(){
+		 $("#cashSub").css('background','#3E75C7').removeAttr('disabled');
+	})
+	
+	//支付按钮
+	mui('body').on('tap','#cashSub',function(){
+		var sheet = $('#sheet').html();
+//		console.log(sheet);
+		if(sheet == '' || sheet == null){
+			document.getElementById('cashSub').disabled='disabled';
+			mui.alert('请选择银行卡');
+			keyboard.hide();
+		}else{
+			document.getElementById('cashSub').disabled='';
+			$(".epay-item").children().removeClass("act") ;
+			$("#drawmoney").text(allfmoney);
+			$("#passd").show();
+			keyboard.show('passd');
+		}
+	})
+	
+</script>

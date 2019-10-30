@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	<title>修改支付密码</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+</head>
+
+<body>
+	<header class="bp_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">修改支付密码</h1>
+	    <a id="pwdpSave" class="headBtn">保存</a>
+	</header>
+	
+	<div class="wrapper">
+		<div class="pwdl_cont">
+			<div class="pwdl_row">
+				<span>手机号</span>
+				<p id="pwdpPhone"></p>
+			</div>
+			<div class="pwdl_row">
+				<span>验证码</span>
+				<p>
+					<input id="pwdpYan" type="tel" placeholder="输入验证码" />
+				</p>
+				<input id="pwdpVerty" type="button" value="获取验证码" />
+			</div>
+			<div class="pwdl_row" id="oldP">
+				<span>旧密码</span>
+				<p>
+					<input id="pwdpPwd" type="password" placeholder="输入6位数旧密码" />
+				</p>
+			</div>
+			<div class="pwdl_row">
+				<span>新密码</span>
+				<p>
+					<input id="pwdpPwd1" type="password" placeholder="输入6位数新密码" />
+				</p>
+			</div>
+			<div class="pwdl_row">
+				<span>确认新密码</span>
+				<p>
+					<input id="pwdpPwd2" type="password" placeholder="输入确认6位数新密码" />
+				</p>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/pageBack.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/ws.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var oGetVert, opwdpYan, opwdpSave, opwdpPwd, opwdpPwd1, opwdpPwd2;
+	var inFrist = 0;
+	
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		plus.webview.currentWebview().setStyle({
+		    softinputMode: "adjustResize"  // 弹出软键盘时自动改变webview的高度
+		});
+		oGetVert = document.getElementById('pwdpVerty');//获取验证码
+		opwdpYan = document.getElementById('pwdpYan');//输入验证码
+		opwdpSave = document.getElementById('pwdpSave');//保存按钮
+		opwdpPwd = document.getElementById('pwdpPwd');//旧密码
+		opwdpPwd1 = document.getElementById('pwdpPwd1');//第一次输入新密码
+		opwdpPwd2 = document.getElementById('pwdpPwd2');//第二次输入新密码
+		
+		if(self.sTitle){
+			document.querySelector('.head_title').innerHTML = self.sTitle;
+		}
+		
+		document.getElementById('pwdpPhone').innerHTML = getUserInfo('username');
+		
+		isFrist();
+	})
+	function isFrist(){
+		bpAjax('/auth/User/checkPayPass', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:''
+		}, function(d){
+			inFrist = 1;
+ 			document.getElementById('oldP').style.display = 'none';
+ 			document.querySelector('.head_title').innerHTML = '设置支付密码';
+
+		}, function(d){
+			inFrist = 0;
+ 			document.getElementById('oldP').style.display = 'block';
+ 			document.querySelector('.head_title').innerHTML = '修改支付密码';
+		} , 3, '修改支付密码')
+	}
+	
+
+	
+	//获取验证码
+	document.getElementById('pwdpVerty').addEventListener('tap',function(){
+		var sn = 60;
+		
+		oGetVert.disabled = 'disabled';
+		oGetVert.value = sn + 's';
+		
+		var t = setInterval(function(){
+			sn --;
+			oGetVert.value = sn + 's';
+			
+			if(sn < 1){
+				oGetVert.value = '重发验证码';
+				oGetVert.disabled="";
+				clearInterval(t);
+			}
+		},1000);
+		
+		verifyAjax();
+	});
+	
+	//保存
+	document.getElementById('pwdpSave').addEventListener('tap', function(){
+		if(!opwdpYan.value){
+			mui.toast('验证码不能为空');
+			return;
+		}
+		
+		if(inFrist != '1'){
+			if(!pwd6(opwdpPwd.value)){
+				mui.toast('旧密码格式不对');
+				return;
+			}
+		}
+		
+		if(!pwd6(opwdpPwd1.value)){
+			mui.toast('密码为6位数数字');
+			return;
+		}
+		
+		if(opwdpPwd1.value != opwdpPwd2.value){
+			mui.toast('两次输入密码不一致');
+			return;
+		}
+		
+		pwdpAjax();
+	});
+	
+	//发送验证码
+	function verifyAjax(){
+		bpAjax('/index/Member/sendCode', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:'',
+			phone: getUserInfo('username')
+		}, function(d){
+			mui.toast(d.info);
+		}, function(d){
+			mui.toast(d.info);
+		} , 3, '发送验证码')
+	}
+	
+		function pwdpAjax(){
+			if(inFrist == '1'){
+				bpAjax('/auth/User/setPayPass', {
+				username:getUserInfo('username'),
+				token:getUserInfo('token'),
+				sign:'',
+				verify: opwdpYan.value,
+				payPass: md5(opwdpPwd1.value)
+				}, function(d){
+					mui.toast("设置支付密码成功");
+					setTimeout(function(){
+						self.close();
+					} ,300)
+					
+				}, function(d){
+					mui.toast(d.info);
+				}, 3, '修改支付密码');
+			} else{
+				bpAjax('/auth/User/updatePayPass', {
+					username:getUserInfo('username'),
+					token:getUserInfo('token'),
+					sign:'',
+					verify: opwdpYan.value,
+					old_password: md5(opwdpPwd.value),
+					new_password: md5(opwdpPwd1.value) 
+				} , function(d){
+					mui.toast(d.info);
+					setTimeout(function(){
+						self.close();
+					}, 300)
+				}, function(d){
+					mui.toast(d.info);
+				}, 3, '修改支付密码');
+			}
+		}
+	
+</script>

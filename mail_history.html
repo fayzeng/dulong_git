@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>历史记录</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.mail_set {
+				position: absolute;
+				right: 10px;
+				display: inline-block;
+			}
+			/*******功能按钮及人数******/
+			
+			.mail_count {
+				width: 100%;
+				height: 40px;
+				padding: 10px 20px;
+				font-size: 15px;
+				color: #999;
+			}
+			
+			.mail_count .people {
+				color: #d74c4c;
+			}
+			/******姓名、手机号、头像******/
+			
+			.mail_people table {
+				width: 100%;
+				height: auto;
+				background: #fff;
+			}
+			
+			.mail_people table tr {
+				padding: 10px 20px;
+				border-bottom: 1px solid #EEEEEE;
+				
+			}
+			
+			.mail_people table tr td {
+				padding:0px 10px;
+			}
+			
+			.mail_people table tr #phone {
+				float: right;
+				padding: 10px 20px;
+			}
+			
+			input[type='checkbox'] {
+				display: inline-block;
+				vertical-align: middle;
+				-webkit-appearance: none;
+				background-color: transparent;
+				border: 0;
+				outline: 0 !important;
+				color: #d8d8d8;
+			}
+			
+			input[type='checkbox']:after {
+				content: "";
+				display: inline-block;
+				width: 15px;
+				height: 15px;
+				border-radius: 50%;
+				text-align: center;
+				line-height: 9px;
+				font-size: 12px;
+				color: #fff;
+				border: 3px solid #ddd;
+				background-color: #fff;
+				box-sizing: border-box;
+				content: "L";
+				transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);
+				-webkit-transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);
+				border-color: #ddd;
+				background-color: #ddd;
+			}
+			
+			input[type=checkbox]:checked:after {
+				content: "L";
+				transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);
+				-webkit-transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);
+				border-color: #3E75C7;
+				background-color: #3E75C7;
+			}
+			
+			.refresh {
+				display: inline-block;
+				float: right;
+				font-size: 12px;
+				padding: 1px 3px;
+				color: #4A7CC9;
+				border: 1px solid #618ECF;
+				border-radius: 3px;
+			}
+			.mail_people img{
+				width: 20px;
+				height: 20px;
+				border-radius: 50%;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">历史记录</h1>
+			<a class="mail_set">完成</a>
+		</header>
+
+		<div class="wrapper" id="cartTable">
+			<div class="mail_people" >
+				<div class="mail_count">
+					<span>
+						已选择&nbsp;
+						<span id="people" class="people">0</span>&nbsp; 人
+					</span>
+				</div>				
+				<table v-cloak>
+					<tr v-for="(item, index) in mailData">
+						<td><input type="checkbox" name="" :value="index" class="check" @click="getTotal" /></td>
+						<td><img :src="logicss(item.logopic)"/></td>
+						<td class="mail_people_name">({{Nickname(item.nickname)}})</td>
+						<td id="phone">{{item.username}}</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/zepto.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/channelPay.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/vue.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/virtual-keyboard.js" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var pId = '';
+	var newphone = [];
+	var arrays = [];
+	var phoneNumbers = [];
+	var newname = [];
+	var vm = null;
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		//计算选择的总数
+		vm = new Vue({
+			el: '#cartTable',
+			data: {
+				mailData: '',
+				peoplenumber: 0
+			},
+			methods: {
+				getTotal: function(event) {
+					var index = event.target.value;
+					if(event.target.checked == true) {
+						this.peoplenumber++;
+						arrays.push(vm.mailData[index]);
+					} else {
+						this.peoplenumber--;
+						for(i = 0; i < arrays.length; i++) {
+							if(arrays[i].username == vm.mailData[index].username) {
+								arrays.splice(i, 1);
+							}
+						}
+					}
+					document.getElementById('people').innerHTML = this.peoplenumber;
+					console.log('最新值' + JSON.stringify(arrays));
+				},
+				Nickname: function(names) { // 昵称的显示
+					if(names == '' || names == null || names == 'null') {
+						return '暂无昵称'
+					} else {
+						return names
+					}
+				},
+				logicss: function(pho) { //照片的显示
+					if(pho == '' || pho == null || pho == 'null') {
+						return 'images/girl.png'
+					} else {
+						return pho
+					}
+				}				
+			}
+		})
+		connectAjax();
+	});
+	
+	function connectAjax() {
+		bpAjax('/purse/redpacket/getLatelySendRecord', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			size: '20'
+		}, function(d) {
+			vm.mailData = d.data;
+		}, function(d) {
+			
+		}, 1, '获取最近联系人')
+	}	
+
+	$('.mail_set').on('tap', function() {
+		var brrays = JSON.stringify(arrays);
+		var lv = plus.webview.getWebviewById('mail_select.html');
+		setTimeout(function() {
+			if(lv) lv.evalJS("achContact('" + brrays + "')");
+			self.close();
+		}, 300)
+	})
+</script>

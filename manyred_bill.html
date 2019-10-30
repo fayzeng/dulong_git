@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>领取红包账单</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*放全部的内容,除了最下面一句话*/
+			
+			.wrapper_contant {
+				background: #FFFFFF;
+				width: 90%;
+				overflow: hidden;
+				margin: 0 auto;
+				margin-top: 20px;
+				position: relative;
+				overflow: hidden;
+			}
+			/*那个大背景图片*/
+			
+			.take_head {
+				width: 100%;
+				height: 166px;
+				background: url(images/take_redbag.png) no-repeat;
+				background-size: 100% 100%;
+			}
+			/*那个头像*/
+			
+			.take_image {
+				display: block;
+				width: 60px;
+				height: 60px;
+				border-radius: 50%;
+				margin: 0 auto;
+				margin-top: -30px;
+			}
+			/*中间的姓名和号码*/
+			
+			.take_middle {
+				text-align: center;
+				font-weight: 700;
+				margin-top: 20px;
+			}
+			/*号码*/
+			
+			.middle_two {
+				margin-left: 5px;
+			}
+			
+			.middle_three {
+				text-align: center;
+				margin-top: 15px;
+			}
+			
+			.take_foot {
+				margin-top: 34px;
+				width: 100%;
+				height: 32px;
+				text-align: center;
+			}
+			
+			.foot_two {
+				color: #E35554;
+				font-size: 25px;
+			}
+			
+			.foot_three {
+				font-size: 16px;
+				font-weight: 700;
+			}
+			
+
+			
+			.last_word {
+				width: 100%;
+				color: #9A9A9A;
+				/*position: absolute;
+				bottom: 20px;*/
+				text-align: center;
+				margin-top: 20px;
+			}
+			/*红包领取记录*/
+			.take_last {
+				width: 90%;
+				height: 47px;
+				margin: 0 auto;
+				margin-top: 20px;
+				padding: 10px 10px;
+				border-bottom: 1px solid  #dadada;
+			}		
+			.red_detail{
+				width: 100%;
+				padding: 0 10px;
+			}	
+			/*详情框*/
+			.big_deta{
+				width: 100%;
+				height: 65px;
+				position: relative;
+				overflow: hidden;
+				border-bottom: 1px solid  #dadada;
+			}
+			/*详情下面的图片*/
+			.big_deta img{
+				float: left;
+				width: 32px;
+				height: 32px;
+				border-radius: 50%;
+				margin-top: 16px;
+				
+			}
+			/*时间和名字*/
+			.datail_nt{
+				float: left;
+				/*width: 160px;*/
+				height: 36px;
+				margin-top: 15px;
+				margin-left: 18px;
+			}
+			/*时间的字体颜色*/
+			.datail_time{
+				color: #919191;
+			}
+			/*后面领取的钱*/
+			.datail_money{
+				float: right;
+				height: 65px;
+				line-height: 65px;
+				color: #313131;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">取红包账单</h1>
+		</header>
+		<div class="wrapper" v-cloak>
+			<div class="wrapper_contant" id="wrapper_contant" v-cloak>
+				<!--大背景图-->
+				<div class="take_head"></div>
+				<!--头像-->
+				<img :src="logicss(sendData.logopic)" class="take_image" id="take_image" />
+				<!--姓名和号码-->
+				<div class="take_middle">
+					<span class='middle_one' id="middle_one">{{Nickname(sendData.nickname)}}</span>
+					<span class="middle_two" id="middle_two"> {{sendData.username}}</span>
+				</div>
+				<p class="middle_three" id="middle_three">{{notes(sendData.remark)}}</p>
+				<div class="take_foot" v-cloak>
+					<span v-if="sendData.amount" id="AA" class="foot_two" id="foot_two">{{moneys(sendData.amount/100)}}</span>
+					<span v-else id="AA" class="foot_two" id="foot_two"></span>
+					<span class="foot_three">元</span>
+				</div>
+				<!--领取红包记录-->
+				<div class="take_last" >已领取<span id="numbers"></span>个，共<span >{{sendData.bornNumber}}</span>个</div>
+				<!--下面的领取记录-->
+				<div class="red_detail" v-cloak>
+					<div class="big_deta" v-for="item in receiveData">
+						<img :src="logicss(item.logopic)"/>
+						<!--放名字和时间-->
+						<div class="datail_nt">
+							<p><span>{{Nickname(item.nickname)}}</span> <span>{{item.username}}</span> </p>
+							<p class="datail_time">{{item.createTime}}</p>
+						</div>
+						<div class="datail_money">{{item.amount/100}}元</div>
+					</div>
+				</div>
+			</div>
+			<p class="last_word">红包已转入钱包余额</p>
+		</div>
+		
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var pId = ''; 
+	var vm = null;
+	var codes = '';//上个页面带过来的红包code
+	var redNum = 0;
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		codes = self.data.code;
+		console.log('code'+codes);
+		vm = new Vue({
+			el:'#wrapper_contant',
+			data:{
+				sendData:'',
+				receiveData:'',
+			},
+			beforeCreate: function(){
+				inAjax();
+			},
+			methods: {
+				logicss: function(pho) { //照片的显示
+					if(pho == '' || pho == null || pho == 'null') {
+						return 'images/girl.png'
+					} else {
+						return pho
+					}
+				},
+				Nickname: function(names) { // 昵称的显示
+					if(names == '' || names == null || names == 'null') {
+						return ''
+					} else {
+						return names
+					}
+				},				
+				notes: function(note){
+					if(note == '' || note == null || note == 'null') {
+						return '恭喜发财';
+					} else {
+						return note
+					}					
+				},
+				moneys: function(money){
+					console.log('money'+money)
+					if(money == '' || money == null || money == 'null' ||money == undefined ||money == 'NaN') {
+						return '0';
+					} else {
+						return money
+					}					
+				}
+			},
+		})
+		
+		
+	});
+	function inAjax(){
+		bpAjax('/purse/redpacket/getDetailRecord', {
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				sign: '',
+				code:codes
+		}, function(d){
+			vm.sendData = d.data;
+			vm.receiveData = d.data.son;
+			redNum = vm.receiveData.length;
+			vm.$nextTick(function(){
+				$('#numbers').html(redNum);
+			})
+			console.log('receiveData'+ vm.receiveData);			
+		}, function(d){
+		}, 3, '红包领取记录');
+	}
+</script>

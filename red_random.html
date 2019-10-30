@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>随机红包选择页面</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*金额*/
+			
+			.ran_money {
+				width: 100%;
+				height: 94px;
+				line-height: 94px;
+				text-align: center;
+				font-size: 40px;
+				color: #333333;
+			}
+			/*发送方式的那个大框*/
+			
+			.ran_methods {
+				width: 100%;
+				height: 52px;
+				overflow: hidden;
+				padding: 0 15px;
+				background: #ffffff;
+				line-height: 52px;
+				position: relative;
+				font-size: 16px;
+			}
+			/*那个选项框*/
+			
+			.ran_methods .ran_select {
+				width: auto;
+				height: 50px;
+				position: absolute;
+				top: 0;
+				right: 25px;
+			}
+			/*发送方式的那个角符号*/
+			
+			.ran_methods .arrow12 {
+				position: absolute;
+				top: 19px;
+				right: 15px;
+			}
+			/*发送数量*/
+			
+			.ran_number {
+				position: relative;
+				width: 100%;
+				height: 52px;
+				margin-top: 10px;
+				background: #ffffff;
+				overflow: hidden;
+				line-height: 52px;
+				font-size: 16px;
+				padding: 0 15px;
+			}
+			
+			.ran_number .one {
+				/*float: left;*/
+			}
+			/*个字*/
+			
+			.ran_number .two {
+				position: absolute;
+				top: 0;
+				right: 10px;
+				/*float: right;*/
+			}
+			/*数量的那个input框*/
+			
+			.ran_number .redNumber {
+				display: inline-block;
+				position: absolute;
+				top: 0;
+				right: 25px;
+				width: 70%;
+				height: 52px;
+				/*float: right;*/
+				font-size: 15px;
+				text-align: right;
+				color: red;
+				padding-right: 10px;
+			}
+			/*确认发送按钮*/
+			
+			.wrapper .ran_sure {
+				display: block;
+				width: 80%;
+				height: 46px;
+				margin: 0 auto;
+				margin-top: 59px;
+				background: #ccc;
+			}
+			/*光标*/
+			
+			.cursor {
+				/*float: right;*/
+				position: absolute;
+				top: 0;
+				right: 25px;
+				height: 18px;
+				margin-top: 18px;
+				margin-right: 5px;
+				background: #677bff;
+				width: 1px;
+				vertical-align: middle;
+				border-radius: 17%;
+				animation-duration: 1.1s;
+				animation-iteration-count: infinite;
+				animation-name: cursor;
+				display: none;
+			}
+			/*隐藏的密码输入框*/
+			
+			.eject {
+				width: 100%;
+				height: 100%;
+				z-index: 99;
+				background: rgba(0, 0, 0, .8);
+				position: fixed;
+				top: 66px;
+				left: 0;
+			}
+			
+			.payment {
+				width: 70%;
+				height: 40%;
+				background: #fff;
+				margin: 0 auto;
+				margin-top: 14%;
+				border-radius: 5px;
+			}
+			
+			.payment_head {
+				padding: 10px;
+				border-bottom: 1px solid #C9C9C9;
+				margin: 0 5px;
+			}
+			
+			.payment_head em {
+				font-size: 22px;
+				padding-top: 3px;
+			}
+			
+			.payment_head span {
+				font-size: 15px;
+				padding-left: 15px;
+			}
+			
+			.transaction_amount {
+				text-align: center;
+				padding: 15px 20px;
+				border-bottom: 1px solid #C9C9C9;
+				margin: 0 15px;
+			}
+			
+			.transaction_amount h1 {
+				font-size: 15px;
+			}
+			
+			.transaction_amount p {
+				font-size: 30px;
+			}
+			
+			.sd_pwd {
+				width: 85%;
+				height: 17%;
+			}
+			
+			.sd_pwd .epay-item {
+				width: 16.6%;
+				height: 100%
+			}
+			
+			.icon-tongxunlu {
+				color: #6198EB;
+				font-size: 25px;
+				position: absolute;
+				top: 13px;
+				right: 35px;
+			}
+			
+			.money_dox {
+				width: 70%;
+			}
+			
+			.dash_add {
+				color: #e05453;
+				margin-left: 20px;
+				margin-top: 10px;
+			}
+			
+			.header .contants {
+				height: 50px;
+				width: 30px;
+				float: left;
+				display: inline-block;
+				font-size: 18px;
+				line-height: 50px;
+				text-align: right;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">发送红包</h1>
+		</header>
+		<div class="wrapper">
+			<div class="wrap_content">
+				<!--上个页面带过来的金额-->
+				<div class="ran_money">¥<span id="lastMoney">100</span></div>
+				<!--发送方式-->
+				<div class="ran_methods">
+					<span>发送方式</span>
+					<select class="ran_select" id="ran_select">
+						<option value="0">分享至第三方应用</option>
+						<option value="1">直接发送给其他用户</option>
+					</select>
+					<em class="arrow12"></em>
+				</div>
+				<!--发送数量-->
+				<div class="ran_number" id="ran_number">
+					<span class="one">红包数量</span>
+					<span class="two">个</span>
+					<span class="cursor"></span>
+					<input type="text" placeholder="填写个数" class="redNumber" id="redNumber" readonly="readonly" />
+				</div>
+				<!--确认按钮-->
+				<input type="submit" class="ran_sure" id="ran_sure" value="确认发送" disabled="disabled" />
+			</div>
+		</div>
+
+		<div id="passd" class="eject" style="display: none;">
+			<div class="payment">
+				<div class="payment_head">
+					<em class="iconfont icon-iconfontcha" id="psdClose"></em>
+					<span>请输入支付密码</span>
+				</div>
+
+				<div class="transaction_amount">
+					<h1>交易金额</h1>
+					<p><em>¥</em><span id="drawmoney">29.99</span></p>
+				</div>
+
+				<div class="sd_pwd cl">
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/virtual-keyboard.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var flag = false; //是否固定红包数量
+	var len = 9; //最大金额位数
+	var keyboard = null;
+	var lastMoney = '0';
+	var pwd = [];
+	var types = '';
+	var moneys = '';
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		lastMoney = self.redMoney; //上个页面传过来的金额
+		$('#lastMoney').html(lastMoney); //最上面显示的金额
+		types = self.types;
+		console.log('types' + types);
+		
+		//		$('#redNumber').val('100');
+	});
+	//	键盘的操作
+	$(function() {
+		keyboard = new Keyboard({ //初始化键盘
+			add: function(k, type) {
+				if(type == 'ac') {
+					var rednumb = $("#redNumber");
+					var num = rednumb.val();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+
+					if(!flag) {
+						if(!isPoint && num.length < len && k != '.') { // 整数限制在len位
+							if(num != '0') {
+								num += k;
+							} else {
+								num = k;
+							}
+						} 
+//						else if(isPoint && k != '.' && pLen < 2) { // 保留2位小数点
+//							num += k;
+//						} else if(!isPoint && num.length <= len && k == '.') { // 整数达到上限加 小数点
+//							num += k;
+//						}
+
+						if(k == '.' && num == '0') { // 0后面加 小数点
+							num = '0' + k;
+						}
+//						console.log(num);
+						rednumb.val(num);
+//						console.log('self.status' + self.status);
+						if(self.status == '1'){  //当是平均红包的时候就会去累加
+							lastMoney = self.redMoney*num;
+							$('#lastMoney').html(lastMoney);
+							
+						}
+						checkBtn();
+						
+					}
+				} else {
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = 0; i < els.length; i++) {
+						if(els[i].className === 'epay-pot') {
+							els[i].className = 'epay-pot act';
+							pwd.push(k);
+							if(i == 5) {
+								redlinks();
+							}
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			},
+			del: function(key, type) {
+				if(type == 'ac') {
+					var rednumb = $("#redNumber");
+					var num = rednumb.val();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					if(!flag) {
+						var m = num.indexOf('.');
+						var n = num.substr(m + 1);
+						var l = num.substr(0, m);
+
+						if(isPoint && pLen == 1) {
+							num = num.substr(0, num.length - 2);
+							//oPrice.innerHTML = l;
+						} else {
+							if(num.length < 2) {
+								num = '0';
+							} else {
+								num = num.substr(0, num.length - 1);
+							}
+						}
+					}
+					rednumb.val(num);
+						if(self.status == '1'){  //当是平均红包的时候就会去累加
+							lastMoney = self.redMoney*num;
+							$('#lastMoney').html(lastMoney);
+						}						
+					checkBtn()
+				} else {
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = els.length - 1; i >= 0; i--) {
+						if(els[i].className === 'epay-pot act') {
+							els[i].className = 'epay-pot';
+							pwd.pop();
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		})
+		keyboard.hide();
+		//	点击红包数量数量出现键盘
+		$('#ran_number').on('tap', function(e) {
+			setTimeout(function() {
+				keyboard.show('ac');
+				$(".cursor").show();
+				var $wrapper = $(".wrapper");
+				var winW = $wrapper.height() - 200;
+				if($(".wrap_content").height() > winW) {
+					$wrapper.css("bottom", '200px')
+				} else {
+					$wrapper.css("bottom", '0')
+				}
+			}, 300)
+			//			e.stopPropagation();
+		})
+		//		$('.wrapper').on('tap', function() {
+		//			keyboard.hide();
+		//			$('.cursor').hide();
+		//			$('.wrapper').css('bottom', '0');
+		//			//			checkBtn();
+		//		})
+		//点击弹出来的x
+		$("#psdClose").on("tap", function() {
+			$(".epay-item").children().removeClass("act");
+			$(".cursor").hide();
+			$("#passd").hide();
+			keyboard.hide();
+			pwd = [];
+		})
+
+		//	发送方式按钮的切换
+		$('#ran_select').on('change', function() {
+			if($(this).val() == '0') {
+				$('#ran_number').show();
+				$('#lastMoney').html(lastMoney);
+				checkBtn();
+			} else if($(this).val() == '1') {
+				$('#ran_number').hide();
+				$('#lastMoney').html(self.redMoney);
+				$("#ran_sure").removeAttr("disabled").css("background", "#3e75c7");
+			}
+		})
+		//	点击确认发送按钮
+		$('#ran_sure').on('tap', function() {
+			if($('#ran_select').val() == '0') {
+			if(lastMoney / $("#redNumber").val() < 0.01) {
+				mui.toast('红包数量大于可领取人数');
+				return false;
+			}				
+				pwd = [];
+				$(".epay-item").children().removeClass("act");
+				$("#drawmoney").text(lastMoney);
+				$("#passd").show();
+				keyboard.show('pass');
+				$(".cursor").hide(); // 隐藏输入金额光标
+			} else if($('#ran_select').val() == '1') {
+				openWV('mail_select.html', {
+					pUrl: pId,
+					redMoney: self.redMoney,
+					forgetNote: self.forgetNote,
+					status: self.status
+				})
+			}
+		})
+	})
+
+	//	检查确认发送的按钮是否可用
+	function checkBtn() {
+		if($("#redNumber").val() % 1 === 0 && $("#redNumber").val() != 0) {
+			$("#ran_sure").removeAttr("disabled").css("background", "#3e75c7");
+		} else {
+			$("#ran_sure").attr("disabled", "disabled").css("background", "#ccc");
+		}
+	}
+	//	输完密码之后执行的方法
+	function redlinks() {
+		var codes = null;
+		var numbers = $("#redNumber").val();
+		bpAjax('/purse/grab/send', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:'',
+			amount:lastMoney,
+			number:numbers,
+			type:types,
+			password: md5(pwd.join('')),
+			remark: self.forgetNote
+		}, function(d){
+			codes = d.data.code;
+			mui.toast(d.info);
+			openWV('red_share.html', {pUrl:pId, code:codes, types:types});
+			closeId(['wallet_redbag.html']);
+			setTimeout(function(){
+				self.close();				
+			},400)
+		}, function(d){
+			mui.toast(d.info);
+			reset();	
+			$(".epay-item").children().removeClass("act");
+			pwd = [];			
+		}, 1, '获取分享地址');
+	}
+
+	function reset() { //清除密码
+		var els = document.querySelectorAll('.epay-pot');
+		for(var i = els.length - 1; i >= 0; i--) {
+			els[i].className = 'epay-pot';
+			pwd.pop();
+		}
+	}
+</script>

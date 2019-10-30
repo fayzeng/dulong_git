@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>佣金记录</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style>
+			.b-screen{ width: 100%; height: 45px; background: #fff; position: fixed; top: 64px; z-index: 5;}
+			.b-screen li{ box-sizing: border-box; width: 50%; float: left; text-align: center; line-height: 45px; font-size: 16px;}
+			.b-screen li:first-child{ border-right: 1px #f0f0f0 solid;}
+			.slideDown{top: 45px;}
+			.bill_cont{top: 45px;height:auto;}
+			.b-bill-time{ width: 100%; height: 35px; line-height: 35px; background: #EEE; padding: 0 20px; color: #666; font-size: 16px;}
+			.b-bill-list{ padding: 0 20px; background: #FFF;}
+			.b-bill-list li{ padding: 6px 0; border-bottom: 1px #eee solid;}
+			.b-bill-table{ width: 100%;}
+			.b-bill-table td{ height: 30px; color: #999;}
+			.b-bill-table td.mark{ font-size: 16px; color: #333;}
+			.b-bill-table td em{ font-size: 14px;}
+			.b-bill-table td p.b-bill-icon{ width: 30px; height: 30px; border-radius: 50%; text-align: center; line-height: 30px; color: #FFF;}
+			.b-bill-table td p.cash{ background: #55b14c;}
+			.b-bill-table td p.integral{ background: #36b8ae;}
+			.b-bill-table td p.transfer{ background: #36b9ab;}
+			.b-bill-table td p.top-up{ background: #e05453;}
+			.b-bill-table td p.consum{ background: #ef6944;}
+			.b-bill-table td p.othersCol{background: #52B34A;}
+			.b-bill-table td p.cashMoney{background: #F76A3F;}
+			.b-bill-table td p.redbag{background: #E05653;}
+			/*提现的状态*/
+			.tuColor{color: #333333;font-size: 12px;}
+			/*最前面的钱*/
+			.b-bill-table td.marks{font-weight: 600;color: #333;font-size: 16px;}
+			/*银行卡名字*/
+			.b-bill-table .bankname{color: #333333; }
+			/*一键提现*/
+			.head_right{position: absolute; height: 44px; width: 80px; text-align: center; top: 20px; right: 10px;color: #fff; font-size: 15px;}			
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">佣金记录</h1>
+			<div class="head_right" id="head_right">一键提现</div>
+		</header>
+		<!--<ul class="b-screen">
+			<li>账单分类</li>
+			<li>时间筛选</li>
+		</ul>-->
+		<div class="wrapper" style="top:64px">
+			<ul class="b-screen">
+				<li>交易状态</li>
+				<li>时间筛选</li>
+			</ul>
+			<p class="slideDown">
+				<span>下拉可刷新</span>
+			</p>
+			<div class="bill_cont">
+				<div class="bill_scroll">
+					
+					<div class="b-bill" id="trade" v-cloak>
+						<template v-for='(value,key) in tradeData'>
+						<div class="b-bill-time">{{value.time}}</div>
+						<ul class="b-bill-list">
+							<li v-for="item in value.data">		
+								<table class="b-bill-table">
+									<tr>
+										<td class="marks">¥ {{item.drawAmt/100}}</td>
+										<td class="mark" align="right"><em class="tuColor">{{rechangmore(item.dStatus)}}</em></td>
+									</tr>
+									<tr>
+										<td class="bankname">总交易额：{{simple(item.tradeSum/100)}}</td>
+										<td align="right">{{item.reqTime}}</td>
+									</tr>
+								</table>
+								
+							</li>
+						</ul>
+						</template>
+					</div>
+					
+					<p class="loadMore" style="background: #f6f6f6;"></p>
+					
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script type="text/javascript" src="js/mui.min.js" ></script>
+<script type="text/javascript" src="js/zepto.min.js" ></script>
+<script type="text/javascript" src="js/vue.min.js" ></script>
+<script type="text/javascript" src="js/jsencrypt.js" ></script>
+<script type="text/javascript" src="js/mui.picker.min.js" ></script>
+<script type="text/javascript" src="js/api.ini.js" ></script>
+<script type="text/javascript" src="js/style.js" ></script>
+<script>
+	var self = null, pId = '', PAGE = 1;
+	var billType = [{
+		text:'所有',
+		value:'-1'
+	}, {
+		text:'未提现',
+		value:'10'
+	}, 
+	{
+		text:'提现中',
+		value:'20'
+	},
+	{
+		text:'提现成功',
+		value:'30'
+	},
+	{
+		text:'提现失败',
+		value:'40'
+	}	
+]
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());  
+		}
+		vm.status = '-1';
+		getBill(vm.status, true);
+	})
+	
+	var vm = new Vue({
+		el:'#trade',
+		data:{
+			tradeData: [],
+			userId: getUserInfo('userid'),
+			status: '-1',
+			bt: true
+		},
+		methods:{
+			rechangmore: function(type){ // 充值状态
+				switch(type){
+					case '10':return '未提现';break;
+					case '20': return '提现中'; break;
+					case '30':return '提现成功';break;
+					case '40':return '提现失败';break;
+					case 10:return '未提现';break;
+					case 20: return '提现中'; break;
+					case 30:return '提现成功';break;
+					case 40:return '提现失败';break;					
+					default: return '提现失败'; break;
+				}
+			},	
+			simple:function(money, num){//单位转换
+				return abbreviation(money, 2);
+			},			
+			details: function(d, type){
+				openWV('commission_bill_details.html', {
+					pUrl: pId,
+					data: d
+				})
+			}
+		}
+	})
+	
+	$(function(){
+		var picker = new mui.PopPicker(); // new 一个选择器实例
+		picker.setData(billType);
+		var dtPicker = new mui.DtPicker({'type':'month'}); // new 一个日期选择器实例
+		
+		$(".b-screen").on("tap", "li", function(){ // 点击功能菜单
+			var index = $(this).index();
+			if(index == 0){ // 点击分类时，show出选择器
+				//dtPicker.hide();
+				picker.show(function (selectItems) {
+					$(".head_title").html(selectItems[0].text + '账单');
+					PAGE = 1;
+					getBill(selectItems[0].value,true);
+				})
+			}else{
+				//picker.hide();
+				dtPicker.show(function (selectItems) {  // 点击时间时，show出选择器
+					PAGE = 1;
+					getBill(vm.status, true, selectItems.y.value + '-' + selectItems.m.value);
+			    })
+			}
+		})
+		
+		//滚动到底部
+		$('.bill_cont').scroll(function(){
+			if($(".bill_cont").height() + $('.bill_cont').scrollTop() >= $('.bill_scroll').height() && vm.bt){
+				vm.bt = false;
+				PAGE++;
+				getBill(vm.status, false);
+			}
+		});
+		
+		//下拉刷新
+		slide('.bill_scroll', function (e) {
+		    var that = this;
+		    PAGE = 1;
+			getBill(vm.status, true);
+			var t = setTimeout(function () {
+		        that.back.call();
+		        $('.slideDown').text('下拉可刷新');
+		        clearTimeout(t);
+		    }, 500);
+		});
+	})
+	
+	function getBill(type, ret, t){
+		var size = 10;
+		vm.status = type;
+		bpAjax('/index/proxy/withdrawalsList', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			page:PAGE,
+			size:size,
+			status:type,
+			dateTime: t ? t : '',
+			sign:''
+		}, function(d){
+			if(ret){
+				vm.tradeData = [];
+			}
+			var len = d.data.length;
+			// 为了按月份显示数据，把数据重组
+			for(var i = 0; i < len; i++) {
+				if(vm.tradeData.length > 0){
+					var fool = false;
+					for(var x = 0; x < vm.tradeData.length; x++){
+						if(d.data[i].reqTime == vm.tradeData[x].time){
+							vm.tradeData[x].data.push(d.data[i])
+							fool = true;
+							break;
+						}
+					}
+					if(!fool){
+						var o = {};
+						o.time = d.data[i].reqTime;
+						o.data = [d.data[i]];
+						vm.tradeData.push(o);
+					}
+				}else{
+					var o = {};
+					o.time = d.data[i].reqTime;
+					o.data = [d.data[i]];
+					vm.tradeData.push(o);
+				}
+			}
+			
+			if(len < size  && PAGE >= '1'){
+				$('.loadMore').text('没有数据了');
+				vm.bt = false;
+			}else{
+				$('.loadMore').text('正在加载中...');
+				vm.bt = true;
+			}
+		}, function(d){
+			mui.toast(d.info);
+			vm.bt = false;
+			if(PAGE > 1){
+				$('.loadMore').text('没有数据了');
+			}else{
+				vm.tradeData = '';
+				$('.loadMore').text('暂无数据');
+			}
+		}, 3, '提现账单列表页面')
+	}
+	
+	$('#head_right').on('tap', function(){
+		openWV('agent_cash.html', {pUrl:pId});
+	})
+	
+	function alldates(){
+		vm.status = '-1';
+		getBill('-1', true);
+	}
+</script>

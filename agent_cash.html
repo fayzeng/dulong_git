@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>佣金提现</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.dcash_p{padding: 30px 20px; position: relative; border-bottom: 1px solid #cbcbcb;}
+			.dcash_p span{    margin-top: -20px;}
+			.dcash_rr {position: absolute;background: #fff;height: 60px;overflow: hidden;-webkit-box-shadow: 0 0 3px #dfdfdf;box-shadow: 0 0 3px #dfdfdf;top: 0;display: none;}
+			.dcash_p .money_img{width: 30px;position: absolute;top: 50px;left: 13px;}
+			#spPrice {display: inline-block;height: 70px;line-height: 70px;font-size: 40px;text-align: center;padding-top: 10px;padding-left: 10px; color: #333333;}
+			.money_dox{width: 70%;}
+			/*下面提现银行卡字样*/
+			.cash-bank{
+				width: 100%;
+				padding: 0 15px;
+				padding-right: 10px;
+				height: 60px;
+				background: #fff;
+				line-height: 60px;
+				overflow: hidden;
+			}	
+			/*银行卡*/
+			.cash-bank .cash-text{
+				width: 70px;
+				float: left;
+				color: #666;
+				font-size: 14px;
+				
+			}
+			/*图片*/
+			.cash-bank .cash-img{
+				float: left;
+				width: 25px;
+				height: 25px;
+				border-radius: 50%;
+				margin-top: 17px;
+				margin-left: 30px;
+				
+			}
+			/*可以提现的银行卡名字*/
+			.cash-bank .bank-name{
+				float: left;
+				margin-left: 7px;
+				color: #333;
+				width:55% ;
+				/*background: pink;*/
+				overflow: hidden;
+			}
+			.useable{
+				height: 30px;
+				width: 100%;
+				line-height: 30px;
+				padding: 0 10px;
+				color: #666;
+			}
+			.useable span{
+				color: #0c6492;
+			}
+			
+			/*输入密码的遮罩层*/
+			.eject{width: 100%;height: 100%;z-index: 99;background: rgba(0,0,0,.8);position: fixed;top: 66px;left: 0;}
+			.payment{width: 70%;height: 40%;background: #fff;margin: 0 auto;margin-top: 14%;border-radius: 5px;}
+			.payment_head{padding: 10px;border-bottom: 1px solid #C9C9C9;margin: 0 5px;}
+			.payment_head em{font-size: 22px;padding-top: 3px;}
+			.payment_head span{font-size: 15px;padding-left: 15px;}
+			.transaction_amount{text-align: center;padding: 15px 20px;border-bottom: 1px solid #C9C9C9;margin: 0 15px;}
+			.transaction_amount h1{font-size: 15px;}
+			.transaction_amount p{font-size: 30px;}
+			.sd_pwd{width: 85%;height: 17%;}
+			.sd_pwd .epay-item{width: 16.6%;height: 100%}	
+			.head_right{position: absolute; height: 44px; width: 80px; text-align: center; top: 20px; right: 10px;color: #fff; font-size: 15px;}		
+		</style>
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">佣金提现</h1>
+			<!--<div class="head_right" id="head_right">提现记录</div>-->
+		</header>
+
+		<div class="wrapper" id="wrapper" >
+			<div class="wrap_content" v-cloak>	<!--v-cloak-->	
+				<div class="dcash_p flex_card">
+					<span>提现金额</span>
+					<img class="money_img" src="images/money.png" />
+					<h6 class="money_dox" id="cashTxt" ><span id="spPrice">{{simpleMath(alldata.amt/100)}}</span><span class="cursor"></span></h6>
+				</div>		
+				<div class="cash-bank">
+					<span class="cash-text">提现银行卡</span>
+					<img :src="bankLogos(alldata.bankName)" class="cash-img"/>
+					<span class="bank-name">{{alldata.bankName}}--{{alldata.bankAccount}}</span>
+					
+				</div>
+				<div class="btnDiv">
+					<input id="cashSub" type="submit" value="确认提现" disabled="disabled" />
+				</div>
+				<div class="useable">当前可提现佣金 <span>{{simpleMath(alldata.amt/100)}}</span>元</div>
+				<div class="useable">已提现佣金 <span>{{simpleMath(alldata.drawAmt/100)}}</span>元</div>
+			</div>
+		</div>
+	<div id="passd" class="eject" style="display: none;">
+		<div class="payment">
+			<div class="payment_head">
+				<em class="iconfont icon-iconfontcha" id="psdClose"></em>
+				<span>请输入支付密码</span>
+			</div>
+			
+			<div class="transaction_amount">
+				<h1>交易金额</h1>
+				<p><em>¥</em><span id="drawmoney">29.99</span></p>
+			</div>
+			
+			<div class="sd_pwd cl">
+				<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+			</div>
+		</div>	
+	</div>		
+	</body>
+
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/virtual-keyboard.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var flag = false; //是否固定金额
+	var len = 6; //最大金额位数
+	var pId = '';	
+	var pwd = []; // 支付密码
+	var keyboard = null;//键盘
+	var haveUse = '';//可提现金额
+	var vm = '';
+
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		
+		
+		vm = new Vue({
+			el:'#wrapper',
+			data:{
+				alldata:'',//后台传过来的页面数据
+			},
+			methods:{
+				//银行卡的图片方法
+				bankLogos:function(n){
+					return 'images/bank/bankLogo'+ bankLogo(n) + '.png';
+				},
+				//简化下面佣金数目的方法，保留2位小数
+				simpleMath:function(Integral, num){
+					return abbreviation(Integral, 2)
+				}
+			}
+		})
+		
+		cashAjax();//页面进来的时候调用的接口
+		
+	});
+	
+	
+	
+	$(function(){
+		$('.cursor').hide();
+		keyboard = new Keyboard({
+			add: function(k,type){
+				if(type == 'bank'){
+					var $spPrice = $("#spPrice");
+					var num = $spPrice.text();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					
+					if(!flag) {
+						if(!isPoint && num.length < len && k != '.'){ // 整数限制在len位
+							if(num != '0') {
+								num += k;
+							} else {
+								num = k;
+							}
+						}else if(isPoint && k != '.' && pLen < 2){ // 保留2位小数点
+							num += k;
+						}else if(!isPoint && num.length <= len && k == '.'){ // 整数达到上限加 小数点
+							num += k;
+						}
+						
+						if(k == '.' && num == '0'){ // 0后面加 小数点
+							num = '0' + k;
+						}
+						$spPrice.text(num);
+						checkInput();
+					}
+				}else{
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = 0; i < els.length; i++) {
+						if(els[i].className === 'epay-pot') {
+							els[i].className = 'epay-pot act';
+							pwd.push(k);
+							if(i == 5) {
+								possDraw();
+							}
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			},
+			del: function(key,type){
+				if(type == 'bank'){
+					var $spPrice = $("#spPrice");
+					var num = $spPrice.text();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					if(!flag) {
+						var m = num.indexOf('.');
+						var n = num.substr(m + 1);
+						var l = num.substr(0, m);
+			
+						if(isPoint && pLen == 1) {
+							num = num.substr(0, num.length - 2);
+						} else {
+							if(num.length < 2) {
+								num = '0';
+							} else {
+								num = num.substr(0, num.length - 1);
+							}
+						}
+					}
+					$spPrice.text(num);
+					checkInput();
+				}else{
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = els.length - 1; i >= 0; i--) {
+						if(els[i].className === 'epay-pot act') {
+							els[i].className = 'epay-pot';
+							pwd.pop();
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		})
+		//点击弹出来的x
+		$("#psdClose").on("tap", function(){
+			reset();
+			$(".epay-item").children().removeClass("act") ;
+			$(".cursor").hide();
+			$("#passd").hide();
+			keyboard.hide('pass');
+			pwd = [];
+		})			
+		
+	})
+	
+	function cashAjax(){
+		bpAjax('/index/proxy/getUserableAmt', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',				
+		}, function(d){
+			vm.alldata = d.data;
+			haveUse = d.data.amt/100;
+			console.log('vm.alldata'+JSON.stringify(vm.alldata));
+			vm.$nextTick(function(){
+				checkInput();
+			})
+			
+		}, function(d){
+			mui.toast(d.info);
+			vm.alldata = {//如果进来后台出现了错误，先填一些假数据上去
+				'proxyGrade':0,//可提现佣金
+				'amt':0,//已提现佣金
+				'bankName':'信息错误',//银行卡图片
+				'bankAccount':''//银行卡
+			}
+		}, 3, '显示界面');
+	}
+	
+	//点击可提现金额按钮
+	mui('body').on('tap', '#cashSub', function() {	
+//		先进行检测有没有支付密码,没有则进入设置支付密码界面
+		bpAjax('/auth/User/checkPayPass', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign:''
+		}, function(d){
+			var a = '设置支付密码';
+			plus.nativeUI.alert( "请先设置支付密码。", function(){
+				openWV('c_pwdPay.html', {pUrl: pId, sTitle: a, inFirst: '1'});
+			}, "独龙支付密码 ", "确定" );		
+		}, function(d){
+//			keyboard.hide('bank');
+			$('.cursor').hide();
+			$("#passd").show();
+			$(".epay-item").children().removeClass("act") ;
+			$("#drawmoney").text($('#spPrice').html());
+			keyboard.show('pass');				
+		})
+	})
+	
+//	点击金额按钮,显示键盘输入金额
+//	$("body").on("tap",'#cashTxt',function(){
+//		$('.cursor').show();
+//		setTimeout(function(){
+//			var $wrapper = $(".wrapper");
+//			var winW = $wrapper.height() - 200;
+//			if($(".wrap_content").height() >= winW){	
+//				$wrapper.css("bottom",'200px')
+//				keyboard.show('bank');
+//			}else{
+//				$wrapper.css("bottom",'0')
+//				keyboard.show('bank');
+//			}
+//		}, 300)
+//	});
+	
+//	确认按钮是否可以点击方法
+	function checkInput(){
+		console.log('haveUse'+haveUse);//可提现金额
+//		console.log($('#spPrice').html());//提现金额显示的金额
+		if(haveUse>0){
+			$('#cashSub').removeAttr('disabled');
+			$('#cashSub').css('background', '#3e75c7');					
+		} else{
+			$('#cashSub').attr('disabled', 'disabled').css('background', '#cbcbcb');
+		}
+	}
+	
+	function reset() { //清除密码
+		var els = document.querySelectorAll('.epay-pot');
+		for(var i = els.length - 1; i >= 0; i--) {
+			els[i].className = 'epay-pot';
+			pwd.pop();
+		}
+	}	
+	
+	//输入完密码之后调用的接口
+	function possDraw(){
+		var amounts = $('#spPrice').html();
+		bpAjax('/index/proxy/withdrawals', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',	
+			amount:haveUse,
+			password:md5(pwd.join('')),
+		}, function(d){
+			mui.toast(d.info);
+			evalId('tab_agent.html', ['allMethod']);
+			evalId('commission_bill.html', ['alldates']);
+			setTimeout(function(){
+				self.close();
+			}, 300)
+			
+//			openWV('wallet_bill_details.html', {pUrl:pId,yt01id:yt01id});
+//			var lv = plus.webview.getWebviewById('wallet_bill_details.html');
+//			setTimeout(function(){
+//				if(lv){
+//					lv.evalJS("addss('" + yt01id + "')");
+//					self.close();
+//				}
+//			}, 300)
+		}, function(d){
+			mui.toast(d.info);
+			reset();
+			$(".epay-item").children().removeClass("act") ;
+			pwd = [];
+		},  3,  '提现')
+	}
+//	点击提现记录
+	$('#head_right').on('tap', function(){
+		openWV('commission_bill.html', {pUrl: pId});
+	})
+	
+	$('.wrapper').on('tap','a',function(){		
+		var id = this.getAttribute('data-href');
+		openWV(id, {pUrl: pId});
+	});	
+	
+	
+</script>

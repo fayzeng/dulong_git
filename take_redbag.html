@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>领取红包</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*放全部的内容,除了最下面一句话*/
+			
+			.wrapper_contant {
+				background: #FFFFFF;
+				width: 90%;
+				overflow: hidden;
+				margin: 0 auto;
+				margin-top: 20px;
+				position: relative;
+				overflow: hidden;
+			}
+			/*那个大背景图片*/
+			
+			.take_head {
+				width: 100%;
+				height: 166px;
+				background: url(images/take_redbag.png) no-repeat;
+				background-size: 100% 100%;
+			}
+			/*那个头像*/
+			
+			.take_image {
+				display: block;
+				width: 60px;
+				height: 60px;
+				border-radius: 50%;
+				margin: 0 auto;
+				margin-top: -30px;
+			}
+			/*中间的姓名和号码*/
+			
+			.take_middle {
+				text-align: center;
+				font-weight: 700;
+				margin-top: 20px;
+			}
+			/*号码*/
+			
+			.middle_two {
+				margin-left: 5px;
+			}
+			
+			.middle_three {
+				text-align: center;
+				margin-top: 15px;
+			}
+			
+			.take_foot {
+				margin-top: 34px;
+				width: 100%;
+				height: 32px;
+				text-align: center;
+			}
+			
+			.foot_two {
+				color: #E35554;
+				font-size: 25px;
+			}
+			
+			.foot_three {
+				font-size: 16px;
+				font-weight: 700;
+			}
+			
+			.take_last {
+				width: 100%;
+				height: 47px;
+			}
+			
+			.last_word {
+				width: 100%;
+				color: #9A9A9A;
+				position: absolute;
+				bottom: 20px;
+				text-align: center;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">红包领取</h1>
+		</header>
+		<div class="wrapper">
+			<div class="wrapper_contant">
+				<!--大背景图-->
+				<div class="take_head"></div>
+				<!--头像-->
+				<img src="images/girl.png" class="take_image" id="take_image" />
+				<!--姓名和号码-->
+				<div class="take_middle">
+					<span class='middle_one' id="middle_one">张三三  </span>
+					<span class="middle_two" id="middle_two"> 15574830641</span>
+				</div>
+				<p class="middle_three" id="middle_three">恭喜发财！</p>
+				<div class="take_foot">
+					<span class="foot_two" id="foot_two">88.88</span>
+					<span class="foot_three">元</span>
+				</div>
+				<div class="take_last"></div>
+			</div>
+			<p class="last_word">红包已转入钱包余额</p>
+		</div>
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		var names = self.data.name;
+		var telphones = self.data.username;
+		var remark = self.data.remark;
+		var amounts = self.data.amount / 100;
+		var logic = self.data.logopic;
+		console.log('logic' + logic);
+		$('#middle_one').html(names);
+		$('#middle_two').html(telphones);
+		$('#middle_three').html(remark);
+		$('#foot_two').html(amounts);
+		if(logic == '' || logic == null) {
+			$('#take_image').attr('src', 'images/girl.png');
+		} else {
+			$('#take_image').attr('src', logic);
+		}
+	});
+</script>

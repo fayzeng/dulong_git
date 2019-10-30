@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	
+	<title>优化建议</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+</head>
+	
+<body>
+	<header class="bp_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">优化建议</h1>
+	</header>
+	
+	<div class="wrapper">
+		<div class="sug_hd">
+			<img src="images/suggest.png" />
+		</div>
+		
+		<div class="sug_bd">
+			<div class="sug_txt">
+				<textarea id="sugTxt" placeholder="如果您遇到功能、内容方面的错误，或者对我们有任何建议，请在此处向我们提交，期待您的宝贵建议。" maxlength="300"></textarea>
+			</div>
+			<div class="btnDiv">
+				<a id="sugSub" type="button">提交</a>
+			</div>
+		</div>
+		
+	</div>	
+</body>
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/pageBack.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null, oSug;
+	
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		oSug = document.getElementById('sugTxt');
+	});
+	
+	//提交建议
+	document.getElementById('sugSub').addEventListener('tap',function(){
+		
+		if(!oSug.value){
+			mui.toast('优化建议为空');
+		}else{
+			suggestAjax();
+		}
+	});
+	
+	function suggestAjax(){
+		bpAjax('/index/center/feedBack', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:'',
+			content: oSug.value
+		}, function(d){
+			mui.toast(d.info);
+			self.close();
+		}, function(d){
+			mui.toast(d.info);
+		} , 3, '提交建议') 
+	}
+	
+	
+//	function suggestAjax(){
+//		var url = host + '/index/center/feedBack';
+//		var type = 'post';
+//		var dataType = 'json';
+//		var data = {
+//			deviceid: deviceid,
+//			username: JSON.parse(localStorage.getItem('userInfo')).username,
+//			content: oSug.value
+//		}
+//		
+//		mui.post(url, data, function(data){
+//			var d = JSON.parse(data);
+//			
+//			if(d.msg == '1'){
+//				mui.toast(d.info);
+//				self.close();
+//			}else if(d.msg == '3'){
+//				plus.nativeUI.closeWaiting();
+//				mui.toast(d.info);
+//				localStorage.removeItem('userInfo');
+//				localStorage.removeItem('identType');
+//				clearTimeout(wtTimer);
+//							
+//				var loginView = plus.webview.getWebviewById('login.html');
+//				if(loginView){
+//					plus.webview.show(loginView, 300);
+//				}else{
+//					mui.openWindow({
+//						id: 'login.html',
+//						url: 'login.html',
+//						waiting:{
+//							autoShow: true,
+//							options:{
+//								background:'rgba(100,100,100,0.8)'
+//							}
+//						}
+//					});
+//				}
+//				return false;
+//			}else{
+//				mui.toast(d.info);
+//			}
+//		},dataType);
+//	}
+	
+</script>

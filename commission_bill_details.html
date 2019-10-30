@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>账单详情</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			#shareBill {
+				display: none;
+			}
+			.lines{
+				border-bottom: 1px solid black;
+			}
+			.red_infor{
+				padding: 0 20px;
+				line-height: 15px;
+				margin-bottom: 20px;
+			}
+			.mdtl_ul .shares{
+				border: 2px solid #f6f6f6;
+				text-align: center;
+				background: #00A1E9;
+				color: #FFFFFF;
+			}
+			.transaction{padding: 10px 20px;margin-top: 0px; font-size: 15px;color: #666;}
+			.bankcheck{width: 100%;height: 62px; padding:15px 15px;background: #fff;border-bottom: 1px solid #e5e5e5;}
+			.bankcheck img{width:26px;border-radius: 50%;margin: 0 5px;}
+			.bankcheck p{color: #888;margin-right: 10px;}
+			.bankcheck span.bank-name{display: inline-block;width: 50%;height: 20px;overflow: hidden;}
+			.bankcheck .amount{float: right;font-size: 14px;color: #333;text-align: right;}
+			.titrec{height: 40px; color: #CE2F3B;font-size: 15px;background: #fff;padding-bottom: 10px;}
+			.mdtl_bd{margin-top: 0px;margin-bottom:40px ;}
+			.mdtl_ul{margin-top: 25px;}
+		</style>
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">账单详情</h1>
+			<a id="shareBill" class="headBtn">分享</a>
+		</header>
+
+		<div class="wrapper" id="details">
+			<template v-for="item in detailsData" v-cloak>
+				<!--付款成功 or 付款失败-->
+				<div class="md_hd" v-if="item.dStatus">
+					<p v-html="rechangmore(item.dStatus)"></p>
+				</div>				
+				<div class="mdtl_bd">
+					<ul class="mdtl_ul">
+						<li>
+							<p>提现金额</p>
+							<span class="mdtl_price">{{item.drawAmt / 100}}(元)</span>
+						</li>
+						<li>
+							<p>申请时间</p>
+							<span><em>{{item.reqTime}}</em></span>
+						</li>
+						<li>
+							<p>提现卡号</p>
+							<span><em>{{item.bankName}}({{item.bankAccount}})</em></span>
+						</li>						
+						<li>
+							<p>手续费</p>
+							<span>{{item.fee/100}}元</span>
+						</li>
+						<li>
+							<p>到账时间</p>
+							<span><em>{{accountTime(item.dzTime,item)}}</em></span>
+						</li>
+					</ul>
+				</div>
+			</template>
+		</div>
+	</body>
+
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/share.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var shareData = {},
+		shareUrl;
+	var bData, appCode;
+	var lengths = 0;
+
+	var vm = new Vue({
+		el: "#details",
+		data: {
+			detailsData: [],
+			userId: getUserInfo('userid'),
+			rechargedata:''
+		},
+		methods: {
+			rechangmore: function(type){ // 充值状态
+				switch(type){
+					case '10':return '<span class="iconfont icon-chenggong"></span><em>未提现</em>';break;
+					case '20': return '<span class="iconfont icon-jinxingzhong"></span><em>提现中</em>'; break;
+					case '30':return '<span class="iconfont icon-chenggong"></span><em>提现成功</em> ';break;
+					case '40':return '<span class="iconfont icon-shibai"></span><em>提现失败</em> ';break;
+					default: return '<span class="iconfont icon-shibai"></span><em>提现失败</em>'; break;
+				}
+			},
+			simple:function(money, num){
+				return abbreviation(money, 2);
+			},
+			accountTime: function(names,alls) { // 昵称的显示
+					if(names == '' || names == null || names == 'null') {
+						if(alls.dStatus == '3' || alls.dStatus == '4'){
+							return '失败'
+						} else{
+							return '处理中'
+						}
+						
+					} else {
+						return names
+					}
+				}			
+			
+		}
+	})
+
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());  
+		}		
+			addss();
+	});
+
+
+	function addss(){		
+		var taids = self.data.taid;
+		bpAjax('/index/proxy/withdrawalsDetail', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			taid:taids
+		}, function(d){
+			vm.detailsData.push(d.data);
+		}, function(d){
+			mui.toast(d.info);
+		}, 3, '钱包账单详情');
+	}
+	
+</script>

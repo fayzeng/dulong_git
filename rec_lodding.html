@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>充值</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.progress-bar{width: 85%;}
+			.hesde_title{width: 100%;text-align: center;margin-top: 100px;}
+			.prompt{color: #D33D3C;}
+			.head_complete{display: inline-block; position: absolute;top: 19px;right: 10px;font-size: 15px; color: #fff;}
+			.mask{display: block; width: 100%;height: 100%;position: fixed;top: 64px;left: 0;background: rgba(0,0,0,.8);z-index: 99;}
+			.veriflcation{display: block; z-index: 999;background: #fff;width: 90%; margin-left: 5%;margin-top: 25%;border-radius: 10px;overflow: hidden;}
+			.ver_title{width: 100%;text-align: center;padding: 20px;background: #44b1ea;color: #fff;font-size: 17px;}
+			.vercation_box{text-align: center;font-size: 12px;padding: 25px 15px;}
+			.vercation_box p{color: #666;padding: 10px 0 15px 0;}
+			/*.ver_box{width: 100%;position: relative;padding: 40px;    margin-top: 30px;}*/
+			.ver_box{width: 100%;position: relative;padding: 25px;}
+			.ver_box .write_money{width: 63%;height: 48px;background: #eee;position: absolute;top: 0;left: 8px;text-align: center;font-size: 20px;padding: 9px;}
+			.ver_box .resend{width: 33%;height:96%;display: inline-block;background: #44b1ea;color: #fff;position: absolute;top: 0;right: 5px;text-align: center;}
+			.cursor{margin: 0;height: 25px;}
+			button{width: 96%;padding:10px 20px;background: #0085cb;color: #fff;font-size: 16px;margin-top: 20px;}
+			
+			.becareful_box{display: none;}
+			.becareful_box .becareful{background: #ed9243;}
+			.sign_out{width: 33%;padding: 14.5px;display: inline-block;background: #6a6a6a;color: #fff;position: absolute;top: 0;left: 35px;}
+			.ver_box .cancel{position: absolute;top: 0;right: 35px;padding-top: 15px;width: 33%;height:96%;display: inline-block;background: #44b1ea;color: #fff;text-align: center;}
+			canvas {width: 100%;display: block;z-index: 9;margin-top: 75%;}
+			
+			/*input[disabled]{color:#fff;opacity:1}*/
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="iconfont icon-fanhui" id="fanhui"></a>
+			<h1 class="head_title">充值</h1>
+			<!--<div class="head_complete">完成</div>-->
+		</header>
+
+		<div class="wrapper">
+			
+			<div class="hesde_title">
+				
+				<p>共<span id="bank-number">10</span>张卡</p>
+				<p>正在用<span id="bankname"></span>充值</p>
+				<p class="prompt"> 若强制退出充值及支付异常，订单状态均为已完成 </p>
+				<!--<div class="progress">
+					<div class="progress-bar progress-bar-info progress-bar-striped active">
+						<div class="progress-value">85%</div>
+					</div>
+				</div>-->
+			</div>
+			
+			<div class="mask">
+				<div class="wrapper-cont">
+					<div class="veriflcation">
+						<p class="ver_title">验证码</p>
+						<div class="vercation_box">
+							<p>请输入您刚收到的验证码，完成本卡<span id="bank-name"></span>的充值</p>
+							<div class="ver_box">
+								<h6 class="money_dox write_money" id="cashTxt"><span id="spPrice"></span><span class="cursor"></span></h6>
+								<input id="resend" class="resend" readonly="readonly" disabled="disabled" value="重发验证码">
+							</div>
+							<button id="sugSub" disabled="disabled">确定</button>
+						</div>
+					</div>
+					<div class="becareful_box veriflcation">
+						<p class="ver_title becareful">注意!</p>
+						<div class="vercation_box">
+							<p>退出将中断当前充值进程！</p>
+							<div class="ver_box">
+								<span class="sign_out">确定退出</span>
+								<span class="cancel">取消</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
+
+<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/zepto.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/channelPay.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/virtual-keyboard.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/progress.js" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var timerY;
+	var flag = false; //是否固定金额
+	var len = 6; //最大金额位数
+	var pId = '';	
+	var pwd = []; // 支付密码
+	var keyboard = null;
+	var pId = '',reqNo = 0,bankNo = '',mes = [],settime = 0;
+	var timer1;
+	var oVerify = document.getElementById('resend');
+	var Lengths = 0;
+	
+	mui.plusReady(function() {
+		plus.nativeUI.closeWaiting();
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		var wv=plus.webview.currentWebview();
+		// 关闭侧滑返回功能
+		self.setStyle({'popGesture':'none'});
+	
+		countdown();
+		bankone = self.brray;
+		bankall = self.order;
+		bankNo = self.bankNo;
+		reqNo = bankall[0].reqNo;
+		Lengths = bankall.length;
+		settime = Math.floor(bankall[0].money/bankall[0].onceLimit)+40;
+		$('#bank-number').html(self.banknumber);
+		$('#bankname').html(bankall[0].bank);
+		$('#bank-name').html(bankall[0].bank);
+//		console.log("所有银行卡"+JSON.stringify(bankall));
+	})
+	
+	function codebank(paylo){
+		console.log(bankall.length);
+		console.log('payload'+paylo);
+		var paylo = JSON.parse(paylo);
+		if(paylo.messType == '00'){
+			bankall.splice(0,1);
+			if(bankall.length == 0){
+				mui.toast('充值完成');
+				succ();
+				clearInterval(timerY);
+			}else{
+				codeupdate();
+			}
+		}else{
+//			console.log('payload'+paylo);
+			bankall.splice(0,1);
+			mes.push(paylo.messType);
+			if(mes.length == Lengths){
+				mui.toast('充值失败');
+				succ();
+			}else if(bankall.length == 0){
+				mui.toast('充值完成');
+				succ();
+			}else{
+				clearTimeout(timer1);
+				mui.toast('上一张银行卡充值失败');
+				if(bankall.length == 0){
+					clearTimeout(timer1);
+					mui.toast('充值完成');
+					succ();
+				}else{
+					clearTimeout(timer1);
+					setTimeout(function(){
+						codeupdate();
+					},300)
+				}
+			}
+		}
+	}
+	function codeupdate(){
+		oVerify.value = '发送验证码';
+		oVerify.style.color = '#fff';
+		oVerify.disabled = "";
+		clearInterval(timerY);
+		$('#spPrice').html('');
+		$('.mask').css('display','block');
+		$('.veriflcation').css('display','block');
+		$('.veriflcation').css('margin-top','10%');
+		$('.becareful_box').css('display','none');
+		$(".cursor").show();
+		keyboard.show('bank');
+		clearTimeout(timer1); 
+		bankNo = bankall[0].cardnumber;
+		settime = Math.floor(bankall[0].money/bankall[0].money)+40;
+		$('#bankname').html(bankall[0].bank);
+		$('#bank-name').html(bankall[0].bank);
+		yaninvalid();
+	}
+	$(function(){
+		keyboard = new Keyboard({
+			add: function(k,type){
+				console.log(type)
+				if(type == 'bank'){
+					var $spPrice = $("#spPrice");
+					var num = $spPrice.text();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					if(!flag) {
+						if(!isPoint && num.length < len && k != '.'){ // 整数限制在len位
+							if(num != '0') {
+								num += k;
+							} else {
+								num += k;
+							}
+						}
+						$spPrice.text(num);
+						$(".cursor").hide();
+					}
+				}
+			},
+			del: function(key,type){
+				if(type == 'bank'){
+					var $spPrice = $("#spPrice");
+					var num = $spPrice.text();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					if(!flag) {
+						var m = num.indexOf('.');
+						var n = num.substr(m + 1);
+						var l = num.substr(0, m);
+			
+						if(isPoint && pLen == 1) {
+							num = num.substr(0, num.length - 2);
+						} else {
+							if(num.length < 2) {
+								num = '';
+							} else {
+								num = num.substr(0, num.length - 1);
+							}
+						}
+					}
+					$spPrice.text(num);
+					$(".cursor").show();
+				}
+			}
+		})
+	})
+	
+	//点击确定按钮
+	$('#sugSub').on('tap', function(){
+		var code = $("#spPrice").html();
+		codereqNo(code);
+	})
+	
+	//点击重新发送按钮
+	$('.resend').on('tap', function(){
+		var resend = $('.resend').val();
+//		console.log('resend'+resend)
+		clearInterval(timerY);//清除定时器
+		if(resend == '重发验证码'){
+			coder();
+		}else{
+			getChannel();
+		}
+		countdown();
+	})
+	
+	//点击确定退出按钮
+	$('.sign_out').on('tap', function(){
+		breaka();
+	})
+	
+    //点击取消按钮
+	$('.cancel').on('tap', function(){
+		codeupdate();
+	})
+	
+	//点击返回按钮
+	$('#fanhui').on('tap', function(){
+		if(bankall.length == 0){
+			succ();
+		}else{
+			mui.confirm('正在充值中，不能退出','提示',['是'],function(e){
+				if(e.index == 0){
+					
+	            }
+			})
+		}
+	})
+	//验证码五分钟后失效
+	function yaninvalid(){
+		setTimeout(function(){
+			mui.confirm('订单已失效，请退出','提示',['是'],function(e){
+                if(e.index == 0){
+                	breaka();
+                	succ();
+                }
+            })
+		},3000000)
+	}
+	//定时器
+	function countdown() {
+		var tn = 60;
+		oVerify.style.color = '#003366';
+		oVerify.disabled = "disabled";
+		timerY = setInterval(function() {
+			oVerify.value = '重发验证码(' + tn + 's)';
+			tn--;
+			if(tn < 1) {
+				oVerify.value = '重发验证码';
+				oVerify.style.color = '#fff';
+				oVerify.disabled = "";
+				clearInterval(timerY);
+			}
+		}, 1000);
+		yaninvalid();
+	}
+	
+	function breaka(){
+		bpAjax('/purse/Multicard_Quickpay/multicardOrderClose', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			yt01id  :self.yt01id,
+		}, function(d) {
+			succ();
+		}, function(d) {
+			mui.toast(d.info);
+		}, 3, '点击确定退出按钮')
+	}
+	function getChannel() {
+		bpAjax('/purse/Multicard_Quickpay/toMulticardPay', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			yt01id:self.yt01id,
+			bankNo: bankNo,
+		}, function(d) {
+//			console.log('多卡充值订发送验证码'+d.data);
+			reqNo = d.data.reqNo;
+		}, function(d) {
+			if(bankall.length == 1){
+				mui.confirm(d.info,'确定退出',['是'],function(e){
+					if(e.index == 0){
+						breaka();
+                    	self.close();
+                    }
+				})
+			}else{
+				mui.confirm(d.info,'继续充值下一张银行卡',['是'],function(e){
+					if(e.index == 0){
+						bankall.splice(0,1);
+						codeupdate();
+                    }
+				})
+			}
+		}, 3, '多卡充值发送验证码')
+	}
+	
+	function codereqNo(code) {
+		bpAjax('/purse/Multicard_Quickpay/checkMulticardVerificationCode', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			code: code,
+			reqNo: reqNo
+		}, function(d) {
+			switch (d.data.code){
+				case '0000':
+					mui.toast(d.data.msg);
+					$('.mask').css('display','none');
+					$('.veriflcation').css('display','none');
+					$('.veriflcation').css('margin-top','25%');
+					keyboard.hide('bank');
+					clearTimeout(timer1); 
+					break;
+				case '0101':
+					clearTimeout(timer1);
+					mui.toast(d.data.msg);
+					break;
+				case '-100':
+				case '0100':
+//					console.log('0100'+d.data.code);
+					clearTimeout(timer1); 
+					mui.toast(d.data.msg);
+					mui.confirm(d.data.msg,'确定退出',['是'],function(e){
+						if(e.index == 0){
+	                    	breaka();
+	                    }
+					})
+					break;
+				default:
+					break;
+				}
+				timer1 = setTimeout(function(){
+					mui.confirm('是否继续等待多卡充值','选择',['是','否'],function(e){
+	                    if(e.index == 0){
+	                    	setTimeout(function(){
+								mui.confirm('本卡充值失败，请退出','提示',['是'],function(e){
+				                    if(e.index == 0){
+				                    	breaka();
+				                    	succ();
+				                    }
+				                })
+							},30000)
+	                    }else{
+	                    	breaka();
+	                        self.close();
+	                    }
+	                })
+				},settime*1000)
+//				clearTimeout(timer1);
+		}, function(d) {
+			settimea();
+//			mui.toast('多卡充值订单支付接口cuowuuuuuu'+d.info);
+		}, 3, '多卡充值订单支付接口')
+	}
+	 
+	function coder(){
+		bpAjax('/purse/Multicard_Quickpay/checkMulticardVerificationCode', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			code:'resend',
+			reqNo: reqNo
+		}, function(d) {
+			switch (d.data.code){
+				case '0102':
+					mui.toast(d.data.msg);
+					mui.confirm('确定退出',d.data.msg,['是'],function(e){
+						if(e.index == 0){
+	                    	breaka();
+	                    }
+					})
+					break;
+				case '0103':
+				case '0104':
+					mui.toast(d.data.msg);
+					break;
+				default:
+					break;
+			}
+		}, function(d) {
+			mui.toast(d.info);
+		}, 3, '多卡充值重发验证码接口')
+	}
+	
+	function settimea(){
+		setTimeout(function(){
+			mui.confirm('是否继续等待多卡充值','选择',['是','否'],function(e){
+                if(e.index == 0){
+//              	console.log('关闭')
+                }else{
+                	breaka();
+                    self.close();
+                }
+            })
+		},60000)
+	}
+	 
+	function succ(){
+		openWV('wallet_bill_details.html',{pUrl:pId,yt01id:self.yt01id});
+    	closeId(['wallet_recharge.html']);
+    	evalId("wallet.html", ["moneyExchange"]);
+    	var lv = plus.webview.getWebviewById('wallet_bill_details.html');
+    	var yt01id = JSON.stringify(self.yt01id);
+//  	console.log('yt01id' + yt01id);
+		setTimeout(function() {
+			if(lv) lv.evalJS("addss('" + yt01id +"')");//ahContact为充值页面的一个方法
+			self.close();
+		}, 300)
+	}
+	 
+	//输入验证码的键盘框
+	mui("body").on("tap",'#cashTxt',function(){
+		document.getElementById('sugSub').disabled='';
+		document.getElementById('sugSub').style.background='#3e75c7';
+		setTimeout(function(){
+			$('.veriflcation').css('margin-top','10%')
+			keyboard.show('bank');
+			$(".cursor").show();
+		}, 300)
+	})
+</script>

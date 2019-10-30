@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>匹配通讯录</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.mail_set{position: absolute;right: 10px;display: inline-block;}
+			/*******功能按钮及人数******/
+			
+			.mail_count{width: 100%;height: 40px;padding: 10px 20px;font-size: 15px;color: #999;}
+			.mail_count .people{color: #d74c4c;}
+			/******姓名、手机号、头像******/
+			
+			.mail_people table{width: 100%;height: auto;background: #fff; position: relative;}
+			.mail_people table tr{padding: 10px 20px;}
+			.mail_people table tr td{padding: 10px;}
+			.mail_people table tr td input{padding-left: 10px; padding-right: 30px;}
+			.mail_people table tr #phone{float: left;padding: 10px 20px;}
+			input[type='checkbox']{display: inline-block;vertical-align: middle;-webkit-appearance: none;background-color: transparent;border: 0;outline: 0 !important;color: #d8d8d8;}
+			input[type='checkbox']:after{content: "";display: inline-block;width: 15px;height: 15px;border-radius: 50%;text-align: center;line-height: 9px;font-size: 12px;color: #fff;border: 3px solid #ddd;background-color: #fff;box-sizing: border-box;content: "L";transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);-webkit-transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);border-color: #ddd;background-color: #ddd;}
+			input[type=checkbox]:checked:after{content: "L";transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);-webkit-transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);border-color: #3E75C7;background-color: #3E75C7;}
+			.refresh{display: inline-block; float: right; font-size: 12px;padding: 1px 3px; color: #4A7CC9;border: 1px solid #618ECF;border-radius: 3px; margin-right: 10px;}
+			.zm-ul{ position: fixed; right: 0; top: 104px; width: 20px; bottom: 0; background: #fff;}
+			.zm-ul li{ height: 3.6%; line-height: 100%; text-align: center; font-size: 14px; color: #666;}
+			.zm-title{ background: #F5F5F5;}
+			.zm-title td{ font-size: 18px; color: #666;}
+			.zm-show{ position: fixed; top: 45%; width: 100%; display: none;}
+			.zm-show span{ margin: 0 auto; text-align: center; display: block; width: 120px; height: 120px; line-height: 120px; border-radius: 50%; background: rgba(200, 200, 200, 0.4); font-size: 48px;}
+
+		</style>
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">匹配通讯录</h1>
+			<a class="mail_set">完成</a>
+		</header>
+
+		<div class="wrapper" id="cartTable" style="background: #fff;" v-cloak>
+			<div class="mail_people">
+				<div class="mail_count">
+					<span>
+						已选择&nbsp;
+						<span id="people" class="people">0</span>&nbsp; 人
+					</span>
+					<span class="refresh" @tap="reFresh">重新匹配</span>
+				</div>
+				<table>
+					<template v-for="(list, index) in mailData">
+						<tr class="zm-title" v-if="list != 'no'" :id="zm[index]">
+							<td colspan="3">{{zm[index]}}</td>
+						</tr>
+						<tr v-for="(item, i) in list" v-if="list != 'no'">
+							<td><input :data-index="index" type="checkbox" name="" :value="i" class="check" @click="getTotal" /></td>
+							<td class="mail_people_name">{{item.displayName}}（{{Nickname(item.nickname)}}）</td>
+							<td id="phone">{{item.username}}</td>
+						</tr>
+					</template>
+				</table>
+
+			</div>
+			<ul class="zm-ul">
+				<li v-for="item in zm" @tap="selectZm(item)">{{item}}</li>
+			</ul>
+			<div class="zm-show">
+				<span>A</span>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/jquery-2.1.4.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/MD5.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/pinying.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/channelPay.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/vue.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var pId = '';
+	var newphone = [];
+	var arrays = [];
+//	var phoneNumbers = [];
+//	var newname = [];
+	var vm = null;
+	var start = 0,
+		end = 60,
+		oneUserLen = 60;
+	var ctsObj = null;
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		//读取通讯录
+		plus.contacts.getAddressBook(plus.contacts.ADDRESSBOOK_PHONE, function(addressBook) {
+			ctsObj = addressBook;
+			var data = JSON.parse(localStorage.getItem("DL_CONTACTS"));
+			plus.nativeUI.showWaiting("正在匹配通讯录");
+			if(data && data.length > 0){
+				group(data);
+			}else{
+				getContact();
+			}
+		}, function(error) {
+			mui.toast(error.message);
+			plus.nativeUI.closeWaiting();
+		});
+
+		vm = new Vue({
+			el: '#cartTable',
+			data: {
+				mailData: '',
+				zm: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "※"],
+				peoplenumber: 0
+			},
+			methods: {
+				getTotal: function(event) {
+					var index2 = event.target.value;
+					var index1 = event.target.getAttribute("data-index");
+					if(event.target.checked == true) {
+						this.peoplenumber++;
+						arrays.push(vm.mailData[index1][index2]);
+					} else {
+						this.peoplenumber--;
+						for(i = 0; i < arrays.length; i++) {
+							if(arrays[i].username == vm.mailData[index1][index2].username) {
+								arrays.splice(i, 1);
+							}
+						}
+					}
+					document.getElementById('people').innerHTML = this.peoplenumber;
+					console.log('最新值' + JSON.stringify(arrays));
+				},
+				Nickname: function(names) { // 昵称的显示
+					if(names == '' || names == null || names == 'null') {
+						return '暂无昵称'
+					} else {
+						return names
+					}
+				},
+				selectZm: function(m) { //点击旁边字母弹出选择的字母
+					$(".zm-show span").html(m).parent().show();
+					if($('#' + m).length > 0) {
+						var LetterTop = $('#' + m).position().top;
+						$('.wrapper').animate({
+							scrollTop: LetterTop + 40 + 'px'
+						}, 300);
+					}
+					setTimeout(function() {
+						$(".zm-show").hide();
+					}, 800)
+				},
+				reFresh: function(){
+					vm.mailData = '';
+					vm.peoplenumber = 0;
+					arrays = [];
+					newphone = [];
+					start = 0;
+					end = 60;
+					document.getElementById('people').innerHTML = 0;
+					plus.nativeUI.showWaiting("正在匹配通讯录");
+					getContact();
+				}
+			}
+		})
+	});
+	
+	// 获取通讯录信息
+	function getContact() {
+		ctsObj.find(['displayName', 'phoneNumbers'], function(data) {
+			filterStr(data);
+		}, function(error) {
+			mui.toast(error.message);
+			plus.nativeUI.closeWaiting();
+		}, {
+			filter: [{
+				logic: "and",
+				field: "phoneNumbers",
+				value: "1*"
+			}]
+		});
+	};
+	
+	// 过滤无效电话（包括座机、短号等）去掉电话中的-、空格、+86等字符
+	function filterStr(datas){
+		var str = '';
+		var phoneNumbers = [];
+		var newname = [];
+		for(var i = 0; i < datas.length; i++) {
+			for(var j = 0; j < datas[i].phoneNumbers.length; j++) {
+				var phone = datas[i].phoneNumbers[j].value.replace(/(\s|-|\+86)/g, ""); //去掉电话号码里的空格和+86还有-
+				var obj = {}; //创建新对象
+				obj.displayName = datas[i].displayName;
+				obj.username = phone;
+				if(/(^1[3|4|5|6|7|8|9][0-9]{9}$)/.test(phone)) { //匹配电话号码的格式
+					newname.push(obj); //姓名和电话号码传给上一个页面的数据
+					phoneNumbers.push(phone); //电话号码传给后台的数据
+				}
+			}
+		}
+		maillist(phoneNumbers, newname);
+	}
+
+	// 往服务器进行匹配（分批次匹配，每次500条）
+	function maillist(phoneNumber, newname) {
+		if(phoneNumber.length > oneUserLen) {
+			var phones = phoneNumber.slice(start, end);
+			if(!phones) return false;
+			start += oneUserLen;
+			end += oneUserLen;
+		}else{
+			var phones = phoneNumber;
+		}
+
+		var url = USERINFO.DL_HOST + "/purse/redpacket/isUser";
+		mui.ajax(url,{
+			data:{
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				users: phones.join(","),
+				sign: md5(getUserInfo('username') + getUserInfo('token'))
+			},
+			dataType:'json',//服务器返回json格式数据
+			type:'post',//HTTP请求类型
+			timeout:10000,//超时时间设置为10秒；
+			success:function(data){
+				var d = JSON.parse(data);
+				if(d.msg == '1') {
+					for(var i = 0; i < d.data.length; i++) {
+						for(var j = 0; j < newname.length; j++) {
+							if(d.data[i].username == newname[j].username) {
+								newname[j].logopic = d.data[i].logopic;
+								newname[j].nickname = d.data[i].nickname;
+								newphone.push(newname[j])
+							}
+						}
+					}
+					if(phones.length >= oneUserLen) {
+						maillist(phoneNumber, newname)
+					} else {
+						group(newphone);
+					}
+				} else if(d.msg == '3') {
+					mui.toast(d.info);
+				} else if(d.msg == '99'){
+					mui.toast(d.info);
+				}else {
+					if(phones.length >= oneUserLen) {
+						maillist(phoneNumber, newname)
+					} else {
+						if(phoneNumber.length >= oneUserLen){
+							group(newphone);
+						}else{
+							mui.toast(d.info);
+							plus.nativeUI.closeWaiting();
+						}
+					}
+				}
+			},
+			error:function(xhr,type,errorThrown){
+				console.log(errorThrown)
+			}
+		});
+	}
+
+	// 过滤重复手机号码
+	function filterRepeat(newphone) {
+		var result = [],
+			isRepeated;
+		for(var i = 0; i < newphone.length; i++) {
+			isRepeated = false;
+			for(var j = 0; j < result.length; j++) {
+				if(newphone[i].username == result[j].username) {
+					isRepeated = true;
+					break;
+				}
+			}
+			if(!isRepeated) {
+				result.push(newphone[i]);
+			}
+		}
+		return result;
+	}
+
+	// 按拼音字母排序
+	function group(newphone) {
+		var arrNew = [];
+		arrNew[26] = [];
+		var arr = filterRepeat(newphone);
+		for(var i = 0; i < arr.length; i++) {
+			if(/^[a-zA-Z\u2E80-\u9FFF]+$/.test(arr[i].displayName)) {
+				var unCode = -(65 - makePy(arr[i].displayName)[0].charAt().toUpperCase().charCodeAt(0)); //chart返回固定位置的字符，括号里面不写就代表是0，toUpperCase是把字符串全部改为大写，charCodeAt返回指定字符的编码
+				if(!arrNew[unCode]) {
+					arrNew[unCode] = [arr[i]]
+				} else {
+					arrNew[unCode].push(arr[i])
+				}
+			} else {
+				arrNew[26].push(arr[i]);
+			}
+		}
+		for(var i = 0; i < arrNew.length; i++) {
+			if(!arrNew[i]) arrNew[i] = "no";
+			if(arrNew[i].length == 0) arrNew[i] = "no";
+		}
+		localStorage.setItem("DL_CONTACTS", JSON.stringify(newphone))
+		vm.mailData = arrNew;
+		plus.nativeUI.closeWaiting();
+	}
+
+	$('.mail_set').on('tap', function() {
+		var brrays = JSON.stringify(arrays);
+		var lv = plus.webview.getWebviewById('mail_select.html');
+		setTimeout(function() {
+			if(lv) lv.evalJS("achContact('" + brrays + "')");
+			self.close();
+		}, 300)
+	})
+</script>

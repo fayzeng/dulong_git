@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>收到红包</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*取消的那个叉*/
+			
+			.red_cancel {
+				width: 25px;
+				height: 25px;
+				border-radius: 50%;
+				background: #FFFFFD;
+				border: 1px solid #FF4D4D;
+				margin-top: 40px;
+				margin-left: 77%;
+				text-align: center;
+				line-height: 25px;
+				color: #FF4D4D;
+			}
+			/*那条线*/
+			
+			.red_lines {
+				width: 2px;
+				height: 66px;
+				background: #FF4D4D;
+				margin-left: 80%;
+			}
+			/*包含红包图片和红包里面字的大div*/
+			
+			.red_all {
+				width: 100%;
+				position: relative;
+				height: auto;
+			}
+			/*红包那个图片*/
+			
+			.red_bag {
+				transition: all 10s;
+				-webkit-animation:all 10s;
+			}
+			
+			.red_word {
+				display: block;
+			    z-index: 10;
+			    color: #FEFFFF;
+			    text-align: center;
+			    margin-top: 13%;
+			}
+			.redbagbox{   
+				background: url(images/hongbao.png)no-repeat;
+			    width: 70%;
+			    height: 45vh;
+			    background-size: 100% 100%;
+			    margin: 0 auto;
+			}
+			.kai{
+				z-index: 999;
+			    width: 100px;
+			    text-align: center;
+			    margin: 0 auto;
+			    overflow: hidden;
+			    display: inherit;
+			    padding-top: 19%;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">收到红包</h1>
+		</header>
+		<div class="wrapper">
+			<div class="red_all" >
+				<div class="red_cancel iconfont icon-iconfontcha" id="cancel"></div>
+				<div class="red_lines"></div>
+				<div class="redbagbox">
+					<img src="images/kai.png" class="kai red_bag"/>
+					<div class="red_word">恭喜您！收到红包！</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var pId = null;
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+	});
+	$('#cancel').on('tap', function() {
+		self.close();
+	}) 
+	$('.red_bag').on('tap', function() {
+		var code = self.code;
+		$('.red_bag').css('transform', 'rotateY(2880deg)');
+		$('.red_bag').css('-moz-transform', 'rotateY(2880deg)');
+		$('.red_bag').css('-webkit-transform', 'rotateY(2880deg)');
+		$('.red_bag').css('-o-transform', 'rotateY(2880deg)');
+		$('.red_word').text('');
+		$('#cancel').css('visibility', 'hidden');
+		$('.red_lines').css('visibility', 'hidden');
+		setTimeout(function() {
+			bpAjax('/purse/redpacket/receive', {
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				sign: '',
+				code: code
+			}, function(d) {
+				evalId('msg_RedactiviList.html', ['recordAjax']);
+				evalId('wallet.html', ['moneyExchange']);
+				openWV('take_redbag.html', {
+					pUrl: pId,
+					data: d.data
+				});
+				setTimeout(function() {
+					self.close();
+				}, 300);
+			}, function(d) {
+				mui.toast(d.info);
+				evalId('msg_RedactiviList.html', ['recordAjax']);
+				evalId('wallet.html', ['moneyExchange']);
+				self.close();
+			}, 1, '领取红包')
+		}, 300)
+		//		setTimeout(function(){
+		//			openWV('take_redbag.html', {pUrl:pId})
+		//			setTimeout(function(){
+		//				self.close();
+		//			}, 1000);
+		//		}, 3000);
+	})
+</script>

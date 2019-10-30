@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>我的资料</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">我的资料</h1>
+		</header>
+
+		<div class="wrapper">
+			<ul id="myInfoUl" class="sinfo_item">
+				<li>
+					<a data-href="myInfo_modify.html">
+						<span>个人资料</span>
+						<!--<p id="infoUser">45464</p>-->
+						<em class="arrow12 fr"></em>
+					</a>
+				</li>
+				<li>
+					<a data-href="Immediate.html">
+						<span>实名认证</span>
+						<!--<p id="infoName"></p>-->
+						<span id="prove" style="position: absolute;top: 0;right: 45px;">立即认证</span>
+						<em class="arrow12 fr"></em>
+					</a>
+				</li>
+
+				<li style=" height: auto; min-height: 48px; display: none;" id="failure">
+					<a>
+						<span>失败原因:</span>
+						<div class="upInfo">上传身份证不清晰</div>
+					</a>
+				</li>
+			</ul>
+			<a id="pbackLogin">退出登录</a>
+		</div>
+	</body>
+
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var uInfo = '';
+	var pId = '';
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		mstrong();
+	});
+
+	function mstrong(auditStatus) {
+		bpAjax('/app/riskmanagement/getUserInfo', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: ''
+		}, function(d) {
+			uInfo = d.data;
+			localStorage.setItem('DL_USERINFO', JSON.stringify(d.data));
+			var prove = $('#prove');
+			switch(uInfo.auditStatus) {
+				case -10:
+					prove.html('立即认证');
+					$("#failure").hide();
+					break;
+				case 0:
+					prove.html('证件审核中');
+					$("#failure").hide();
+					break;
+				case 10:
+					prove.html('审核失败,请重新上传');
+					$("#failure").show().children().find('.upInfo').html(d.data.auditInfo)
+					break;
+				case 99:
+					prove.html('已实名');
+					$("#failure").hide();
+					break;
+				default:
+					break;
+			}
+			plus.webview.getWebviewById('tab_personal.html').evalJS('mstrong(' + uInfo.auditStatus + ')');
+
+		}, function(d) {
+			mui.toast(d.info);
+		}, 3, '上传身份证的信息');
+	}
+
+	//退出登录
+	document.getElementById('pbackLogin').addEventListener('tap', function() {
+		bpAjax('/index/Login/loginout', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: ''
+		}, function(d) {
+			localStorage.removeItem('DL_USERINFO');
+			localStorage.removeItem('DL_IDENTTYPE');
+			localStorage.removeItem('DL_VIPGRAdDE');
+			mui.toast('退出登录成功');
+			openWV('login.html',{});
+		}, function(d) {
+			mui.toast(d.info);
+		}, 3, '退出登录');
+	})
+
+	mui('#myInfoUl').on('tap', 'a', function() {
+		var id = this.getAttribute('data-href');
+		var status = Math.abs(parseInt(uInfo.auditStatus));
+		if(status != 10 && id == "Immediate.html") {
+			return false;
+		}
+		openWV(id,{pUrl: pId});
+	});
+</script>

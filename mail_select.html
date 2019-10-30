@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>选择联系人</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.mail_set {
+				position: absolute;
+				right: 10px;
+				display: inline-block;
+			}
+			/*******功能按钮及人数******/
+			
+			.mail_box {
+				width: 100%;
+				height: 130px;
+				background: #fff;
+				padding: 5px;
+			}
+			
+			.mail_box ul {
+				width: 100%;
+				padding: 10px;
+			}
+			
+			.mail_box ul li {
+				width: 33%;
+				text-align: center;
+				float: left;
+			}
+			
+			.mail_box ul li span {
+				display: inline-block;
+				width: 80%;
+				border-radius: 3px;
+				padding: 3px 0;
+			}
+			
+			.manual {
+				background: #4e8cd9;
+				color: #fff;
+			}
+			
+			.mail_list {
+				background: #ed6942;
+				color: #fff;
+			}
+			
+			.history {
+				background: #eeeeee;
+				color: #666;
+			}
+			
+			.mail_count {
+				width: 100%;
+				height: 40px;
+				padding: 10px 20px;
+				font-size: 15px;
+				color: #999;
+			}
+			
+			.mail_count .people {
+				color: #d74c4c;
+			}
+			/******姓名、手机号、头像******/
+			
+			.mail_people ul {
+				width: 100%;
+				height: auto;
+				background: #fff;
+			}
+			
+			.mail_people ul li {
+				padding: 10px 0 0px 0;
+			}
+			
+			.mail_people ul li img {
+				width: 40px;
+				margin: 0 20px;
+				border-radius: 50%;
+			}
+			
+			.mail_people ul li .mail_people_name {
+				display: inline-block;
+				width: 70%;
+				height: 35px;
+				border-bottom: 1px solid #eee;
+			}
+			
+			.mail_people ul li .mail_people_name i {
+				float: right;
+				margin-top: 5px;
+				width: 15px;
+				height: 15px;
+				background: #e5e5e5;
+				border-radius: 50%;
+				font-size: 12px;
+				color: #999;
+				padding: 2px 0px 0 1.5px;
+			}
+			
+			.mail_people ul li .mail_people_name .remove {
+				float: right;
+				width: 30px;
+				height: 35px;
+			}
+			/******钱的框框******/
+			
+			.big_box {
+				position: relative;
+				height: 70px;
+				overflow: hidden;
+			}
+			
+			.big_box .money {
+				position: absolute;
+				top: 28px;
+				left: 10%;
+				font-size: 14px;
+				z-index: 3;
+				width: 20px;
+				height: 20px;
+				background: #f55050;
+				color: #fff;
+				text-align: center;
+				border-radius: 5px;
+			}
+			
+			.big_box .money_img {
+				width: 30px;
+				position: absolute;
+				top: 30px;
+				left: 45px;
+			}
+			
+			.big_box .money_box {
+				position: absolute;
+				top: 0;
+				left: 92px;
+				width: 65%;
+				font-size: 28px;
+				font-weight: bold;
+			}
+			
+			.money_dox {
+				font-size: 2.4rem;
+			}
+			/*弹出输入账号的弹窗的幕布*/
+			
+			.upwindow {
+				display: none;
+				width: 100%;
+				height: 100%;
+				z-index: 9;
+				background: rgba(0, 0, 0, 0.5);
+				position: fixed;
+				top: 64px;
+				left: 0;
+			}
+			/*输入账号的弹窗*/
+			
+			.contactTel {
+				width: 90%;
+				height: 230px;
+				margin: 0 auto;
+				margin-top: 90px;
+				background: #FFFFFF;
+				padding: 10px 10px;
+				overflow: hidden;
+			}
+			
+			.upwindow .contactInput {
+				width: 100%;
+				height: 46px;
+				background: #EEEEEE;
+				padding: 0px 10px;
+				border-radius: 10px;
+				margin-top: 16px;
+			}
+			
+			.upwindow .confirmInput {
+				width: 100%;
+				height: 46px;
+				background: #3E75C7;
+				color: #FFFFFF;
+				border-radius: 10px;
+				margin-top: 44px;
+				font-size: 17px;
+			}
+			/*隐藏的密码输入框*/
+			
+			.eject {
+				width: 100%;
+				height: 100%;
+				z-index: 99;
+				background: rgba(0, 0, 0, .8);
+				position: fixed;
+				top: 66px;
+				left: 0;
+			}
+			
+			.payment {
+				width: 70%;
+				height: 40%;
+				background: #fff;
+				margin: 0 auto;
+				margin-top: 14%;
+				border-radius: 5px;
+			}
+			
+			.payment_head {
+				padding: 10px;
+				border-bottom: 1px solid #C9C9C9;
+				margin: 0 5px;
+			}
+			
+			.payment_head em {
+				font-size: 22px;
+				padding-top: 3px;
+			}
+			
+			.payment_head span {
+				font-size: 15px;
+				padding-left: 15px;
+			}
+			
+			.transaction_amount {
+				text-align: center;
+				padding: 15px 20px;
+				border-bottom: 1px solid #C9C9C9;
+				margin: 0 15px;
+			}
+			
+			.transaction_amount h1 {
+				font-size: 15px;
+			}
+			
+			.transaction_amount p {
+				font-size: 30px;
+			}
+			
+			.sd_pwd {
+				width: 85%;
+				height: 17%;
+			}
+			
+			.sd_pwd .epay-item {
+				width: 16.6%;
+				height: 100%
+			}
+			
+			.icon-tongxunlu {
+				color: #6198EB;
+				font-size: 25px;
+				position: absolute;
+				top: 13px;
+				right: 35px;
+			}
+			
+			.money_dox {
+				width: 70%;
+			}
+			
+			.dash_add {
+				color: #e05453;
+				margin-left: 20px;
+				margin-top: 10px;
+			}
+			
+			.header .contants {
+				height: 50px;
+				width: 30px;
+				float: left;
+				display: inline-block;
+				font-size: 18px;
+				line-height: 50px;
+				text-align: right;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="bigbox">
+			<header class="DL_bar mui-bar-nav">
+				<a class="mui-action-back iconfont icon-fanhui"></a>
+				<h1 class="head_title">选择联系人</h1>
+				<a class="mail_set" id="mail_set" @tap="WRpassword">确认发送</a>
+			</header>
+
+			<div class="wrapper" id="wrapper">
+				<div class="mail_box" v-cloak>
+					<div class="big_box">
+						<h6 class="money_dox" id="spPri"><span class="money">多</span>￥<span id="spPrice">{{moneys}}</span></h6>
+					</div>
+					<ul>
+						<li>
+							<span class="manual" id="manual" @tap="adds">手动添加</span>
+						</li>
+						<li><span class="mail_list" id="Select" @tap="matchingcontact">匹配通讯录</span></li>
+						<li><span class="history" id="history" @tap="recentlyRecord">最近记录</span></li>
+					</ul>
+				</div>
+				<div class="mail_people">
+					<div class="mail_count"> 已添加人员&nbsp;&nbsp;&nbsp;共&nbsp;<span id="people" class="people">0</span>&nbsp;人</div>
+					<ul id="contactUl" v-cloak>
+						<li v-for="(item, index) in contact">
+							<img :src="logicss(item.logopic)" />
+							<div class="mail_people_name">
+								<span id="name">{{Nickname(item.nickname)}}</span>
+								<span>(</span>
+								<span id="phone">{{item.username}}</span>
+								<span>)</span>
+								<span class="remove" @tap="removeCon"><i class="iconfont icon-iconfontcha"></i></span>
+							</div>
+						</li>
+						<!--<li>
+						<img src="images/girl.png"/>
+						<div class="mail_people_name">
+							<span id="name">张小小</span>
+							<span id="phone">(137877890899)</span>
+							<span class="iconfont icon-iconfontcha remove"></span>
+							<i class="iconfont icon-iconfontcha remove"></i>
+						</div>
+					</li> 					-->
+					</ul>
+				</div>
+			</div>
+			<!--弹出来的输入账号的幕布-->
+			<div class="upwindow" id="upwindow" @tap="closeName">
+				<!--输入账号的那个框-->
+				<div class="contactTel" id="contactTel" @tap="writeName">
+					<p>请输入联系人手机号码</p>
+					<input type="tel" class="contactInput" placeholder="联系人账号" id="contactInput" />
+					<input type="submit" value="确认" class="confirmInput" id="confirmInput" @tap="checkCon" />
+				</div>
+			</div>
+			<!--点击确认发送-->
+			<div id="passd" class="eject" style="display: none;">
+				<div class="payment">
+					<div class="payment_head">
+						<em class="iconfont icon-iconfontcha" id="psdClose" @tap="closePass"></em>
+						<span>请输入支付密码</span>
+					</div>
+
+					<div class="transaction_amount">
+						<h1>交易金额</h1>
+						<p><em>¥</em><span id="drawmoney">29.99</span></p>
+					</div>
+
+					<div class="sd_pwd cl">
+						<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+						<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+						<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+						<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+						<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+						<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</body>
+
+</html>
+<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/zepto.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/channelPay.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="js/vue.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/virtual-keyboard.js" charset="utf-8"></script>
+
+<script type="text/javascript">
+	var self = null;
+	var pwd = [];
+	var pId = '';
+	var address = null;
+	var contact = null;
+	var contacts = null;
+	var telNum = null; //输入的账号
+	var cLength = 0; //总共信息li标签的长度
+	var arrone = []; //存放contact的数组
+	var brrone = []; //传给余毅的数组
+	var statues = '';
+	var vm = '';
+ 	var res = /^(((1[3-8][0-9]{1}))+\d{8})$/;//验证电话号码的正则表达式	
+	mui.plusReady(function() {
+
+		self = plus.webview.currentWebview();
+		console.log('self' + self.status);
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		if(self.status == '1') {
+			statues = 10;
+		} else {
+			statues = 11;
+		}
+		vm = new Vue({
+			el: '#bigbox',
+			data: {
+				contact: [],
+				moneys: (self.status == '1') ? 0 : self.redMoney
+			},
+			methods: {
+				removeCon: function(event) { //点击后面的叉号
+					//				var names = $(event.target).parents('#contactUl').find('#phone').html();
+					var indexs = $(event.target).parents('li').index();
+					console.log('indexs' + indexs);
+					//				$(event.currentTarget).parents('li').remove();
+					for(var i = 0; i < vm.contact.length; i++) {
+						if(vm.contact[i].username == vm.contact[indexs].username) {
+							vm.contact.splice(i, 1);
+						} else {
+
+						}
+					}
+					console.log('contact' + JSON.stringify(vm.contact));
+					cLength = vm.contact.length;
+					$('#people').html(cLength);
+					if(self.status == '1') {
+						vm.moneys = (self.redMoney * (vm.contact.length)).toFixed(2);
+						console.log()
+						console.log('vm.moneys' + vm.moneys);
+					}
+
+				},
+				Nickname: function(names) { // 昵称的显示
+					if(names == '' || names == null || names == 'null') {
+						return '暂无昵称'
+					} else {
+						return names
+					}
+				},
+				logicss: function(pho) { //照片的显示
+					if(pho == '' || pho == null || pho == 'null') {
+						return 'images/girl.png'
+					} else {
+						return pho
+					}
+				},
+				adds: function() { //点击手动添加
+					$('#upwindow').show();
+				},
+				checkCon: function() { //点击确认去查询是否已注册平台号码					
+					if(!$('#contactInput').val()){
+						mui.toast('请输入联系人');
+						$('#contactInput').blur();
+						return false;
+					}
+					if(!res.test($('#contactInput').val())){
+						mui.toast('请输入正确的手机号码');
+						$('#contactInput').blur();
+						return false;						
+					}					
+					telNum = $('#contactInput').val();
+					$('#contactInput').val('');
+					$('#contactInput').blur();
+					$('#upwindow').hide();
+					checkcontact(telNum);
+				},
+				WRpassword: function() { //输入完联系人点击确认发送
+					if(vm.contact.length<1){
+						mui.toast('请先选择联系人！');
+						return false;
+					}
+					
+					this.closeName();
+					//closeId(['wallet_redbag.html'])
+					$(".epay-item").children().removeClass("act");
+					$("#drawmoney").text(vm.moneys);
+					$("#passd").show();
+					pwd = [];
+					keyboard.show('pass');
+					reset();
+				},
+				matchingcontact: function() { //点击匹配通讯录
+					openWV('mail_list.html', {
+						pUrl: pId
+					})
+				},
+				recentlyRecord: function(){ //点击最近记录
+					openWV('mail_history.html', {
+						pUrl: pId
+					})					
+				},
+				closePass: function() { //点击输密码的叉
+					$(".epay-item").children().removeClass("act");
+					//$(".cursor").hide();
+					$("#passd").hide();
+					keyboard.hide();
+					pwd = [];
+				},
+				writeName: function(e){
+//					$('#upwindow').show();
+					e.stopPropagation();					
+				},
+				closeName: function(){//点击手动添加的旁边页面让幕布隐藏
+					$('#upwindow').hide();
+					$('#contactInput').blur();
+				}
+			}
+		})
+//		takeConntact();
+	});
+	//弹出输密码的框和键盘
+	$(function() {
+		keyboard = new Keyboard({
+			add: function(k, type) {
+				if(type == 'pass') {
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = 0; i < els.length; i++) {
+						if(els[i].className === 'epay-pot') {
+							els[i].className = 'epay-pot act';
+							pwd.push(k);
+							if(i == 5) {
+								possDraw();
+							}
+							break;
+						} else {
+							continue;
+						}
+					}
+//					console.log('密码'+ )
+				}
+			},
+			del: function(key, type) {
+				if(type == 'pass') {
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = els.length - 1; i >= 0; i--) {
+						if(els[i].className === 'epay-pot act') {
+							els[i].className = 'epay-pot';
+							pwd.pop();
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		})
+		//点击弹出来的x
+		$("#psdClose").on("tap", function() {
+			$(".epay-item").children().removeClass("act");
+			//			$(".cursor").hide();
+			$("#passd").hide();
+			keyboard.hide();
+			pwd = [];
+		})
+	})
+
+	function takeConntact() {
+		vm.contact = [
+			{
+				nickname: '李光辉',
+				username: '18673798863',
+				logopic: 'images/badge_02.png'
+			}
+		];
+		cLength = vm.contact.length;
+		console.log('lenght' + vm.contact.length);
+		$('#people').html(cLength);
+	}
+	//	点击添加去查询号码
+	function checkcontact(telNum) {
+		bpAjax('/index/purse/checkYLCard', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			key: telNum,
+			sign: ''
+		}, function(d) {
+			mui.toast(d.info);
+			if(d.data.logopic == 'null' || d.data.logopic == null || d.data.logopic == '') {
+				var imges = 'images/girl.png';
+			} else {
+				var imges = unescape(d.data.logopic);
+			}
+			console.log('imges' + imges);
+			d.data.logopic = imges;
+			var temp = []; //临时数组1 
+			var temparray = []; //临时数组2 
+			for(var i = 0; i < vm.contact.length; i++) {
+				temp[vm.contact[i].username] = true;
+			};
+			for(var i = 0; i < 1; i++) {
+				if(!temp[d.data.username]) {
+					temparray.push(d.data);
+				};
+			};
+			console.log('temparray' + temparray);
+			vm.contact.unshift.apply(vm.contact, temparray);
+			cLength = vm.contact.length;
+			console.log('lenght' + vm.contact.length);
+			$('#people').html(cLength);
+			if(self.status == '1') {
+				vm.moneys = (self.redMoney * (vm.contact.length)).toFixed(2);
+				console.log('vm.moneys' + vm.moneys);
+			}
+		}, function(d) {
+			mui.toast(d.info);
+		}, 3, '检查手机钱包卡号')
+	}
+	//输完密码之后的操作
+	function possDraw() {
+		brrone = [];
+		plus.nativeUI.showWaiting();
+		for(var i = 0; i < vm.contact.length; i++) {
+			brrone.push(vm.contact[i].username);
+		}
+		console.log('brronr' + brrone.join(','));
+		var url = USERINFO.DL_HOST + '/purse/Redpacket/send';
+		var sign = getRSA({
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			amount: vm.moneys,
+			password: md5(pwd.join('')),
+			account: brrone.join(','),
+			remark: self.forgetNote,
+			type: statues
+		});
+		mui.ajax(url, {
+			data: {
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				sign: sign,
+				amount: vm.moneys,
+				password: md5(pwd.join('')),
+				account: brrone.join(','),
+				remark: self.forgetNote,
+				type: statues
+			},
+			dataType: 'json', //服务器返回json格式数据
+			type: 'post', //HTTP请求类型
+			timeout: 13000, //超时时间设置为10秒；
+			success: function(data) {
+				plus.nativeUI.closeWaiting();
+				console.log('输入密码之后' + data);
+				var d = JSON.parse(data);
+				if(d.msg == '1') {
+					mui.toast(d.info);
+					closeId(['wallet_redbag.html']);
+					closeId(['red_random.html']);
+					setTimeout(function(){
+						evalId('wallet.html', ['moneyExchange']);
+						self.close();
+					},300)
+					
+				} else {
+					mui.toast(d.info);
+					reset();
+					$(".epay-item").children().removeClass("act");
+					pwd = [];						
+				}
+			},
+			error: function(xhr, type, errorThrown) {
+				plus.nativeUI.closeWaiting();
+				console.log('输入密码之后' + errorThrown);
+			}
+		});
+	}
+	//	点击通讯录执行的方法
+	function achContact(people) {
+		console.log('people' + people);
+		console.log('vm.contact' + JSON.stringify(vm.contact));
+		var Chpeople = JSON.parse(people);
+		var temp=[];
+		var temparray=[];
+		for(var i=0;i<vm.contact.length;i++){
+			temp[vm.contact[i].username] = true;
+		};
+		for(var i = 0;i<Chpeople.length;i++){
+			if(!temp[Chpeople[i].username]){
+				temparray.push(Chpeople[i]);
+			}
+		};		
+		vm.contact.unshift.apply(vm.contact, temparray);
+		cLength = vm.contact.length;
+		$('#people').html(cLength);
+		
+		
+			if(self.status == '1') {
+				vm.moneys = (self.redMoney * (vm.contact.length)).toFixed(2);
+				console.log('vm.moneys' + vm.moneys);
+			}		
+	}
+	function reset() { //清除密码
+		var els = document.querySelectorAll('.epay-pot');
+		for(var i = els.length - 1; i >= 0; i--) {
+			els[i].className = 'epay-pot';
+			pwd.pop();
+		}
+	}	
+
+
+//	uniques();
+
+	function unique() {
+		var array = [1, 2, 5, 7, 5, 8, 9, 1];
+		var n = [];
+		for(var i = 0; i < array.length; i++) {
+			if(n.indexOf(array[i]) == -1) {
+				n.push(array[i]);
+			} else{
+				console.log('有一样的值');
+			}
+		}
+		console.log('n' + n);
+	}	
+		function uniques() {
+		var AA = [{name:'11'},{name:'12'},{name:'13'},{name:'11'}];
+		var n = [];
+		for(var i = 0; i < AA.length; i++) {
+			if(n[i].name != AA[i].name) {
+				n.push(AA[i]);
+			}
+		}
+		console.log('n' + n);
+	}	
+</script>

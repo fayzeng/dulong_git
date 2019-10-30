@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>选择银行卡</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.select_header{width: 100%;padding: 5px 15px;margin-top: 10px;font-size: 15px;}
+			.head_complete{display: inline-block; position: absolute;top: 19px;right: 10px;font-size: 15px; color: #fff;}
+			.money_box{display: inline-block;margin-left: 15px;}
+			.numbercolor{color: #108ccd;padding: 0 5px;}
+			.moneycolor{color: #e02020;}
+			input[type='checkbox']{display: inline-block;vertical-align: middle;-webkit-appearance: none;background-color: transparent;border: 0;outline: 0 !important;color: #d8d8d8;}
+			input[type='checkbox']:after{content: "";display: inline-block;width: 15px;height: 15px;border-radius: 50%;text-align: center;line-height: 9px;font-size: 12px;color: #fff;border: 3px solid #ddd;background-color: #fff;box-sizing: border-box;content: "L";transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);-webkit-transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);border-color: #ddd;background-color: #ddd;}
+			input[type=checkbox]:checked:after{content: "L";transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);-webkit-transform: matrix(-0.766044, -0.642788, -0.642788, 0.766044, 0, 0);border-color: #3E75C7;background-color: #3E75C7;}
+			.bankcheck{width: 100%;padding:10px 15px;background: #fff;margin-top: 10px;}
+			.bankcheck img{width:26px;border-radius: 50%;margin: 0 5px;}
+			/*.bankcheck span.bank-name{display: inline-block; width: 35%;height: 18px; overflow: hidden;}*/
+			.bankcheck .amount{float: right;width: 22%;height:31px;background: #eee;font-size: 14px;color: #000; margin-top: -2px; text-align: center;border-radius: 3px;}
+			.quota{padding: 5px 15px;color: #ccc;}
+			.quota i{color: #CF2D28;}
+			#cashSub{background: #3E75C7;}
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">选择银行卡</h1>
+			<div class="head_complete">限额说明</div>
+		</header>
+
+		<div class="wrapper">
+			<div id="vueids" v-cloak>
+				<div class="select_header">
+					<span>
+						<span>已选：</span>
+						<span><i class="numbercolor" id="banknumber">{{banknumber}}</i>张银行卡</span>
+					</span>
+					<span class="money_box">
+						<span>金额：</span>
+						<span><i class="numbercolor moneycolor" id="money">{{allf}}</i>元</span>
+					</span>
+				</div>
+				<template v-for="(item, index) in bankdata"><!--v-if="sur(item.bankname) != '招商银行'" -->
+					<div class="bankcheck" >
+						<input :data-index = 'index'  type="checkbox" name=""  class="check" @click="getTotal"/>
+						<img :src="bankLogos(item.bankname)"/>
+						<span class="bank-name">{{item.bankname}}</span><span>（{{item.accountNo}}）</span>
+						<input :data-index = 'index' type="number" class="amount" id="amount" value="" placeholder="请输入金额..."  @change="keys(item.resBalance/100)">
+					</div>
+					<p class="quota">今日剩余额度<i v-if="item.resBalance">{{item.resBalance/100}}</i><i v-else>0</i>元</p>
+				</template>
+
+				<div class="btnDiv" @tap = "cashSub">
+					<input id="cashSub" type="button" value="完成" disabled="disabled"/>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+
+<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/zepto.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/channelPay.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/vue.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/virtual-keyboard.js" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var bankquota ='';
+	var inputm2 = '';
+	var bankbox = [];
+	var mon = 0;
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		bankCardAjax();
+	});
+	
+	var vm = new Vue({
+		el:"#vueids",
+		data:{
+			bankdata: '',
+			banknumber: 0,
+			allf: 0
+		},
+		methods:{
+			getTotal: function() {
+				this.calculation();
+			},
+			bankLogos:function(n){
+				return 'images/bank/bankLogo'+ bankLogo(n) + '.png';
+			},
+//			sur:function(stru){
+//				return stru.substr(0,4);
+//			},
+			keys:function(){
+				this.calculation();
+			},
+			calculation:function(){
+				var r = /^\d+(?=\{0,1}\d+$|$)/;
+				var $cashSub = $("#cashSub");//先声明id,避免重复寻找HTML
+				var that = this;
+				that.banknumber = that.allf = 0;
+				bankbox = [];
+				//循环bankcheck的子元素
+				$('.bankcheck').each(function(){
+					//balance为当日限额额度
+					var balance = $(this).next().children("i").text() - 0;
+					//当选择框为true时
+					if(this.childNodes[0].checked){
+						//得到钱的输入框值同时转换为数字
+						mon = $(this).children('input[type=number]').val() - 0;
+						if(r.test(mon)){
+							if(mon > balance){
+								var eorr = $(this).children('span').text();
+								mui.alert(eorr+ "所提金额大于今日剩余额度");
+							}else if(mon == '' || mon == 0){
+//								mui.alert('请填写金额');
+								$cashSub.css('background','#ccc').attr('disabled' ,'disabled');
+							}else{
+								//钱数相加
+								that.allf += mon;
+					    		$cashSub.css('background','#3E75C7').removeAttr('disabled');
+					    		bankname = $(this).children('.bank-name').text();
+								if(mon > 0){
+									for(var i= 0;i<vm.bankdata.length;i++){
+										if(vm.bankdata[i].bankname == bankname ){
+											cardnumber = vm.bankdata[i].accountNo2;
+											onceLimit = vm.bankdata[i].onceLimit;
+											var arry = {};
+											arry.bank = bankname + '('+vm.bankdata[i].accountNo+')';
+											arry.money = mon*100;
+											arry.resBalance = balance;
+											arry.cardnumber = cardnumber;
+											arry.onceLimit = onceLimit;
+											bankbox.push(arry);	
+										}
+									}
+								}
+							}
+						}
+						that.banknumber++;
+					}
+				})
+			},
+			cashSub:function(){
+				//所有条件满足跳转至上一个充值页面
+				var ta = [];
+				var totala = {};
+					totala.allf = vm.allf;
+					totala.banknumber = vm.banknumber;
+					ta.push(totala);
+					
+				var arraybox = JSON.stringify(bankbox);
+				var total = JSON.stringify(ta);
+				//将当前页面的值传给充值页面
+				var lv = plus.webview.getWebviewById('rec_recharge.html');
+				setTimeout(function() {
+					if(lv) lv.evalJS("achContact('" + arraybox+"','"+total+"')");//ahContact为充值页面的一个方法
+					self.close();
+				}, 300)
+			},
+		},
+	})
+
+	
+	function bankCardAjax() {
+		bpAjax('/purse/Multicard_Quickpay/cardInfo', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:'',
+			qrCode: self.pCode
+		}, function(d){
+			vm.bankdata = d.data;
+			bankquota = d.bankLimit;
+			console.log(JSON.stringify(vm.bankdata))
+		}, function(d){
+			mui.toast(d.msg);
+		} , 3, '钱包多卡充值银行卡')
+	}
+	//点击查看银行限额
+	$('.head_complete').on('tap',function(){
+		openWV('bankquota.html', {pUrl: pId,bankquota:bankquota});
+	})
+</script>

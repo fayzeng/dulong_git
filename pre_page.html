@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style>
+			body,
+			html {
+				height: 100%;
+				width: 100%;
+			}
+			
+			.preImg {
+				position: relative;
+				height: 100%;
+				width: 100%;
+				/*background: url(images/index_02.png)no-repeat;background-size: 100%;*/
+			}
+			
+			.notice {
+				text-align: left;
+				padding: 18% 20px 20px 20px;
+				color: #fff;
+				line-height: 26px;
+			}
+			
+			.notice h1 {
+				text-align: center;
+				font-size: 23px;
+			}
+			
+			.notice p {
+				text-indent: 2em;
+			}
+			
+			.notice p.noticeone {
+				margin-top: 20px;
+			}
+			
+			.preImg .skip {
+				display: block;
+				position: absolute;
+				right: 20px;
+				top: 10px;
+				border: 1px solid rgba(255, 255, 255, .6);
+				border-radius: 50%;
+				font-size: 11px;
+				color: #c93;
+				background: rgba(255, 255, 255, .5);
+				width: 20px;
+				height: 20px;
+				text-align: center;
+			}
+			
+			.check-box {
+				width: 100px;
+				height: 30px;
+				margin: 0 auto;
+				text-align: center;
+				overflow: hidden;
+				padding-top: 6px;
+				padding-bottom: 50px;
+			}
+			
+			.check-box .check-box-k {
+				display: inline-block;
+				position: relative;
+				width: 19px;
+			}
+			
+			.check-box input {
+				width: 1px;
+				height: 1px;
+				font-size: 1px;
+			}
+			
+			.check-box label {
+				color: #FFF;
+			}
+			
+			.check-box .check-box-kt {
+				width: 18px;
+				height: 18px;
+				position: absolute;
+				border: 1px #FFF solid;
+				background: #7cbff3;
+				border-radius: 50%;
+				margin-top: 2px;
+			}
+			
+			.check-box .check-box-kt .kr {
+				width: 8px;
+				height: 8px;
+				background-color: rgba(255, 255, 255, .8);
+				position: absolute;
+				border-radius: 50%;
+				left: 4px;
+				top: 4px;
+			}
+			
+			.skips {
+				position: absolute;
+				width: 100%;
+				right: 0;
+				top: 20px;
+			}
+			
+			#close {
+				position: absolute;
+				width: 160px;
+				height: 44px;
+				left: 50%;
+				font-size: 20px;
+				margin-left: -80px;
+				bottom: 6%;
+				padding: 10px;
+				color: #fff;
+				border-color: #fff;
+				border-radius: 10px;
+				-webkit-border-radius: 10px;
+				background: rgba(52, 170, 156, .6);
+				padding-top: 7px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="preImg" id="preImg" v-cloak>
+
+			<div id="slider" class="mui-slider mui-fullscreen">
+
+				<div class="mui-slider-group">
+					<!-- 第一张 -->
+					<template v-for="(item, index) in personimg" v-if="isGuide('start')">
+						<div class="mui-slider-item">
+							<img :src="item.pic">
+							<button id='close' class="mui-btn mui-btn-warning mui-btn-outlined" @tap="skiplink('start')" v-if="personimg.length > 1 && (personimg.length-1) == index">开始体验</button>
+						</div>
+					</template>
+
+					<template v-for="(item, index) in bootPage" v-if="isGuide()">
+						<div class="mui-slider-item mui-slider-item-duplicate">
+							<img :src="item.pic">
+						</div>
+
+						<div class="skips">
+							<span id="skip" class="skip" @tap="skiplink">3s</span>
+						</div>
+					</template>
+				</div>
+
+				<div class="mui-slider-indicator" v-if="isGuide('start')">
+					<div :class="index == 0 ? 'mui-indicator mui-active' : 'mui-indicator'" v-for="(item, index) in personimg"></div>
+				</div>
+
+			</div>
+		</div>
+	</body>
+
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var uInfo;
+	var i = 3;
+	var isKip = false;
+	var v = null;
+	mui.plusReady(function() {
+		plus.navigator.closeSplashscreen();
+		localStorage.setItem('DL_DEVICEID', plus.device.uuid);
+		localStorage.setItem('DL_APPID', plus.runtime.appid)
+		plus.navigator.setFullscreen(true);
+		
+		v = plus.runtime.version;
+		if(plus.networkinfo.getCurrentType() != 1){
+			getPic();
+		}else{
+			mui.toast("当前网络不稳定，请检查网络设置！")
+			openWV('login.html', {})
+		}
+		
+		getPic();
+
+	});
+
+	var vm = new Vue({
+		el: '#preImg',
+		data: {
+			personimg: [],
+			bootPage: [],
+			vs: ''
+		},
+		created: function() {
+			uInfo = JSON.parse(localStorage.getItem('DL_USERINFO'));
+
+		},
+		methods: {
+			abbreviations: function(Integral, num) {
+				return abbreviation(Integral, num);
+			},
+			skiplink: function(type) {
+				if(type == 'start'){
+					localStorage.setItem("DL_LAUCHFLAG", this.vs);
+				}
+				openhref();
+			},
+			isGuide: function(type) {
+				var showGuide = localStorage.getItem("DL_LAUCHFLAG");
+				if(showGuide !== this.vs && this.vs == v && this.personimg.length >= 1) {
+					if(type == "start") {
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					if(type == "start") {
+						return false;
+					} else {
+						setTimeout(countDown, 1000);
+						return true;
+					}
+				}
+			}
+		}
+	})
+
+	function getPic() {
+		bpAjax('/cps/show/getBootPage', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token')
+		}, function(d) {
+			if(typeof d.data == "object"){
+				vm.personimg = d.data;
+			}else{
+				vm.personimg = [];
+			}
+			
+			vm.isLogin = d.isLogin;
+			vm.bootPage = d.bootPage;
+			vm.vs = d.version;
+			vm.$nextTick(function() {
+				mui('.mui-slider').slider({
+					interval: 0
+				});
+			})
+
+		}, function(d) {
+			console.log(d.info);
+		}, 3, '引导页');
+	}
+
+	var countDown = function() {
+		if(i <= 1) {
+			openhref();
+		} else {
+			i--;
+			$("#skip").text(i + "s");
+			if(!isKip) setTimeout(countDown, 1000);
+		}
+	}
+	
+	function openhref(){
+		plus.navigator.setFullscreen(false);
+		if(!uInfo || !vm.isLogin) {
+			openWV('login.html', {})
+		} else {
+			openWV('index.html', {})
+		}
+	}
+</script>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>通知消息</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*最外面的那个大框*/
+			
+			.notice_head {
+				width: 90%;
+				margin: 0 auto;
+				margin-top: 10px;
+				position: relative;
+			}
+			/*里面的那一个红色框*/
+			
+			.notice_body {
+				width: 100%;
+				height: 84px;
+				background: #E15554;
+				border-radius: 10px 10px 0 0;
+				padding-top: 21px;
+			}
+			
+			.notice_mix {
+				width: 100%;
+				height: 50px;
+				padding: 0 10px;
+			}
+			/*红包的框*/
+			
+			.notice_mix .mix_left {
+				float: left;
+				color: #FF8685;
+				width: 20%;
+				height: 50px;
+			}
+			/*红包字符*/
+			
+			.icon-iconzhenghe03 {
+				font-size: 40px;
+			}
+			/*红包字符旁边的字*/
+			
+			.notice_mix .mix_middle {
+				float: left;
+				color: #FFFFFD;
+				width: 80%;
+				height: 50px;
+				position: relative;
+			}
+			
+			.middle_one {
+				position: absolute;
+				top: 0;
+				left: 0;
+			}
+			
+			.middle_two {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+			}
+			
+			.middle_three {
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				color: #FFE3A4;
+			}
+			/*下面的那行白色的*/
+			.notice_state {width: 100%;height: 28px;background: #FFFFFF;padding: 0 10px;line-height: 28px;border-radius: 0 0 10px 10px;}	
+			.state_left {float: left;}	
+			.state_right {float: right;}
+			.colorone {background: #E15554;}
+			.colortwo {background: #E1A9A8;}
+			/*取消的那个叉*/
+			.red_cancel {width: 30px;height: 30px;border-radius: 50%;/*background: #FFFFFD;border: 1px solid #FF4D4D;margin-left: 77%;margin-top: 40px;*/text-align: center;line-height: 25px;color: #D33D3C;font-weight: bold;position: absolute;top: 21%;left: 15%;z-index: 99;}
+			/*那条线*/
+			.red_lines {width: 2px;height: 66px;background: #FF4D4D;margin-left: 80%;}
+			/*包含红包图片和红包里面字的大div*/
+			.red_all {display: none; width: 100%;height: 100%;position: fixed;top: 64px;left: 0;background: rgba(0,0,0,.8);z-index: 999;}
+			/*红包那个图片*/
+			.red_bag{
+				/*transition: all 10s;
+				-webkit-animation:all 10s;*/
+				animation: rotate 5s infinite linear;
+				-webkit-animation: rotate 5s infinite linear;
+				animation-play-state:paused;
+				-webkit-animation-play-state:paused;
+			}
+			@keyframes rotate{
+				from{-webkit-transform:rotateY(0);}
+				to{-webkit-transform: rotateY(2880deg);}
+			}
+			@-webkit-keyframes rotate{
+				from{-webkit-transform: rotateY(0);}
+				to{-webkit-transform: rotateY(2880deg);}
+			}
+			.red_word {display: block; z-index: 10;color: #FEFFFF;text-align: center;margin-top: 13%;}
+			.redbagbox{background: url(images/hongbao.png)no-repeat;width: 70%;height: 45vh;background-size: 100% 100%;/*margin: 0 auto;margin-top: 30%;*/position: absolute;top: 20%;left: 15%;}
+			.kai{z-index: 999; width: 100px;text-align: center;margin: 0 auto;overflow: hidden; display: inherit;padding-top: 18%;}
+		</style>
+	</head>
+
+	<body>
+		<!--		头部顶部通栏-->
+		<header class="mui-bar mui-bar-nav" style="height: 64px;">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="mui-title">红包消息</h1>
+		</header>
+		<!--		下面的那一个大框,有滚动条,不设高度,绝对定位-->
+		<div class="wrapper" id="notice" >
+			<!--<p class="slideDown">
+				下拉可刷新
+			</p>-->
+			<div class="bill_cont" >
+				<div class="bill_scroll" style="background: #eee; min-height: 100%;">
+					<!--最外面的大框-->
+					<div class="notice_head" @tap="noticelink(item)" v-for="item in noticeData" v-cloak>
+						<!--里面的那个红色框-->
+						<div class="notice_body" :class="[redStates(item.status)]">
+							<!--那个钱包字符和字体的框-->
+							<div class="notice_mix">
+								<div class="mix_left"> <span class="iconfont icon-iconzhenghe03"></span> </div>
+								<div class="mix_middle">
+									<span class="middle_one">收到来自  <span>{{item.username}}</span>的红包</span>
+									<!--									<span class="middle_two"> <span>{{}} </span>(元)</span>-->
+									<span v-if="item.status == 10 " class="middle_three">{{item.amount/100}}(元)</span>
+									<span v-else class="middle_three">领取红包</span>
+								</div>
+							</div>
+						</div>
+						<!--下面的日期和领取状态-->
+						<div class="notice_state">
+							
+							<span class="state_left">{{item.createTime}}</span>
+							<span class="state_right">{{redState(item.status)}}</span>
+						</div>
+					</div>
+					<p class="loadMore" style="background: #eee;"></p>
+				</div>
+				
+				<div class="red_all" >
+					<!--<div class="red_lines"></div>-->
+					<div class="red_cancel iconfont icon-iconfontcha" id="cancel" @tap="closeds"></div>
+					<div class="redbagbox" >
+						<img src="images/kai.png" class="kai red_bag"/>
+						<div class="red_word">恭喜您！收到红包！</div>
+					</div>
+				</div>
+			</div>
+			
+			
+		</div>
+	</body>
+	<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/zepto.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/vue.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/upDownPull.js" charset="utf-8"></script>
+	<script type="text/javascript">
+		//		对当前对象进行命名,并且有PID
+		var self = null,
+			pId = '',
+			vm = null,
+			code = '',
+			udp = null;
+
+		mui.plusReady(function() {
+			self = plus.webview.currentWebview();
+			vm = new Vue({
+				el: '#notice',
+				data: {
+					noticeData: [],
+					PAGE: 1
+				},
+				mounted: function() {
+					var that = this;
+					recordAjax();
+				},
+				methods: {
+					getData: function(type) {
+						var that = this;
+						var size = 10;
+						bpAjax('/purse/redpacket/getRecord', {
+							username: getUserInfo('username'),
+							token: getUserInfo('token'),
+							sign: ''
+						}, function(d) {
+							vm.noticeData = d.data;
+						}, function(d) {
+							mui.toast(d.info);
+						}, 1, '红包列表');
+					},
+					noticelink: function(d) {
+						if(d.status == '00') {
+							$(".red_all").css("display","block");
+							code = d.code;
+						} else if(d.status == '10') {
+							openWV('manyred_bill.html', {pUrl:pId, data:d});
+						}
+					},
+					redState: function(d) {
+						switch(d) {
+							case '00':
+								return '未领取'
+								break;
+							case '10':
+								return '已领取'
+								break;
+							case '20':
+								return '部分领取进行中'
+								break;
+							case '21':
+								return '已超时'
+								break;
+							case '30':
+								return '已超时'
+								break;
+							default:
+								break;
+						}
+					},
+					redStates: function(d) {
+						switch(d) {
+							case '00':
+								return 'colorone'
+								break;
+							case '10':
+								return 'colortwo'
+								break;
+							case '20':
+								return 'colortwo'
+								break;
+							case '21':
+								return 'colortwo'
+								break;
+							case '30':
+								return 'colortwo'
+								break;
+							default:
+								break;
+						}
+					},
+					timeFormat: function(t) { //根据当前时间显示通知时间
+						var d = new Date();
+						var year = d.getFullYear();
+						var month = (d.getMonth() + 1) < 10 ? ("0" + (d.getMonth() + 1)) : (d.getMonth() + 1);
+						var day = d.getDate() < 10 ? ("0" + d.getDate()) : d.getDate();
+						var newDate = year + "-" + month + "-" + day;
+						var ts = t.split(" ");
+						if(newDate == ts[0]) { // 判断年月日是否相同，如相同则返回时间
+							return ts[1].substr(0, 5);
+						} else {
+							if(year == ts[0].substr(0, 4)) { // 判断当前年份是否相同，如相同则返回月日
+								return ts[0].substr(5, ts[0].length);
+							} else {
+								return ts[0]; // 否则返回年月日
+							}
+						}
+					},
+					closeds: function(){
+						$('.red_all').css("display","none");
+					}
+				}
+			})
+			setRedDot();
+			$('.redbagbox').on('tap', function(e){
+				$('.red_all').css('display', 'block');
+				e.stopPropagation();
+			})			
+			$('.red_all').on('tap', function(){
+				$('.red_all').css('display', 'none');
+			})	
+//			$('#cancel').on('tap', function() {
+//				$('.red_all').css("display","none");
+//			}) 			
+			$('.red_bag').on('tap', function(e) {
+				$('.red_bag').css("animation-play-state","running");
+				$('.red_bag').css("-webkit-animation-play-state","running");	
+				$('.red_word').text('');
+//				$('#cancel').css('visibility', 'hidden');
+				$('.red_all').css('display', 'block');
+//				e.stopPropagation();
+				setTimeout(function() {
+					bpAjax('/purse/redpacket/receive', {
+						username: getUserInfo('username'),
+						token: getUserInfo('token'),
+						sign: '',
+						code: code
+					}, function(d) {
+						tranclick();
+						$('.red_word').text('恭喜您！收到红包！');
+//						$('#cancel').css('visibility', 'visible');					
+						evalId('msg_RedactiviList.html', ['recordAjax']);
+						evalId('wallet.html', ['moneyExchange']);
+						openWV('take_redbag.html', {
+							pUrl: pId,
+							data: d.data
+						});
+						
+						$('.red_all').css("display","none");
+//						setTimeout(function() {
+//							self.close();
+//						}, 300);
+					}, function(d) {
+//						setTimeout(function() {
+						tranclick();
+						$('.red_word').text('恭喜您！收到红包！');
+//						$('#cancel').css('visibility', 'visible');
+						mui.toast(d.info);
+						$('.red_all').css("display","none");
+						evalId('msg_RedactiviList.html', ['recordAjax']);
+						evalId('wallet.html', ['moneyExchange']);
+//						}, 300);
+					}, 1, '领取红包')
+				}, 300)
+			})
+		})
+		
+		function tranclick(){
+			$('.red_bag').css("animation-play-state","paused");
+			$('.red_bag').css("-webkit-animation-play-state","paused");
+		}
+		
+		function recordAjax() {
+			bpAjax('/purse/redpacket/getRecord', {
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				sign: ''
+			}, function(d) {
+				vm.noticeData = d.data;
+			}, function(d) {
+				mui.toast(d.info);
+			}, 1, '红包列表');
+		}
+		// 设置此消息为已读
+		function setRedDot() {
+			plus.runtime.setBadgeNumber(0);
+			var msg = JSON.parse(localStorage.getItem("DL_MESSAGE"));
+			if(msg) {
+				for(var i = 0; i < msg.length; i++) {
+					if(msg[i].type == self.messType) {
+						msg[i].state = '1';
+					}
+				}
+				localStorage.setItem("DL_MESSAGE", JSON.stringify(msg))
+			}
+			evalId("wallet.html", ["isRedDotbill"]);
+			evalId("msg_index.html", ["isRedDot"]);
+		}	
+	</script>
+
+</html>

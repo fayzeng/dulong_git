@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>我的</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.wrapper{background: #048BCF;}
+			.my_info{width: 100%;height: 200px; position: relative;z-index: 99;background: #fff;}
+			.myimg{width: 100px;height: 100px;margin: 0 auto; border-radius: 50%; background: url(images/girl.png)no-repeat;background-size: 100% 100%;}
+			.per_user{color: #fff;}
+			.per_ul li a:link{background: #0489cf}	
+			.per_ul li a:hover {background: #0489cf}
+			.per_ul li a:active {background: #0489cf}
+		</style>
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav">
+			<h1 class="head_title">我的</h1>
+			<a data-href='c_myInfo.html' class="mySetup"><span class="iconfont icon-shezhi"></span> 设置</a>
+		</header>
+		<div class="wrapper" id="wrapper" v-cloak>
+			<div class="my_info">
+				<canvas id="canvas" style="position:absolute;bottom:0;left:0;z-index:-1;"></canvas>
+				<div class="" style="text-align: center;padding: 20px 0;">
+					<!--<p class="per_user" id="per_user" style="color: #555;">快去有网的地方</p>-->
+					<div class="myimg" id="myImg"></div>
+					<div class="myNickname">
+						<p class="per_user" id="name_xing">快去有网的地方</p>
+						<a data-href='c_myInfo.html'>
+							<div class="myrealName">
+								<i class="iconfont icon-shimingrenzheng3"></i>
+								<span id="prove">未实名</span>
+							</div>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<ul class="per_ul">
+				<li>
+					<a data-href="account.html">
+						<span class="iconfont icon-mima2"></span>
+						<p>修改密码</p>
+						<em class="arrow12"></em>
+					</a>
+				</li>
+				<li>
+					<a data-href="help.html">
+						<span class="iconfont icon-bangzhu1"></span>
+						<p>使用帮助</p>
+						<em class="arrow12"></em>
+					</a>
+				</li>
+				<li>
+					<a data-href="suggest.html">
+						<span class="iconfont icon-jianyi"></span>
+						<p>优化建议</p>
+						<em class="arrow12"></em>
+					</a>
+				</li>
+				<li>
+					<a data-href="contact.html">
+						<span class="iconfont icon-kefu1"></span>
+						<p>联系客服</p>
+						<em class="arrow12"></em>
+					</a>
+				</li>
+				<li>
+					<a data-href="share.html">
+						<span class="iconfont icon-fenxiang1"></span>
+						<p>分享下载</p>
+						<em class="arrow12"></em>
+					</a>
+				</li>
+				<li>
+					<a data-href="c_about.html">
+						<span class="iconfont icon-icon168"></span>
+						<p>关于我们</p>
+						<em class="arrow12"></em>
+					</a>
+				</li>
+			</ul>
+		</div>
+
+	</body>
+
+</html>
+<script src="js/mui.min.js"  charset="utf-8" ></script>
+<script src="js/api.ini.js"  charset="utf-8" ></script>
+<script src="js/zepto.min.js"  charset="utf-8"></script>
+<script src="js/vue.min.js"  charset="utf-8"></script>
+<script src="js/style.js"  charset="utf-8"></script>
+<script src="js/jsencrypt.js"  charset="utf-8"></script>
+<script src="js/wave.js"  charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null; 
+	var pId = '';
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		var rankId = JSON.parse(localStorage.getItem('DL_USERINFO')).rankId;
+		console.log(JSON.stringify(JSON.parse(localStorage.getItem('DL_USERINFO'))));
+		fnEval();
+		
+	});
+	
+	$(function(){
+		wave({
+			id:"canvas"
+			
+		})
+	})
+	
+	var  vm = new Vue({
+		el:'#wrapper',
+		data:{
+			rewardIntegral:''
+		},
+		methods:{
+			abbreviations: function(Integral, num){
+				return abbreviation(Integral, num);
+			}
+		}
+	})
+	function fnEval(){
+		userAjax();
+		mstrong();
+	}
+	//	昵称的填写
+	function userAjax() {
+//		var nickname = getUserInfo('nickname');
+//		if(!nickname || nickname == '' || nickname == null || nickname == 'null'){
+//			document.getElementById('per_user').innerHTML = getUserInfo('username');
+//		} else{
+//			document.getElementById('per_user').innerHTML = nickname;
+//		}	
+		var imgUrl = unescape(getUserInfo('logopic')) || "images/girl.png";
+		$("#myImg").css("background","url("+imgUrl+")");
+		$("#myImg").css("background-size","100% 100%");
+	}	 
+	//	已实名的那部分
+
+	function mstrong(auditStatus) {
+		var uInfo = JSON.parse(localStorage.getItem("DL_USERINFO"));
+		var prove = $('#prove'),
+			$name = $('#name_xing');
+			
+		if(auditStatus != undefined) {
+			uInfo.auditStatus = auditStatus;
+		} else {
+			var auditStatus = uInfo.auditStatus;
+		}
+		var cardName = uInfo.idCardName || '***'
+		switch(auditStatus) {
+			case -10:
+				prove.html('未实名');
+				$name.html(getUserInfo('username'));
+				break;
+			case 0:
+				prove.html('审核中');
+				$name.html(getUserInfo('username'));
+				break;
+			case 10:
+				prove.html('审核失败');
+				$name.html(getUserInfo('username'));
+				break;
+			case 99:
+				prove.html('已实名');
+				$name.html(cardName);
+				break;
+			default:
+				prove.html('未实名');
+				$name.html(getUserInfo('username'));
+				break;
+		}
+		localStorage.setItem("SC_USERINFO", JSON.stringify(uInfo));
+	}
+	
+	mui('body').on('tap', 'a', function() {
+		var id = this.getAttribute('data-href');
+		if(id == 'return_interest.html'){
+			cirle();
+			openWV(id,{pUrl: pId});
+		} else if( id == 'share.html') {
+			mui.toast('敬请期待');
+			return false;
+		} 
+		else{
+			openWV(id,{pUrl: pId});
+		}
+		
+	});
+
+	
+
+</script>

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>发红包</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*输入金额那一个大框*/
+			
+			.send_money {
+				margin-top: 10px;
+				position: relative;
+				width: 100%;
+				height: 50px;
+				background: #FFFFFF;
+				line-height: 50px;
+				padding: 0 10px;
+			}
+			
+			.send_money span {
+				font-size: 15px;
+			}
+			/*输入的金额*/
+			
+			.send_money .write_money {
+				display: inline-block;
+				float: right;
+				height: 50px;
+				width: 100px;
+				text-align: right;
+				font-size: 15px;
+				color: #FF6600;
+			}
+			/*元那个单位*/
+			
+			.unit {
+				float: right;
+			}
+			/*光标*/
+			
+			.cursor {
+				float: right;
+				height: 18px;
+				margin-top: 15px;
+				margin-right: 5px;
+				background: #677bff;
+				width: 1px;
+				vertical-align: middle;
+				border-radius: 17%;
+				animation-duration: 1.1s;
+				animation-iteration-count: infinite;
+				animation-name: cursor;
+				display: none;
+			}
+			/*备注*/
+			
+			.note {
+				margin-top: 10px;
+				position: relative;
+				width: 100%;
+				height: 50px;
+				background: #FFFFFF;
+				line-height: 50px;
+				padding: 0 10px;
+			}
+			
+			.note span {
+				font-size: 15px;
+			}
+			
+			.note_one {
+				float: left;
+			}
+			/*备注的内容*/
+			
+			.note .note_two {
+				float: left;
+				height: 50px;
+				font-size: 15px;
+				margin-left: 10px;
+				width: 225px;
+			}
+			/*下面那一行小字*/
+			
+			.wNumber {
+				padding: 0 10px;
+				margin: 5px;
+				text-align: right;
+			}
+			/*大写的金额*/
+			
+			.capital {
+				text-align: center;
+				width: 100%;
+				height: 50px;
+				line-height: 50px;
+				font-size: 34px;
+			}
+			/*下一步那个按钮*/
+			
+			.wrap_content .nextOne {
+				display: block;
+				width: 90%;
+				margin: 0 auto;
+				height: 40px;
+				background: #CCCCCC;
+			}
+			/*最下面的那一行字*/
+			
+			.moretwo {
+				text-align: center;
+				color: #ACACAC;
+				margin: 5px;
+			}
+			/*最多可用金额*/
+			
+			.max_money {
+				width: 100%;
+				height: 30px;
+				line-height: 30px;
+				padding: 0 10px;
+				margin-top: 10px;
+				color: #9A9A9A;
+			}
+			
+			.canuse_money {
+				color: #333333;
+			}
+			
+			.files {
+				width: 200px;
+				font-size: 10px;
+			}
+			
+			.filess {
+				display: block;
+				width: 500px;
+				height: 50px;
+				background: pink;
+			}
+			/*红包类型*/
+			
+			.redtype {
+				margin-top: 10px;
+				position: relative;
+				width: 100%;
+				height: 50px;
+				background: #FFFFFF;
+				line-height: 50px;
+				padding: 0 10px;
+			}
+			/*旁边的箭头符号*/
+			
+			.arrow12 {
+				position: absolute;
+				right: 10px;
+				top: 19px;
+			}
+			/*里面的字体大小*/
+			
+			.redtype span {
+				font-size: 15px;
+			}
+			/*选择框*/
+			
+			.redtype .typeSel {
+				width: auto;
+				height: 50px;
+				padding-left: 70%;
+				padding-right: 0%;
+				margin: 0;
+				position: absolute;
+				top: 0;
+				right: 30px;
+			}
+			
+			.redtype .typeSel option {
+				/*				text-align: right;*/
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">发红包</h1>
+		</header>
+		<div class="wrapper">
+			<div class="wrap_content">
+				<!--<label for="" class="filess">
+					<input type="file" name="" id="" value=""  class="files"/>
+				</label>-->
+				<div class="redtype">
+					<span>红包类型</span>
+					<select class="typeSel" id="typeSel">
+						<option value="0">单人红包</option>
+						<option value="1">多人平均红包</option>
+						<option value="2">多人随机红包</option>
+					</select>
+					<em class="arrow12"></em>
+				</div>
+				<!--输入金额-->
+				<div class="send_money" id="send_money">
+					<span id="amountMoney">金额</span>
+					<span class="unit">元</span>
+					<span class="cursor"></span>
+					<input type="text" placeholder="填写金额" class="write_money" id="write_money" readonly="readonly" />
+					<!--<span class="write_money" id="write_money"></span>-->
+				</div>
+				<!--当前可用金额-->
+				<div class="max_money">
+					<span>当前可用金额 :</span>
+					<span class="canuse_money" id="canuse_money"></span>
+					<span> (元)</span>
+				</div>
+				<!--备注-->
+				<div class="note">
+					<span class="note_one">备注</span>
+					<input type="text" id="note_two" placeholder="恭喜发财!" class="note_two" />
+				</div>
+				<!--还可以输入多少个字-->
+				<div class="wNumber">您还可以输入 <span id="remaining">15</span>个字</div>
+				<p class="capital">¥ <span class="cMoney" id="cMoney">0</span></p>
+				<input type="submit" value="下一步" class="nextOne" disabled="disabled" id="nextOne" />
+				<p class="moretwo">红包超过24小时未被收取将进行退款</p>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/virtual-keyboard.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var flag = false,
+		pId = null,
+		len = 9,
+		str = '0',
+		redMoney = '0',
+		forgetNote = '';
+	var lastMoney = '';
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		lastMoney = self.walletMoney;
+		$('#canuse_money').html(lastMoney);
+	});
+	$(function() {
+		//生成键盘
+		keyboard = new Keyboard({
+			add: function(k) {
+				var oPrice = $('#write_money');
+				var num = oPrice.val();
+				var isPoint = ~num.indexOf(".");
+				var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+
+				if(!flag) {
+					if(!isPoint && num.length < len && k != '.') { // 整数限制在len位
+						if(num != '0') {
+							num += k;
+						} else {
+							num = k;
+						}
+					} else if(isPoint && k != '.' && pLen < 2) { // 保留2位小数点
+						num += k;
+					} else if(!isPoint && num.length <= len && k == '.') { // 整数达到上限加 小数点
+						num += k;
+					}
+
+					if(k == '.' && num == '0') { // 0后面加 小数点
+						num = '0' + k;
+					}
+					//oPrice.innerHTML = num;
+					oPrice.val(num);
+					$('#cMoney').html(num);
+					redMoney = num;
+					if(num > 0) {
+						$('#nextOne').removeAttr('disabled');
+						$('#nextOne').css('background', '#3e75c7');
+					} else {
+						$('#nextOne').attr('disabled', 'disabled');
+						$('#nextOne').css('background', '#CCCCCC');
+					}
+
+				}
+			},
+			del: function(k) {
+				var oPrice = $('#write_money');
+				var num = oPrice.val();
+				var isPoint = ~num.indexOf(".");
+				var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+				if(!flag) {
+					var m = str.indexOf('.');
+					var n = str.substr(m + 1);
+					var l = str.substr(0, m);
+
+					if(isPoint && pLen == 1) {
+						num = num.substr(0, num.length - 2);
+					} else {
+						if(num.length < 2) {
+							num = '0';
+						} else {
+							num = num.substr(0, num.length - 1);
+						}
+					}
+				}
+				oPrice.val(num);
+				$('#cMoney').html(num);
+				redMoney = num;
+				if(num > 0) {
+					$('#nextOne').removeAttr('disabled');
+					$('#nextOne').css('background', '#3e75c7');
+				} else {
+					$('#nextOne').attr('disabled', 'disabled');
+					$('#nextOne').css('background', '#CCCCCC');
+				}
+				//oPrice.innerHTML = num;
+			}
+		});
+		keyboard.hide();
+	})
+	//输入金额
+	$('#send_money').on('tap', function(e) {
+		$('#note_two').blur();
+		setTimeout(function() {
+			keyboard.show();
+			$('.cursor').show();
+			var wrapp = $('.wrapper').height() - 200;
+			if($('.wrap_content').height() > wrapp) {
+				$('.wrapper').css('bottom', '200px');
+			} else {
+//				console.log($('.wrapper').height());
+//				console.log($('.wrap_content').height());
+				$('.wrapper').css('bottom', '0');
+			}
+		}, 200)
+		e.stopPropagation();
+	})
+	//输入备注
+	$('#note_two').on('focus', function() {
+		keyboard.hide();
+		$('.cursor').hide();
+		$('.wrapper').css('bottom', '0');
+		//		var wrapp = $('.wrapper').height() - 200;
+		//		if($('.wrap_content').height() > wrapp) {
+		//			$('.wrapper').css('bottom', '200px');
+		//		} else {
+		//			$('.wrapper').css('bottom', '0');
+		//		}
+	})
+	//输入备注让下面的提示相应的变化
+	$('#note_two').on('input propertychange', function() {
+		var textL = $('#note_two').val().length;
+		var vals = $('#note_two').val();
+		$('#remaining').html(15 - textL);
+		if(textL >= 15) {
+			$('#note_two').val(vals.substr(0, 15));
+			$('#remaining').html(0);
+		}
+		forgetNote = $('#note_two').val();
+	})
+	$('.wrapper').on('tap', function() {
+		keyboard.hide();
+		$('.cursor').hide();
+		$('.wrapper').css('bottom', '0');
+		checkMoney();
+	})
+	//检查按钮是否变色可用
+	function checkMoney() {
+		var moneyNUM = $('#write_money').val();
+		if(moneyNUM > 0) {
+			$('#nextOne').removeAttr('disabled');
+			$('#nextOne').css('background', '#3e75c7');
+		} else {
+			$('#nextOne').attr('disabled', 'disabled');
+			$('#nextOne').css('background', '#CCCCCC');
+		}
+	}
+	//点击下一步
+	$('#nextOne').on('tap', function() {
+		var status = $('#typeSel').val();
+		if(redMoney > lastMoney) {
+			mui.toast('请输入小于您当前可用金额的钱');
+			return false;
+		};
+		var url = USERINFO.DL_HOST + '/auth/User/checkPayPass';
+		var data = {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+		}
+		var sign = getRSA({
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+		});
+		mui.ajax(url,{
+			data:{
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign:sign
+			},
+			dataType:'json',//服务器返回json格式数据
+			type:'post',//HTTP请求类型
+			timeout:10000,//超时时间设置为10秒；
+			async:false,
+			success:function(data){
+				console.log('检查支付密码'+ data);
+				var d = JSON.parse(data);
+				if(d.msg == '1'){
+					var a = '设置支付密码';
+					plus.nativeUI.alert( "请先设置支付密码。", function(){
+						openWV('c_pwdPay.html', {pUrl: pId, sTitle: a, inFirst: '1'});
+					}, "独龙支付密码 ", "确定" )	
+					return;
+				} else{
+					
+		if($('#typeSel').val() == '0') {
+			openWV('red_contact.html', {
+				pUrl: pId,
+				redMoney: redMoney,
+				forgetNote: forgetNote,
+				status: status,
+
+			})
+		} else if($('#typeSel').val() == '2') { //随机
+			openWV('red_random.html', {
+				pUrl: pId,
+				redMoney: redMoney,
+				forgetNote: forgetNote,
+				status: status,
+				types: 11
+			})
+		} else {
+			openWV('red_random.html', { //平均
+				pUrl: pId,
+				redMoney: redMoney,
+				forgetNote: forgetNote,
+				status: status,
+				types: 10
+			})
+		}					
+					
+				}
+
+			},
+			error:function(xhr,type,errorThrown){
+				console.log('errorThrown'+errorThrown)
+			}
+		});
+
+	})
+	//切换不同的红包发送方式,发送金额的前面2个字也会发生相应的变化
+	$('#typeSel').on('change', function() {
+		if($(this).val() == '0') {
+			$('#amountMoney').html('金额');
+		} else if($(this).val() == '1') {
+			$('#amountMoney').html('单个金额');
+		} else if($(this).val() == '2') {
+			$('#amountMoney').html('总金额');
+		}
+	})
+
+	function checkPass() {
+		var url = USERINFO.DL_HOST + '/index/Member/checkBankCard';
+		var data = {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+		}
+		var sign = getRSA({
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+		});
+		mui.ajax(url,{
+			data:{
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign:sign
+			},
+			dataType:'json',//服务器返回json格式数据
+			type:'post',//HTTP请求类型
+			timeout:10000,//超时时间设置为10秒；
+			async:false,
+			success:function(data){
+				console.log('检查支付密码'+ data);
+				var d = JSON.parse(data);
+				if(d.msg == '1'){
+					var a = '设置支付密码';
+					plus.nativeUI.alert( "请先设置支付密码。", function(){
+						openWV('c_pwdPay.html', {pUrl: pId, sTitle: a, inFirst: '1'});
+					}, "独龙支付密码 ", "确定" )	
+					return false;
+				} else{
+					mui.toast(d.info);
+				}
+			},
+			error:function(xhr,type,errorThrown){
+				console.log('errorThrown'+errorThrown)
+			}
+		});		
+	}
+</script>

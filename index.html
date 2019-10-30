@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			#tabBusi,
+			#tabAgent,
+			#financing,
+			#tabChart {
+				display: none;
+			}
+
+		</style>
+	</head>
+
+	<body>
+		<footer class="bp_bar mui-bar-tab">
+			<a id="tabConsumers" class="mui-tab-item mui-active" data-href="wallet.html" data-id='1' data-title='消费者'>
+				<span class="iconfont icon-iconfontshouye"></span>
+				<span class="tab_label">首页</span>
+			</a>
+			<a id="financing" class="mui-tab-item" data-href="tab_financing.html" data-id='2' data-title='理财'>
+				<span class="iconfont icon-tag"></span>
+				<span class="tab_label">理财</span>
+			</a>
+			<a id="tabAgent" class="mui-tab-item" data-href="tab_agent.html" data-id='3' data-title='代理商'>
+				<span class="iconfont icon-yidaili"></span>
+				<span class="tab_label">代理商</span>
+			</a>			
+			<a class="mui-tab-item" data-href="tab_personal.html" data-id='4' data-title='个人中心'>
+				<span class="iconfont icon-wode1"></span>
+				<span class="tab_label">我的</span>
+			</a>
+		</footer>
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/updata.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null,
+		pId;
+	var bigTip, oTipDiv, oTip;
+	var aniShow = {};
+	var subpages = ['wallet.html', 'tab_financing.html','tab_agent.html', 'tab_personal.html'];
+	var subpage_style = {
+		top: '0',
+		bottom: '51px'
+	}
+
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		if(!window.navigator.onLine) {
+			openWV('loading.html', {
+				pUrl: pId
+			})
+		}
+		//关闭重力感应
+		plus.screen.lockOrientation("portrait-primary");
+		// 关闭侧滑返回功能
+		self.setStyle({
+			'popGesture': 'none'
+		});
+		
+		var temp = {};
+		var sub = plus.webview.create(subpages[0], subpages[0], subpage_style);
+
+		temp[subpages[0]] = true;
+		mui.extend(aniShow, temp);
+		self.append(sub);
+
+		// 监听网络状态
+		document.addEventListener("netchange", onNetChange, false);
+		
+		//版本更新
+		if(plus.os.name == 'iOS') {
+			//updateIOS();
+		} else if(plus.os.name == "Android") {
+			updateAnd();
+		}
+		isAdmin();
+		appUpdata.init();
+	});
+
+	//当前激活选项
+	var activeTab = subpages[0];
+
+	function onNetChange() {
+		var nt = plus.networkinfo.getCurrentType();
+		var wvs = plus.webview.getDisplayWebview();
+		console.log("ID_"+wvs[0].id)
+		switch(nt) {
+			case plus.networkinfo.CONNECTION_ETHERNET:
+			case plus.networkinfo.CONNECTION_WIFI:
+				mui.toast("切换到Wifi网络");
+				closeId(['loading.html']);
+				//load();
+				break;
+			case plus.networkinfo.CONNECTION_CELL2G:
+			case plus.networkinfo.CONNECTION_CELL3G:
+			case plus.networkinfo.CONNECTION_CELL4G:
+				mui.toast("切换到蜂窝网络");
+				closeId(['loading.html']);
+				//load();				
+				break;
+			default:
+				openWV('loading.html', {
+					pUrl: pId
+				})
+				break;
+		}
+	}
+	mui('.mui-bar-tab').on('tap', 'a', function() {
+		var targetTab = this.getAttribute('data-href');
+		var tabId = this.getAttribute('data-id');
+		var title = this.getAttribute('data-title');
+
+		if(targetTab == activeTab) {
+			return;
+		}
+
+		if(tabId > 1) {
+			if(!plus.webview.getWebviewById(targetTab)) {
+				plus.nativeUI.showWaiting('', {
+					background: 'rgba(100,100,100,0.8)'
+				});
+				var sub = plus.webview.create(targetTab, targetTab, subpage_style);
+
+				self.append(sub);
+
+				//关闭等待窗口
+				sub.onloaded = function() {
+					plus.nativeUI.closeWaiting();
+				}
+			}
+		}
+
+		//显示目标选项卡
+		//若为ios平台或非首次显示，则直接显示
+		if(mui.os.ios || aniShow[targetTab]) {
+			plus.webview.show(targetTab);
+		} else {
+			//否则，使用fade-in动画，且保存变量
+			var temp = {};
+			temp[targetTab] = 'true';
+			mui.extend(aniShow, temp);
+			plus.webview.show(targetTab, 'fade-in', 300);
+		}
+		//隐藏当前
+		plus.webview.hide(activeTab);
+		//更改当前活跃的选项卡
+		activeTab = targetTab;
+	});
+
+	// 重新加载页面
+	function load() {
+		window.location.reload();
+	}
+
+	//检验Android更新
+	function updateAnd() {
+		bpAjax('/index/index/getVersion', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			appid: USERINFO.DL_APPID,
+			versionNum: plus.runtime.version,
+			sign: ''
+		}, function(d) {
+			if(d.data.isUpdate == 1){ 
+				plus.nativeUI.confirm(d.data.versionNum + '\n' + d.data.intro, function(i) { //d.data.intro为空不显示
+					if(0 == i.index) {
+						plus.runtime.openURL(d.data.url);
+					}
+				}, '独龙新版本 ' + d.data.versionNum, ["立即更新"]);
+			}else{
+				plus.nativeUI.confirm(d.data.versionNum + '\n' + d.data.intro, function(i) { //d.data.intro为空不显示
+					if(0 == i.index) {
+						plus.runtime.openURL(d.data.url);
+					}
+				}, '独龙新版本 ' + d.data.versionNum, ["立即更新", '取消']);
+			}
+			
+		}, function(d) {
+			//			mui.toast(d.info);
+		}, 3, '安卓APP更新')
+	}
+
+	function updateIOS() {
+		var url = 'http://itunes.apple.com/cn/lookup?id=1186215355';
+		var type = 'post';
+		var dataType = 'json';
+
+		mui.post(url, function(d) {
+			if(d.resultCount == '1') {
+				var arr1 = d.results[0].version.split('.');
+				var arr2 = plus.runtime.version.split('.');
+				var len = arr1.length > arr2.length ? arr1.length : arr2.length;
+
+				for(var i = 0; i < len; i++) {
+					if(parseInt(arr1[i]) > parseInt(arr2[i])) {
+						plus.nativeUI.confirm(d.results[0].version, function(e) {
+							if(0 == e.index) {
+								plus.runtime.openURL('https://itunes.apple.com/us/app/sao-ma123/id1186215355?l=zh&ls=1&mt=8');
+							}
+						}, '独龙新版本', ['立即更新', '取消']);
+
+					} else if(parseInt(arr1[i]) == parseInt(arr2[i])) {
+						continue;
+					} else {
+						break;
+					}
+				}
+			}
+
+		}, dataType);
+	}
+	
+	
+
+	//首页返回键处理
+	var first = null;
+	mui.back = function() {
+		if(!first) {
+			first = new Date().getTime();
+			mui.toast('再按一次退出应用');
+			setTimeout(function() {
+				first = null;
+			}, 1000);
+		} else {
+			if(new Date().getTime() - first < 1000) {
+				plus.runtime.quit();
+			}
+		}
+	};
+	
+//	判断权限的代码
+	function isAdmin() {
+		var index = plus.webview.getWebviewById('index.html')
+		plus.webview.show(index)
+		bpAjax('/index/index/getAuth', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: ''
+		}, function(d) {
+			var item = d.data
+			if(item.proxy == '1'){
+				document.getElementById('tabAgent').style.display = 'table-cell'
+			} else{
+				
+				document.getElementById('tabAgent').style.display = 'none'
+			}
+		}, function(d) {
+			mui.toast(d.info)
+		}, 3, '管理权限')
+	}	
+	
+
+		
+</script>

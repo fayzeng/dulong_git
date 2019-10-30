@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>账单详情</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">账单详情</h1>
+			<!--	    <a id="shareBill" class="headBtn">分享</a>-->
+		</header>
+
+		<div class="wrapper">
+			<!--付款成功 or 付款失败-->
+			<div class="md_hd"></div>
+
+			<div class="mdtl_bd">
+				<ul class="mdtl_ul">
+					<li>
+						<p>交易金额</p>
+						<span id="cbdPrice" class="mdtl_price">￥100.00</span>
+					</li>
+					<li class="mdLiner"></li>
+					<li>
+						<p>在线支付</p>
+						<span id="cbdName">10000</span>
+					</li>
+					<li>
+						<p>消费时间</p>
+						<span id="cbdNum">2017-05-24 16:20:22</span>
+					</li>
+					<li>
+						<p>第三方订单号</p>
+						<span id="cbdCard">123456789</span>
+					</li>
+					<li>
+						<p>交易号</p>
+						<span id="cbdTime">123465798</span>
+					</li>
+
+					<li id="cbdsta">
+						<p>退款状态</p>
+						<span id="cbdTstart">已退款</span>
+					</li>
+				</ul>
+			</div>
+
+		</div>
+	</body>
+
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/ws.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/share.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var shareData = {},
+		shareUrl;
+
+	mui.init({
+		beforeback: function() {
+//			if(plus.webview.getWebviewById('c_scanPwd.html')) {
+			closeId(['c_scanPwd.html']);
+//				plus.webview.getWebviewById('c_scanPwd.html').close();
+//			}
+			//返回true，继续页面关闭逻辑
+			return true;
+		}
+	});
+
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		yt01id = self.hNum;
+		wallbill();
+	});
+
+	function wallbill() {
+		bpAjax('/index/purse/getYiTradeDetail', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			yt01id: yt01id
+		}, function(d) {
+			if(d.data.data.ddStatus == '20') {
+				document.querySelector('.md_hd').innerHTML = '<p><span class="iconfont icon-chenggong"></span><em>交易成功</em></p>';
+			} else if(d.data.data.ddStatus == '10') {
+				document.querySelector('.md_hd').innerHTML = '<p><span class="iconfont icon-jinxingzhong"></span><em>生成交易</em></p>';
+			} else {
+				document.querySelector('.md_hd').innerHTML = '<p><span class="iconfont icon-shibai"></span><em>交易失败</em></p>';
+			}
+
+			document.getElementById('cbdPrice').innerHTML = '￥' + floatNum(d.data.data.allFee / 100);
+			document.getElementById('cbdName').innerHTML = self.hName;
+			document.getElementById('cbdNum').innerHTML = d.data.data.ddCreatetime;
+
+			if(d.data.data.tCode == null) {
+				document.getElementById('cbdCard').innerHTML = '暂无订单号';
+
+			} else {
+				document.getElementById('cbdCard').innerHTML = d.data.data.tCode;
+			}
+			if(d.data.data.tNo == null) {
+				document.getElementById('cbdTime').innerHTML = '暂无交易号';
+			} else {
+				document.getElementById('cbdTime').innerHTML = d.data.data.tNo;
+			}
+
+			if(d.data.isRefund == '1') {
+				document.getElementById('cbdTstart').innerHTML = d.data.isRefund;
+			} else {
+				document.getElementById('cbdsta').style.display = 'none';
+				document.getElementById('cbdTstart').innerHTML = d.data.isRefund;
+			}
+		}, function(d) {
+			mui.toast(d.info);
+		}, 3, '账单详情');
+	}
+
+//	function wallbill() {
+//		var url = host + '/index/purse/getYiTradeDetail';
+//		var data = {
+//			deviceid: deviceid,
+//			username: JSON.parse(localStorage.getItem('userInfo')).username,
+//			yt01id: yt01id
+//		};
+//		console.log("钱包账单详情输出" + JSON.stringify(data));
+//		mui.ajax(url, {
+//			data: data,
+//			dataType: 'json', //服务器返回json格式数据
+//			type: 'post', //HTTP请求类型
+//			timeout: 10000, //超时时间设置为10秒；
+//			success: function(data) {
+//				var d = JSON.parse(data);
+//				wt = false;
+//				clearTimeout(wtTimer);
+//				plus.nativeUI.closeWaiting();
+//
+//				if(d.msg == '1') {
+//					console.log("钱包账单接口详情" + data);
+//
+//					if(d.data.data.ddStatus == '20') {
+//						document.querySelector('.md_hd').innerHTML = '<p><span class="iconfont icon-chenggong"></span><em>交易成功</em></p>';
+//					} else if(d.data.data.ddStatus == '10') {
+//						document.querySelector('.md_hd').innerHTML = '<p><span class="iconfont icon-jinxingzhong"></span><em>生成交易</em></p>';
+//					} else {
+//						document.querySelector('.md_hd').innerHTML = '<p><span class="iconfont icon-shibai"></span><em>交易失败</em></p>';
+//					}
+//
+//					document.getElementById('cbdPrice').innerHTML = '￥' + floatNum(d.data.data.allFee / 100);
+//					document.getElementById('cbdName').innerHTML = self.hName;
+//					document.getElementById('cbdNum').innerHTML = d.data.data.ddCreatetime;
+//
+//					if(d.data.data.tCode == null) {
+//						document.getElementById('cbdCard').innerHTML = '暂无订单号';
+//
+//					} else {
+//						document.getElementById('cbdCard').innerHTML = d.data.data.tCode;
+//					}
+//					if(d.data.data.tNo == null) {
+//						document.getElementById('cbdTime').innerHTML = '暂无交易号';
+//					} else {
+//						document.getElementById('cbdTime').innerHTML = d.data.data.tNo;
+//					}
+//
+//					if(d.data.isRefund == '1') {
+//						document.getElementById('cbdTstart').innerHTML = d.data.isRefund;
+//					} else {
+//						document.getElementById('cbdsta').style.display = 'none';
+//						document.getElementById('cbdTstart').innerHTML = d.data.isRefund;
+//					}
+//				}
+//			},
+//			error: function(xhr, type, errorThrown) {
+//				console.log("钱包账单详情" + errorThrown);
+//			}
+//		});
+//	}
+
+	var oldBack = mui.back;
+
+	mui.back = function() {
+		if(self.pUrl) {
+			if(plus.webview.getWebviewById(self.pUrl)) {
+				plus.webview.getWebviewById(self.pUrl).evalJS('reLink()');
+			} else {
+				evalId('index.html', ['reLink']);
+//				plus.webview.getWebviewById("index.html").evalJS('reLink()');
+			}
+			//console.log(self.pUrl);
+		}
+
+		oldBack();
+	};
+</script>

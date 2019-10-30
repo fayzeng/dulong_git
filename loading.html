@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	
+	<title>重新加载</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+	<style type="text/css">
+	.wrapper input.skip{display: block;position: absolute;bottom: 20%;left: 31%; margin: 0 auto;border: 1px solid #B1BAC4;border-radius: 5px;padding: 5px 35px;font-size: 16px;color: #B1BAC4;}
+	.wrapper{background: url(images/Load.jpg)no-repeat; background-size: 100%;}
+	</style>
+</head>
+
+<body>
+	<header class="bp_bar mui-bar-nav">
+	    <h1 class="head_title">网络连接失败</h1>
+	</header>
+	
+	<div class="wrapper">
+		<input type="button" id="skip" class="skip" value="重新加载"/>
+	</div>
+	
+</body>
+</html>
+
+<script type="text/javascript" src="js/mui.min.js"    charset="utf-8"></script>
+<script type="text/javascript" src="js/zepto.min.js"  charset="utf-8"></script>
+<script type="text/javascript" src="js/style.js"      charset="utf-8"></script>
+<script type="text/javascript" src="js/api.ini.js"    charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		if(self.getURL()){
+			pId = getPage(self.getURL());
+		}
+		// 关闭侧滑返回功能
+		self.setStyle({
+			'popGesture': 'none'
+		});
+	})	
+	
+	mui('.wrapper').on('tap','#skip',function(){
+		console.log('点击重新加载');
+		if(window.navigator.onLine){
+			if(getUserInfo('')){
+				openWV('index.html', {});
+				evalId('index.html', ['load']);
+				evalId('wallet.html', ['billRefresh']);					
+			} else{
+				openWV(self.pUrl, {});
+				evalId('index.html', ['load']);				
+			}
+
+		}else{
+			mui.toast("网络连接失败，请连接网络后重试！")
+		}
+		
+	})
+</script>
+

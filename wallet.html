@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>钱包</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.wallet_img{ color: #fff;}
+			
+			.log_boss{ position: absolute; top: 25px; left: 30px; height: 50px; line-height: 30px; width: 85%;}
+			.boss{ font-size: 23px; position: absolute; top: 0; left: 0; width: 120px;}
+			.now{ width: 150px;height: 150px;background: #28B8F4;border-radius: 50%;z-index: 9999; overflow: hidden;margin: 0 auto;/*position: absolute;top: 10px;left: 28%;*/line-height: 30px;text-align: center;padding-top: 20px;position: relative;}
+			.money_balance{ font-size: 31px;}
+			.cardholder{ position: absolute; top: 135px; left: 30px; width: 85%;}
+			.bank_wallet{ display: block; width: 100%; height: 200px; /*padding: 12px;*/ position: relative;}
+			.wallet_box{width: 100%;height: auto;background: -webkit-linear-gradient(#0084CC, #28B7F3);background: -o-linear-gradient(#0084CC, #28B7F3);background: -moz-linear-gradient(#0084CC, #28B7F3);background: linear-gradient(#0084CC,#28B7F3);}
+			.copy{display: inline-block;width: 50%;background: #18A3E4;font-size: 15px;padding: 10px 0px;text-align: center;border-right: 1px solid #90CDE9;}
+			.mdPassword{display: inline-block;position: absolute;font-size: 15px;width: 50%;text-align: center;background: #18A3E4;color: #fff;padding: 10px 0;}
+			
+			.wallet_category{width: 100%;height:auto;background: #fff;margin-top: 10px;    margin-bottom: 10px;padding: 0 10px;float: left;}
+			.wallet_category li{display: inline-block;width: 50%;padding: 11px 0 5px 0;border-bottom: 1px solid #E5E5E5;float: left;}
+			.wallet_category li.wallet_right{border-right:1px solid #E5E5E5;}
+			.wallet_category li .Recharge_logo{overflow: hidden;display: inline-block;text-align: center;width: 40px;height: 40px; background: #EE9141;border-radius: 50%;padding: 9px 0 0px;font-size: 24px;margin-left: 25px;}
+			.recharge_title{display: inline-block;color: #333;font-size: 17px;padding:8px 10px; overflow: hidden;}
+			.wallet_category li .draw_logo{ background: #53b24c;}
+			.wallet_category li .accounts_logo{ background: #38b8ab;}
+			.wallet_category li .bill_logo{ background: #3EACDD;}
+			.wallet_category li .redbag_logo{ background: #e15554;}
+			.wallet_category li .notice_logo{background: #3EACDD;}
+			.exchange-imgtwo{margin-left: 5px; color: #FFFFFD;background: #65BDE5; display: block; width: 35px; height: 35px; float: left; text-align: center; line-height: 35px; border-radius: 50%; font-size: 20px;}
+			.cardholder_nam{display: inline-block;font-size: 1rem;line-height: 20px;text-align: center;color: #fff;}
+			.source{ font-size: 14px; color: #9B9B9B;}
+			.bank_name{padding: 5px 0;text-align: center;}
+			.tuColor{ color: #e05453;}
+			.balance span{color: #a3e2fd;}
+			#biao1{font-size: 1rem;}
+			/*大圆旁边的小圆*/
+			.round{display: inline-block;width: 5px;height: 5px;border-radius: 50%;position: absolute;}
+			.roundsmall{background: #1a9edd;top: 10%;left: 20%;}
+			.roundcen{width: 8px;height: 8px;background: #42c4f9;top: 18%;left: 13%;}
+			.roundbig{width: 13px;height: 13px;background: #42c4f9;top: 22%;left: 19%;}
+			.roundsmalla{background: #1a9edd;top: 5%;right: 23%;}
+			.roundcena{background: #1a9edd;top: 10%;right: 14%;}
+			.roundbiga{width: 10px;height: 10px;background: #42c4f9;top: 20%;right: 20%;}
+			.roundbigb{width: 13px;height: 13px;background: #42c4f9;top: 25%;right: 21%;}
+			.bill_box{width: 100%;height: auto; background: #fff;padding:10px 5px;margin-top: 10px;clear: both;padding: 0 10px;}
+			.bill_box_icon{display: inline-block;width: 12%;padding: 10px 0;}
+			.bill_box_details{display: inline-block; margin-left: 5px;width: 83%;}
+			.details_title{display: inline-block; border-bottom: 1px solid #ECECEC;width: 100%;padding:5px ;}
+			.details_name{color: #989898;}
+			.details_time{display: inline-block; float: right;color: #989898;}
+			.details_box{display: inline-block;width: 100%;padding: 10px 5px;}
+			.details_money{padding: 0 5px;font-size: 0.9rem;font-weight: bold;}
+			.details_status{display: inline-block; float: right;color: #989898;}
+			/*红包遮罩*/
+			.mui-backdrop {position: fixed;top: 0;right: 0;bottom: 0;left: 0;z-index: 998;background-color: rgba(0,0,0,.7);display: none;}
+			.mui-backdrop .backdrop_box{width: 100%;height: 95%;color: #fff; margin-left: 7%; background: url(images/sui112_03.png) no-repeat;background-size: 86% 70%;padding-top:0;text-align: center; margin-top: 39%;position: relative;}
+			.backdrop_box p{text-align: center; width: 91%;}
+			.mui-backdrop .backdrop_box .head{width: 86%; height: 21%;float: left;transform-origin: 0 0;-webkit-transform-origin: 0 0;-moz-transform-origin: 0 0;transition: all 0.5s;-webkit-transition: all 0.5s;-moz-transition: all 0.5s;}
+			.mui-backdrop .backdrop_box .open{width: 30%; position: absolute;top: 9%;left: 29%;animation: er 5s infinite linear;
+				-webkit-animation: er 5s infinite linear;
+				animation-play-state:paused;
+				-webkit-animation-play-state:paused;}
+			@keyframes er{
+				from{-webkit-transform:rotateY(0);}
+				to{-webkit-transform: rotateY(2880deg);}
+			}
+			@-webkit-keyframes er{
+				from{-webkit-transform: rotateY(0);}
+				to{-webkit-transform: rotateY(2880deg);}
+			}
+			.mon-all{display: none;}
+			.moneye{padding-bottom: 36px;position: absolute;top: 8%;}
+			.come{position: absolute;top: 28%;}
+			.remarks{padding-top: 70%;color: #f7f37e;font-size: 18px;}
+			#amount,#username{font-size: 16px;}
+			.confirm {width: 70%;margin-left: 10%;background: #f7f37e;font-size: 17px;border-radius: 10px;box-shadow: 1px 3px 4px #ffad03;color: #bb0429;padding: 2px 0;margin-top: 7%;text-align: center;display: none;}
+			
+		</style>
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav" id="header" style="text-align: center;">
+			<div class="head_bank" style="margin-left: 10px;color: #fff;font-weight: bold;display: inline-block;float: left;">
+				<span class="check">通知</span>
+				<!--<span class="iconfont icon-duanxin">-->
+					<i class="corner" id="redDotbill" style="display: none;"></i>
+				<!--</span>-->
+			</div>
+			<span class="head_title" style="padding-right:35px;">独龙</span>
+			<div id="bangzhu" class="head_bill">
+				<span class="check">钱包说明</span>
+				<!--<span class="iconfont icon-bangzhu"></span>-->
+			</div>
+		</header>
+		<div class="wrapper">
+			<div class="slideDown">
+				<span>下拉可刷新</span>
+			</div>	
+			<div class="bill_cont">
+				<div id="large-header" class="large-header" style="position: absolute;top: 0;z-index: 9;">
+                    <canvas id="demo-canvas" style="z-index: 9;"></canvas>
+               </div>
+				<div class="bill_scroll" id="bill_scroll" v-cloak><!-- v-cloak-->
+					<div class="all">
+						<div class="wallet_img" >
+							<div class="wallet_box">
+								<div class="now">
+									<div class="balance">
+										<span>当前积点</span>
+										<p class="money_balance" id="money_balance">{{saveMoney(walletData.amt/100, 2)}}</p>
+										<div class="water"></div>
+									</div>
+								</div>
+								
+								<div class="bank_name">
+									<span id="biao1">{{walletData.accountNo}}</span>
+									<a data-href="c_bankCard.html" id="cardholder_nam" class="cardholder_nam" v-if="walletData.status =='10' ">未绑卡</a>
+									<a data-href="c_bankCard.html" id="cardholder_nam" class="cardholder_nam" v-else>{{walletData.accountName}}</a>
+								</div>
+								
+								<div class="" style="width: 100%;height: auto;">
+									<div id="copy" class="copy">复制卡号</div>
+									<a class="mdPassword" @tap="modifypassword">修改密码</a>
+								</div>
+							</div>
+							<ul class="wallet_category">
+								<li id="Recharge" class="wallet_right" data-href="wallet_recharge.html">
+									<div class="iconfont icon-iconfontchongzhi Recharge_logo" ></div>
+									<div class="recharge_title">充值</div>
+								</li>
+								<li id="draw" data-href="wallet_cash.html">
+									<div class="iconfont icon-icon1101 Recharge_logo draw_logo"></div>
+									<div class="recharge_title">提现</div>
+								</li>
+								<li id="accounts" class="wallet_right" data-href="wallet_accounts.html">
+									<div class="iconfont icon-zhuanzhang Recharge_logo accounts_logo"></div>
+									<div class="recharge_title">转账</div>
+								</li>
+								<li id="bill" data-href="wallet_bill.html">
+									<div class="iconfont icon-dingdan Recharge_logo bill_logo"></div>
+									
+									<div class="recharge_title" >账单</div>
+								</li>
+								<li id="bank" class="wallet_right" data-href="c_bankCard.html" style="border-bottom: none;">
+									<div class="iconfont icon-yinhangqia Recharge_logo bill_logo"></div>
+									<div class="recharge_title">银行卡</div>
+								</li>
+								<li id="redbag"  data-href="wallet_redbag.html" style="border-bottom: none;">
+									<div class="iconfont icon-iconzhenghe03 Recharge_logo redbag_logo"></div>
+									<div class="recharge_title">发红包</div>
+								</li>
+							</ul>
+						</div>
+					</div>
+
+					<div><!--v-for="item in detailedData"-->
+						<div class="bill_box" @tap="wallet_bill(detailedData.tradeType)">
+							<div class="bill_box_icon">
+								<span class="iconfont icon-zhushou exchange-imgtwo"></span>
+							</div>
+							<div class="bill_box_details">
+								<div class="details_title">
+									<span class="details_name">交易助手</span>
+									<span class="details_time" >{{detailedData.ddCreatetime}}</span>
+									
+								</div>
+								<div class="details_box">
+									<span>{{detailedData.productInfo}}
+										<span class="details_money" v-if="detailedData.tradeType == '00' || detailedData.tradeType == '01' " >￥{{(detailedData.allFee - detailedData.processFee)/100}}</span>
+										<span class="details_money" v-else-if="(detailedData.tradeType == '40' || detailedData.tradeType == '43') && detailedData.merchantID == userId ">￥{{moneyss(detailedData.lastFee/100)}}</span>
+										<span class="details_money" v-else-if="(detailedData.tradeType == '40' || detailedData.tradeType == '43') && detailedData.userid == userId ">￥{{moneyss(detailedData.allFee/100)}}</span>
+										<span class="details_money" v-else>￥{{moneyss(detailedData.allFee/100)}}</span>
+									</span>
+                                    <span class="details_status" v-if="detailedData.tradeType == '20' ">{{integral(detailedData.ddStatus)}}</span>
+                                    <span class="details_status" v-else-if="detailedData.tradeType == '41'">{{redbag(detailedData.ddStatus)}}</span>
+                                    <span class="details_status" v-else-if="detailedData.tradeType == '00' || detailedData.tradeType == '01' ">{{withdrawal(detailedData.ddStatus)}}</span>
+                                    <span class="details_status" v-else-if="detailedData.tradeType == '10'">{{rechanges(detailedData.ddStatus)}}</span>
+                                    <span class="details_status" v-else>{{payment(detailedData.ddStatus)}}</span> 
+								</div> 
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="mui-backdrop">
+				<div class="back_box backdrop_box">
+					<img class="head" src="images/sui_103.png"/>
+					<img class="open" src="images/sui_04.png"/>
+					<div class="mon-all">
+						<p class="moneye"><span id="amount"></span>元</p>
+						<p class="come">来自<span id="username"></span>的红包</p>
+						
+					</div>
+					<p class="remarks">恭喜发财，大吉大利</p>
+					<div class="confirm" id="close">关闭</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script src="js/mui.min.js" charset="utf-8"></script>
+<script src="js/api.ini.js" charset="utf-8"></script>
+<script src="js/mui.picker.min.js" charset="utf-8"></script>
+<script src="js/updata.js" charset="utf-8"></script>
+<script src="js/zepto.min.js" charset="utf-8"></script>
+<script src="js/style.js" charset="utf-8"></script>
+<script src="js/jsencrypt.js" charset="utf-8"></script>
+<script src="js/vue.js" charset="utf-8"></script>
+<script src="js/updata.js" charset="utf-8"></script>
+<script src="js/demo-2.js"></script>
+<script src="js/upDownPull.js" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var initDate = '',
+		initSum = 0,
+		billDate, day;
+	var bt = true;
+	var pId = '';
+	var realName = null;
+	var residual = null;
+	var realStatus = null;
+	var code = '';
+	var vm = '';
+	
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL()); 
+		}
+//		moneyExchange();
+		vm = new Vue({
+			el: '#bill_scroll',
+			data: {
+				walletData: '',
+				detailedData: '',
+//				userId: getUserInfo('userid')
+			},
+			mounted: function() {
+				udp = new Updownpull({
+					el: ".bill_scroll",
+					downEl: ".slideDown",
+					upEl: ".loadMore",
+					downArea: 50,
+	        		downFn: function(){
+	        			console.log('下拉刷新');
+	        			moneyExchange();
+	        		},
+	        		upFn: function(){
+	        			
+	        		}
+				})
+			},
+			methods: {
+				payment: function(type) {
+					return jiaoStatus(type);
+				},
+				integral: function(type) {
+					return payStatuss(type);
+				},
+				withdrawal: function(type) {
+					return cashStatetwo(type);
+				},
+				redbag: function(type){
+					return redbags(type);
+				},
+				rechanges: function(type){
+					return rechange(type);
+				},
+				unit: function(ac) {
+					var ac = Number(ac) * 10;
+					if(ac > 10000) return ac / 10000 + '万'
+				},
+				unittwo: function(ac) {
+					var ac = Number(ac) * 100;
+					return ac;
+				},
+				saveMoney:function(Integral, num){
+					return abbreviation(Integral, num);
+				},
+				moneyss: function(num){
+					if(num){
+						return num;
+					} else{
+						return 0;
+					}
+				},
+				wallet_bill: function(type) {
+					openWV('wallet_bill.html', {
+						pUrl: pId,
+						type: type,
+						moneys: residual
+					})
+				},
+				modifypassword:function(){
+					openWV('wallet_password.html', {
+						pUrl: pId
+					})
+				}
+			},
+			created: function(){
+				moneyExchange();
+				checkArguments();
+			}
+		})
+		appUpdata.init();
+		// APP在后台时，点击消息栏事件
+		plus.push.addEventListener("click", function(msg) {
+			console.log('msg1' + JSON.stringify(msg));
+			var payload = (plus.os.name == 'iOS') ? msg.payload : JSON.parse(msg.payload);
+			pushGetRun(payload);
+		}, false);
+
+		// APP在前台时，监听推送消息
+		plus.push.addEventListener("receive", function(msg) {
+			//获取透传数据
+			var payload = (plus.os.name == 'iOS') ? msg.payload : JSON.parse(msg.payload);
+			var lv = plus.webview.getWebviewById('rec_lodding.html');
+			if(plus.os.name == 'iOS'){
+				var payloa = payload.payload;
+				if(payloa.messBankNo){
+					console.log('苹果成功')
+					var paylo = JSON.stringify(payloa);
+					setTimeout(function() {
+						if(lv) lv.evalJS("codebank('" + paylo +"')");//ahContact为充值页面的一个方法
+					}, 300)
+				}else{
+					setRedDot(payload);
+				}
+			}else{
+				if(payload.messBankNo){
+					console.log('安卓成功')
+					var paylo = JSON.stringify(payload);
+					setTimeout(function() {
+						if(lv) lv.evalJS("codebank('" + paylo +"')");//ahContact为充值页面的一个方法
+					}, 300)
+				}else{
+					setRedDot(payload);
+				}
+			}
+		}, false);
+	});
+	
+//	银行卡号4位分隔JS 不换行
+//	separate: function(bankNumber){
+//		return bankNumber.replace(/[\s]/g, '').replace(/(\d{4})(?=\d)/g, "$1 ");
+//	},
+	document.querySelector('#bangzhu').addEventListener('tap', function() {
+		openWV('walletExplain.html', {
+			pUrl: pId
+		});
+	})
+	
+	document.querySelector('.head_bank').addEventListener('tap', function() {
+		openWV('msg_index.html', {
+			pUrl: pId
+		});
+	})
+
+	// 设置此消息为未读 
+	function setRedDot(payload) {
+		var msg = JSON.parse(localStorage.getItem("DL_MESSAGE"));
+		var o = {};
+		o.id = payload.messId;
+		o.type = payload.messType;
+		o.state = '0';
+		if(msg) {
+			msg.push(o);
+		} else {
+			msg = [o];
+		}
+		localStorage.setItem("DL_MESSAGE", JSON.stringify(msg));
+		setTimeout(function() {
+			isRedDotbill();
+			evalId("msg_index.html", ["isRedDot"]);
+		}, 300)
+
+	}
+	// 点击消息打开相关消息页
+	function pushGetRun(payload) {
+		if(payload.messType == '41'){
+            openWV('msg_RedactiviList.html', {
+                pUrl: pId,
+                messType: payload.messType                
+            })	
+		} else if(payload.messType == '00'){
+			openWV('wallet.html', {
+				pUrl: pId
+			})
+			moneyExchange();
+		}
+		else{
+			openWV('msg_activiList.html', {
+				pUrl: pId,
+				messType: payload.messType
+			})			
+		}
+	}
+	//钱包的页面显示和消息的读取
+	function moneyExchange() {
+		money();
+		exchangeFirst();
+		isRedDotbill();
+	}
+	
+	// 消息红点的判断
+	function isRedDotbill() {
+		$("#redDotbill").hide();
+		var msg = JSON.parse(localStorage.getItem("DL_MESSAGE"));
+		var newMsg = [];
+		if(msg) { // 当缓存存在时，遍历它的值（是个由多个obj组成的数组）
+			for(var i = 0; i < msg.length; i++) {
+				if(msg[i].state == "0") { // 判断状态值为0时为未读，显示红点
+					$("#redDotbill").show();
+					newMsg.push(msg[i]);
+				}
+			}
+			if(newMsg.length > 0) { // 过滤掉已读的消息（避免缓存数据过多）
+				localStorage.setItem("DL_MESSAGE", JSON.stringify(newMsg));
+			} else {
+				localStorage.removeItem("DL_MESSAGE");
+			}
+		} else {
+			$("#redDotbill").hide();
+		}
+
+	}
+
+	//钱包下面的详细数据
+	function exchangeFirst() {
+		bpAjax('/index/purse/userTradeOnHomePage', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: ''
+		}, function(d) {
+			$('.details_money').show();
+			vm.detailedData = d.data[0];
+			$('.loadMore').html('');
+		}, function(d) {
+			vm.detailedData = {
+				'productInfo': '暂无记录',
+				'allFee': 0,
+				'ddStatus': '100'
+			}
+			$('.details_money').hide();
+		}, 3, '钱包下面的详细数据');
+	}
+
+	//钱包上面的显示
+	function money() {
+		var pageSize = 10;
+		bpAjax('/index/purse/getPurseInfo', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: ''
+		}, function(d) {
+			vm.walletData = d.data;
+//			if(d.data.status == '30' && d.data.isShowSeal == '1') {
+//				document.getElementById("seal").style.display = 'block';
+//			}
+			realName = d.data.accountName;
+			residual = (d.data.amt) / 100;
+			realStatus = d.data.status;
+
+		}, function(d) {
+			document.getElementById("cardholder_nam").innerHTML = '未绑卡';
+			document.getElementById("money_balance").innerHTML = 0.00;
+		}, 3, '钱包显示')
+	}
+	//复制
+	function plusready() {
+		document.getElementById("copy").addEventListener("tap", function(e) {
+			var banknumber = $("#biao1").html();
+			var bank = banknumber.replace(/\s/g, ""); //清除所有空格
+			if(!window.plus) return;
+			if(mui.os.android) {
+				var Context = plus.android.importClass("android.content.Context");
+				var main = plus.android.runtimeMainActivity();
+				var clip = main.getSystemService(Context.CLIPBOARD_SERVICE);
+				mui.toast("复制卡号成功");
+				return plus.android.invoke(clip, "setText", bank);
+			} else {
+				var UIPasteboard = plus.ios.importClass("UIPasteboard");
+				var generalPasteboard = UIPasteboard.generalPasteboard();
+				// 设置/获取文本内容:
+				generalPasteboard.setValueforPasteboardType(bank, "public.utf8-plain-text");
+				var _val = generalPasteboard.valueForPasteboardType("public.utf8-plain-text");
+				//应用在后台的时候获取剪切版数据被系统限制了，只有在app内才能访问接口
+				var _val = generalPasteboard.plusCallMethod({
+					valueForPasteboardType: "public.utf8-plain-text"
+				});
+				console.log("ios复制返回的数据是：", _val);
+				mui.toast("复制卡号成功");
+				return _val || '';
+			}
+		}, false)
+	}
+	document.addEventListener('plusready', plusready);
+	//点击页面上的a标进行相应的跳转
+	$('.wrapper').on('tap', 'li', function() {
+		var haveMoney = residual;
+		var id = this.getAttribute('data-href');
+		if(id == 'wallet_recharge.html' || id == 'wallet_cash.html' || id == 'wallet_accounts.html' || id == 'wallet_bill.html') {
+			if(realStatus == '10') {
+				mui.confirm('未实名,请绑卡实名', '立即绑卡', ['确定', '取消'], function(e) {
+					if(e.index == 0) {
+						openWV('c_bankCard.html', {
+							pUrl: pId,
+							walletMoney: haveMoney
+						})
+					}
+				})
+			} else {
+				openWV(id, {
+						pUrl: pId,
+						walletMoney: haveMoney
+				})
+			}
+		}else{
+			openWV(id, {
+				pUrl: pId,
+				walletMoney: haveMoney
+			})
+		}
+	});
+	// 判断启动方式
+	function checkArguments(){
+	    console.log("plus.runtime.launcher: "+plus.runtime.launcher);
+	    var args= plus.runtime.arguments;
+	    if(!~args.indexOf('dulong://')) return false;
+	    if(args){
+        	$('.mui-backdrop').css("display","block");
+			var arg = getQueryStringByName(args);
+			code = arg[0].substr(5);
+			var _remarks = arg[1].substr(7);
+			if(_remarks == ''){
+				$('.remarks').html('恭喜发财，大吉大利');
+			}else{
+				$('.remarks').html(_remarks);
+			}
+	    }else{
+	    	$('.mui-backdrop').css("display","none");
+	    }
+	}
+	// 处理从后台恢复
+	document.addEventListener('newintent',function(){
+		closeId(['red_share.html']);
+		plus.webview.getWebviewById('index.html').show();
+	    checkArguments();
+	    redbagclos();
+	},false);
+	
+	$('.open').on('tap', function() {
+		$('.open').css("animation-play-state","running");
+		$('.open').css("-webkit-animation-play-state","running");
+		setTimeout(function(){
+			$('.open').css("display","none");
+			$('.head').css({'transform':'rotateX(180deg)'},{'-webkit-transform':'rotateX(180deg)'},{'-moz-transform':'rotateX(180deg)'});
+			redbag();
+		},800)
+		
+	})
+	
+	function redbag(){
+		bpAjax('/purse/grab/grabByApp', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			code : code
+		}, function(d) {
+			setTimeout(function(){
+				$('.mon-all').css("display","block");
+				$('#amount').html(d.data.amount/100);
+				$('#username').html(d.data.username);
+				$('.remarks').html(d.data.remark);
+				$('.confirm').css("display","block");
+				moneyExchange();
+				code = '';
+			},1000)
+		}, function(d) {
+			mui.toast(d.info);
+			$('.mui-backdrop').css("display","none");
+			redbagclos();
+		}, 3, '红包得到数据')
+	}
+	$('#close').on('tap', function(e) {
+		$('.mui-backdrop').css("display","none");
+		redbagclos();
+	})
+	function redbagclos(){
+		$('.open').css("display","block");
+		$('.open').css("animation-play-state","paused");
+		$('.open').css("-webkit-animation-play-state","paused");
+		$('.head').css({'transform':'rotateX(0deg)'},{'-webkit-transform':'rotateX(0deg)'},{'-moz-transform':'rotateX(0deg)'});
+		$('.mon-all').css("display","none");
+		$('.confirm').css("display","none");
+	}
+	function getQueryStringByName(args) {
+		var reg = args.substring(args.lastIndexOf("\/")+1);
+		var arg = reg.split('&');
+		if(arg == null || arg.length < 1) {
+			return "";
+		}
+		return arg;
+	}
+	//滚动到底部
+//	$('.bill_cont').scroll(function() {
+//		if($(window).height() + $('.bill_cont').scrollTop() >= $('.bill_scroll').height() + 40 && bt) {
+//			console.log('底部刷新');
+//			bt = false;
+//		}
+//	});
+
+//	function billRefresh() {
+//		$('.bill_bd').empty();
+//		$('.loadMore').text('');
+//		clearTimeout(wtTimer);
+//		//		bt = true;
+//		PAGE = 1;
+//		billDate = '';
+//		//				reLink();
+//		moneyExchange();
+//	}
+
+	//重登重新加载刷新
+	function reIdentify() {
+		bt = true;
+		PAGE = 1;
+		initSum = 0;
+		billDate = '';
+		moneyExchange();
+	}
+
+	//首页下拉刷新
+//	slide('.bill_scroll', function(e) {
+//		var that = this;
+//		billRefresh();
+//
+//		var t = setTimeout(function() {
+//			that.back.call();
+//			$('.slideDown').text('下拉可刷新');
+//			clearTimeout(t);
+//		}, 500);
+//	});
+
+</script>

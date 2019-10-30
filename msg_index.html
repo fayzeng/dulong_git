@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>消息中心</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			body {
+				background: #eee;
+			}
+			.big{
+				width: 100%;
+				height: 50px;
+				background:#e15554; 
+			}
+		</style>
+	</head>
+
+	<body>
+		<!--		头部顶部通栏-->
+		<header class="mui-bar mui-bar-nav" style="height: 64px;">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="mui-title">消息中心</h1>
+		</header>
+		
+		<!--		下面的那一个大框,有滚动条,不设高度,绝对定位-->
+		<div class="wrapper" id="notice">
+			<div class="notice" v-for="item in noticeData" v-cloak>
+				
+				<div class="notice_box" @tap="noticelink(item.messType)">
+					<div :class="item.messType == 10 ? 'notice_smbox' : (item.messType == 20 ? 'notbox' : 'notred_box')">
+						<i :class="item.messType == 10 ? 'iconfont icon-tongzhi' : (item.messType == 20 ? 'iconfont iconfont icon-huodong1' :  'iconfont icon-iconzhenghe03' ) " style="font-size: 28px;"></i>
+						<span class="cornerborder" v-if="redDot[item.messType]"></span>
+					</div>
+
+					<div class="notice_words">
+						<p v-if="item.messType == 20">最新活动</p>
+						<p v-if="item.messType == 10">最新通知</p>
+						<p v-if="item.messType == 41">红包通知</p>
+						<p style="overflow: hidden;">{{item.messTitle}}</p>
+					</div>
+
+					<em class="arrow12"></em>
+				</div>
+			</div>
+
+		</div>
+	</body>
+	<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/zepto.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/vue.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+
+	<script type="text/javascript">
+		var self = null,
+			pId = '',
+			vm = null;
+
+		mui.plusReady(function() {
+			self = plus.webview.currentWebview();
+			
+			vm = new Vue({
+				el: '#notice',
+				data: {
+					noticeData: [],
+					redDot:{
+						"10": 0,
+						"20": 0,
+						"41": 0
+					}
+				},
+				created: function() {
+					bpAjax('/push/Index/IdexPushinformationss', {
+						username: getUserInfo('username'),
+						token: getUserInfo('token'),
+						sign: ''
+					}, function(d) {
+						vm.noticeData = d.data;
+					}, function(d) {
+						mui.toast(d.info);
+					}, 1, '最新的一条通知与活动');						
+				},
+				methods: {
+					noticelink: function(messType) {
+						if(messType == '10' || messType =='20'){
+							openWV('msg_activiList.html', {
+								pUrl: pId,
+								messType: messType
+							})							
+						} else{
+							openWV('msg_RedactiviList.html', {
+								pUrl: pId,
+								messType: messType								
+							})
+						}
+					}
+				}
+			})
+			
+			vm.$nextTick(function(){
+				isRedDot();
+			})
+			
+		})
+		
+	// 消息红点的判断
+	function isRedDot(){
+		vm.redDot["10"] = 0;
+		vm.redDot["20"] = 0;
+		vm.redDot["41"] = 0;
+		var msg = JSON.parse(localStorage.getItem("DL_MESSAGE"));
+		console.log('msgindex' + JSON.stringify(msg));
+		if(msg){ // 当缓存存在时，遍历它的值（是个由多个obj组成的数组）
+			for(var i = 0; i < msg.length; i++){
+				if(msg[i].state == "0"){ // 判断状态值为0时为未读，显示红点
+					vm.redDot[msg[i].type] = 1;
+				}
+			}
+		}else{
+			vm.redDot["10"] = 0;
+			vm.redDot["20"] = 0; 
+			vm.redDot["41"] = 0;
+		}
+	}
+	</script>
+
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>选择联系人</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*对方账户那个大框*/
+			
+			.header {
+				margin-top: 10px;
+				position: relative;
+				width: 100%;
+				height: 50px;
+				background: #FFFFFF;
+				line-height: 50px;
+				padding: 0 10px;
+				font-size: 15px;
+			}
+			/*那个input框*/
+			
+			.header .header_input {
+				height: 50px;
+				width: 170px;
+				float: right;
+				text-align: right;
+				padding-right: 20px;
+				display: inline-block;
+			}
+			/*下面显示钱包号码的div*/
+			
+			.wallet_number {
+				padding: 0 10px;
+				color: #9A9A9A;
+				width: 100%;
+				height: 40px;
+				line-height: 40px;
+				font-size: 15px;
+			}
+			/*钱包的号码*/
+			
+			.wallet_math {
+				margin-left: 0px;
+			}
+			/*最近的那2个字*/
+			
+			.recently {
+				color: #9A9A9A;
+				padding: 0 10px;
+				font-size: 15px;
+			}
+			/*三个联系人的大框*/
+			
+			.nameList {
+				width: 100%;
+				background: #FFFFFF;
+				overflow: hidden;
+			}
+			/*其中的一个小框*/
+			
+			.proMiddle {
+				width: 100%;
+				padding: 0 10px;
+				height: 50px;
+				position: relative;
+			}
+			/*照片*/
+			
+			.proImg {
+				float: left;
+				width: 33px;
+				height: 33px;
+				border-radius: 50%;
+				margin-top: 8px;
+			}
+			/*最近的人和号码的大div*/
+			
+			.reData {
+				float: left;
+				height: 50px;
+				padding: 0 10px;
+				line-height: 50px;
+				border-bottom: 1px solid #E5E5E5;
+				width: 80%;
+			}
+			
+			.wrapper .proInput {
+				display: block;
+				width: 90%;
+				height: 50px;
+				background: #CCCCCC;
+				margin: 0 auto;
+				margin-top: 21px;
+				font-size: 16px;
+			}
+			/*钱包号那3个字*/
+			
+			.wallet_chart {
+				margin-left: 15px;
+			}
+			/*隐藏的密码输入框*/
+			
+			.eject {
+				width: 100%;
+				height: 100%;
+				z-index: 99;
+				background: rgba(0, 0, 0, .8);
+				position: fixed;
+				top: 66px;
+				left: 0;
+				display: none;
+			}
+			
+			.payment {
+				width: 70%;
+				height: 40%;
+				background: #fff;
+				margin: 0 auto;
+				margin-top: 14%;
+				border-radius: 5px;
+			}
+			
+			.payment_head {
+				padding: 10px;
+				border-bottom: 1px solid #C9C9C9;
+				margin: 0 5px;
+			}
+			
+			.payment_head em {
+				font-size: 22px;
+				padding-top: 3px;
+			}
+			
+			.payment_head span {
+				font-size: 15px;
+				padding-left: 15px;
+			}
+			
+			.transaction_amount {
+				text-align: center;
+				padding: 15px 20px;
+				border-bottom: 1px solid #C9C9C9;
+				margin: 0 15px;
+			}
+			
+			.transaction_amount h1 {
+				font-size: 15px;
+			}
+			
+			.transaction_amount p {
+				font-size: 30px;
+			}
+			
+			.sd_pwd {
+				width: 85%;
+				height: 17%;
+			}
+			
+			.sd_pwd .epay-item {
+				width: 16.6%;
+				height: 100%
+			}
+			
+			.icon-tongxunlu {
+				color: #6198EB;
+				font-size: 25px;
+				position: absolute;
+				top: 13px;
+				right: 35px;
+			}
+			
+			.money_dox {
+				width: 70%;
+			}
+			
+			.dash_add {
+				color: #e05453;
+				margin-left: 20px;
+				margin-top: 10px;
+			}
+			
+			.header .contants {
+				height: 50px;
+				width: 30px;
+				float: left;
+				display: inline-block;
+				font-size: 18px;
+				line-height: 50px;
+				text-align: right;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">选择联系人</h1>
+		</header>
+		<div class="wrapper">
+			<div class="wrap_content" id="wrap_content">
+
+				<div class="header">
+					<span style="float: left;">对方账号</span>
+					<input type="number" class="header_input" placeholder="输入对方注册手机号" id="otherNum" />
+					<!--<div class="iconfont icon-3dailishang contants" id="addressBook"></div>-->
+				</div>
+				<div class="wallet_number">
+					<span id="wallet_name"></span>
+					<span class="wallet_chart">钱包号:</span>
+					<span class="wallet_math" id="wallet_math"></span>
+				</div>
+				<p class="recently">最近</p>
+				<!--装最近的大div-->
+				<div class="nameList">
+					<!--下面的每一条信息-->
+					<div class="proMiddle" v-for="item in allContact" @tap='covers(item.username)' v-cloak>
+						<div class="reData">
+							<span>{{item.nickname}}</span>
+							<span class="reNumber"> {{item.username}}</span>
+						</div>
+					</div>
+				</div>
+				<input type="submit" value="发送" class="proInput" disabled="disabled" id="proInput" />
+			</div>
+		</div>
+
+		<div id="passd" class="eject" >
+			<div class="payment">
+				<div class="payment_head">
+					<em class="iconfont icon-iconfontcha" id="psdClose"></em>
+					<span>请输入支付密码</span>
+				</div>
+
+				<div class="transaction_amount">
+					<h1>交易金额</h1>
+					<p><em>¥</em><span id="drawmoney">29.99</span></p>
+				</div>
+
+				<div class="sd_pwd cl">
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/virtual-keyboard.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var pwd = [];
+	var card = '';
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		connectAjax();
+	});
+//	(function(){alert('1')})();
+	
+//	window.onload = function(){
+//		alert('3');
+//	}
+//	!function(){alert('2')}();
+
+	var vm = new Vue({
+		el: '#wrap_content',
+		data: {
+			allContact: ''
+		},
+		methods: {
+			covers: function(type) {
+				//			var Nmubers = $(this).find('.reNumber').text();
+				card = type;
+				//			console.log('值' + Nmubers);
+				$('#otherNum').val(type);
+				$('#otherNum').blur();
+				checkcontact();
+				checkInput();
+			}
+		},
+	})
+
+	//弹出输密码的框和键盘
+	$(function() {
+		keyboard = new Keyboard({
+			add: function(k, type) {
+				if(type == 'pass') {
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = 0; i < els.length; i++) {
+						if(els[i].className === 'epay-pot') {
+							els[i].className = 'epay-pot act';
+							pwd.push(k);
+							if(i == 5) {
+								possDraw();
+							}
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			},
+			del: function(key, type) {
+				if(type == 'pass') {
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = els.length - 1; i >= 0; i--) {
+						if(els[i].className === 'epay-pot act') {
+							els[i].className = 'epay-pot';
+							pwd.pop();
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		})
+		//点击弹出来的x
+		$("#psdClose").on("tap", function() {
+			$(".epay-item").children().removeClass("act");
+			$(".cursor").hide();
+			$("#passd").hide();
+			keyboard.hide();
+			pwd = [];
+		})
+	})
+	//对方账号失去焦点
+	$('#otherNum').on('blur', function() {
+		checkInput();
+
+	})
+	//验证按钮是否可用
+	function checkInput() {
+		if($('#otherNum').val()) {
+			$('#proInput').removeAttr('disabled');
+			$('#proInput').css('background', '#3e75c7');
+		} else {
+			$('#proInput').attr('disabled', 'disabled');
+			$('#proInput').css('background', '#CCCCCC');
+		}
+	}
+	//点击下面的名字将其覆盖到最上面
+	$('.proMiddle').on('tap', function() {
+		var Nmubers = $(this).find('.reNumber').text();
+		card = Nmubers;
+		console.log('值' + Nmubers);
+		$('#otherNum').val(Nmubers);
+		checkcontact();
+		checkInput();
+	})
+	//点击提现按钮
+	$('#proInput').on('tap', function() {
+		$('#otherNum').blur();
+		closeId(['wallet_redbag.html'])
+		$(".epay-item").children().removeClass("act");
+		$("#drawmoney").text(self.redMoney);
+		
+		$("#passd").show();
+		keyboard.show('pass');
+	})
+	//输完密码之后的操作
+	function possDraw() {
+		plus.nativeUI.showWaiting();
+
+		var otherNums = $('#otherNum').val();
+		var url = USERINFO.DL_HOST + '/purse/Redpacket/send';
+		var sign = getRSA({
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			amount: self.redMoney,
+			password: md5(pwd.join('')),
+			account: otherNums,
+			remark: self.forgetNote
+		});
+		mui.ajax(url, {
+			data: {
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				sign: sign,
+				amount: self.redMoney,
+				password: md5(pwd.join('')),
+				account: otherNums,
+				remark: self.forgetNote,
+			},
+			dataType: 'json', //服务器返回json格式数据
+			type: 'post', //HTTP请求类型
+			timeout: 13000, //超时时间设置为10秒；
+			success: function(data) {
+				plus.nativeUI.closeWaiting();
+				console.log('输入密码之后' + data);
+				var d = JSON.parse(data);
+				if(d.msg == '1') {
+					mui.toast(d.info);
+					evalId('wallet.html', ['moneyExchange']);
+					setTimeout(function(){
+						self.close();
+					},300)
+					
+				} else {
+					mui.toast(d.info);
+					reset();
+					$(".epay-item").children().removeClass("act");
+					pwd = [];
+				}
+			},
+			error: function(xhr, type, errorThrown) {
+				plus.nativeUI.closeWaiting();
+				console.log('输入密码之后' + errorThrown);
+			}
+		});
+
+		//		bpAjax('/purse/Redpacket/send', {
+		//			username: getUserInfo('username'),
+		//			token: getUserInfo('token'),
+		//			sign: '',
+		//			amount: self.redMoney,
+		//			password: md5(pwd.join('')),
+		//			account: otherNums,
+		//			remark:self.forgetNote,
+		//		}, function(d) {
+		//			mui.toast(d.info);
+		//			evalId('wallet.html', ['moneyExchange']);
+		//
+		//			self.close();
+		//		}, function(d) {
+		//			mui.toast(d.info);
+		//		}, 1, '点击发送红包');
+	}
+	//账户失去焦点查询
+	$("#otherNum").on("blur", function() { // 账户失去焦点
+		card = $(this).val();
+		if(!card) return false;
+		checkcontact();
+	})
+	//输入手机号查询相应的钱包号码
+	function checkcontact() {
+		bpAjax('/index/purse/checkYLCard', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			key: card,
+			sign: ''
+		}, function(d) {
+			mui.toast(d.info);
+			$('#proInput').removeAttr('disabled');
+			$('#proInput').css('background', '#3e75c7');			
+			$('#wallet_math').html(d.data.accountNo);
+			$('#wallet_name').html(d.data.accountName);
+		}, function(d) {
+			mui.toast(d.info);
+			$('#proInput').attr('disabled', 'disabled');
+			$('#proInput').css('background', '#CCCCCC');
+		}, 3, '检查手机钱包卡号')
+	}
+
+	//获取最近发红包人列表
+	function connectAjax() {
+		bpAjax('/purse/redpacket/getLatelySendRecord', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			size: '10'
+		}, function(d) {
+			vm.allContact = d.data;
+			//			mui.toast(d.info);
+		}, function(d) {
+			vm.allContact = [{
+				username: '无'
+			}]
+			//			mui.toast(d.info);
+		}, 1, '获取最近联系人')
+	}
+	
+	function reset() { //清除密码
+		var els = document.querySelectorAll('.epay-pot');
+		for(var i = els.length - 1; i >= 0; i--) {
+			els[i].className = 'epay-pot';
+			pwd.pop();
+		}
+	}	
+
+	$('#addressBook').on('tap', function() {
+		//	plus.contacts.getAddressBook(plus.contacts.ADDRESSBOOK_PHONE, function (addressbook) {
+		//		addressbook.find(["displayName","phoneNumbers"],function(contacts){
+		//			alert(contacts.length);
+		//		}, function () {
+		//			alert("error");
+		//		},{multiple:true});
+		//	},function(e){
+		//		alert("Get address book failed: " + e.message);
+		//	});		
+
+		plus.contacts.getAddressBook(plus.contacts.ADDRESSBOOK_PHONE, function(addressbook) {
+			addressbook.find(["displayName", "phoneNumbers"], function(contacts) {
+				console.log(JSON.stringify(contacts));
+			}, function() {
+				alert("error");
+			}, {
+				multiple: true
+			});
+		}, function(e) {
+			console.log('e' + e);
+		})
+	})
+</script>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>红包分享</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*红包链接那行字*/
+			.share_link{
+				width: 100%;
+				height: 40px;	
+				line-height: 40px;
+				padding: 0 20px;
+				font-size: 15px;
+			}
+			/*复制的链接的大框*/
+			.share_copy{
+				width: 100%;
+				height: 50px;
+				background: #ffffff;
+				padding: 0 15px;
+				line-height: 50px;
+				overflow: hidden;
+			}
+			/*大框里面的链接*/
+			 .share_copy .copy_link{
+			 	float: left;
+				/*display: inline-block;*/
+				height: 50px;
+				width: 80%;
+				border-right: 1px solid #dcdcdc;
+				/*margin-top: 10px;*/
+				line-height: 50px;
+				overflow: hidden;
+			}
+			/*复制的那一行文字*/
+			.share_copy .copy_text{
+				float: left;
+				/*display: inline-block;*/
+				width: 20%;
+				height: 50px;
+				text-align: center;
+				color: #3e75c7;
+				line-height: 50px;
+			}
+			/*分享提示的那些字*/
+			.share_prompt{
+				color: #999999;
+				padding: 0 15px;
+				line-height: 30px;
+			}
+			/*最下面的分享方法*/
+			.share_methods{
+				position: absolute;
+				bottom: 0px;
+				left: 0px;
+				width: 100%;
+				height: 150px;
+				overflow: hidden;
+				/*background: pink ;*/
+			}
+			.share_line{
+				position: relative;
+				width: 100%;
+				height: 40px;
+				/*background: pink;*/
+				padding: 0 10px;
+				overflow: hidden;
+			}
+			/*那两条线*/
+			.lines{
+				width: 100%;
+				height: 1px;
+				background: #a0a0a0;
+				margin-top: 19px;
+			}
+			/*分享字符*/
+			.texts{
+				position: absolute;
+				width: 20%;
+				height: 40px;
+				top: 0;
+				left: 40%;
+				text-align: center;
+				line-height: 40px;
+				background: #f6f6f6;
+				color: #999999;
+			}
+			.share_img{
+				width: 100%;
+				height: 80px;
+				overflow: hidden;
+			}
+			.share_box{
+				height: 80px;
+				width: 25%;
+				float: left;
+				text-align: center;
+			}
+			.share_box img{
+				display: block;
+				width: 50%;
+				margin: 0 auto;
+			}
+			.share_box p{
+				color: #999999;
+				margin-top: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">红包分享</h1>
+		</header>	
+		<div class="wrapper">
+			<!--<p class="share_link">红包链接</p>
+			<div class="share_copy">
+				<div class="copy_link" id="copy_link">网络不佳，链接未显示</div>
+				<div class="copy_text" id="copy_text">复制</div>
+			</div>-->
+			<p class="share_prompt">红包分享提示：</p>
+<!--			<p class="share_prompt">1.生成的红包可通过复制链接的形式发送给他人</p>-->
+			<p class="share_prompt">1.通过以下分享功能进行快速分享。</p>
+			<div class="share_methods">
+				<div class="share_line">
+					<div class="lines"></div>
+					<div class="texts">分享到</div>
+				</div>
+				<div class="share_img">
+					<div class="share_box" id="weixinone">
+						<img src="images/share01.png"/>
+						<p>微信好友</p>
+					</div>
+					<div class="share_box" id="weixintwo">
+						<img src="images/share02.png"/>
+						<p>朋友圈</p>						
+					</div>
+					<div class="share_box" id="qq">
+						<img src="images/share03.png"/>
+						<p>QQ好友</p>						
+					</div>
+					<div class="share_box" id="sinaweiboone">
+						<img src="images/share04.png"/>
+						<p>新浪微博</p>						
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/share.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var Urls = null;
+	var pId = ''; 
+	var shareData = {};
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		updateSerivces();
+		Urls =  USERINFO.CH_APPWEB + '/red_redbag_test.html?code='+ self.code;
+		console.log(Urls);
+	    $('#copy_link').html(Urls); //最上面显示的链接
+	    shareData.share_url = Urls;
+	    redtitle();
+	});	
+	//复制
+//	function plusready() {
+//		document.getElementById("copy_text").addEventListener("tap", function(e) {
+//			var banknumber = $("#copy_link").html();
+//			var bank = banknumber.replace(/\s/g, ""); //清除所有空格
+//			console.log('bank'+ bank);
+//			if(!window.plus) return;
+//			if(mui.os.android) {
+//				var Context = plus.android.importClass("android.content.Context");
+//				var main = plus.android.runtimeMainActivity();
+//				var clip = main.getSystemService(Context.CLIPBOARD_SERVICE);
+//				mui.toast("复制链接成功");
+//				return plus.android.invoke(clip, "setText", bank);
+//			} else {
+//				var UIPasteboard = plus.ios.importClass("UIPasteboard");
+//				var generalPasteboard = UIPasteboard.generalPasteboard();
+//				// 设置/获取文本内容:
+//				generalPasteboard.setValueforPasteboardType(bank, "public.utf8-plain-text");
+//				var _val = generalPasteboard.valueForPasteboardType("public.utf8-plain-text");
+//				//应用在后台的时候获取剪切版数据被系统限制了，只有在app内才能访问接口
+//				var _val = generalPasteboard.plusCallMethod({
+//					valueForPasteboardType: "public.utf8-plain-text"
+//				});
+//				console.log("ios复制返回的数据是："+ _val);
+//				mui.toast("复制链接成功");
+//				return _val || '';
+//			}
+//		}, false)
+//	}
+//	document.addEventListener('plusready', plusready);	//点击复制按钮
+
+	function redtitle(){
+		switch (self.types){
+			case 10:
+				shareData.title = '独龙-平均红包';
+				shareData.author = '杭州云盛';				
+				break;
+			case 11:
+				shareData.title = '独龙-随机红包';
+				shareData.author = '杭州云盛';				
+				break;				
+			default:
+				break;
+		}		
+	}
+	
+	//点击微信好友分享
+	$('#weixinone').on('tap', function(){	
+		shareAction('weixin', 'WXSceneSession', shareData);
+	})
+//	点击朋友圈分享
+	$('#weixintwo').on('tap', function(){	
+		shareAction('weixin', 'WXSceneTimeline', shareData);
+	})
+	//点击QQ好友
+	$('#qq').on('tap', function(){
+		mui.toast('敬请期待');
+		return;
+	})
+	//点击新浪微博
+	$('#sinaweiboone').on('tap', function(){
+		mui.toast('敬请期待');
+		return;
+	})
+</script>

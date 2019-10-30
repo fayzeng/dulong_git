@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	
+	<title>使用帮助</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+</head>
+	
+<body>
+	<header class="bp_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">使用帮助</h1>
+	</header>
+	
+	<div class="wrapper">
+		<div class="help_item">
+			<h4>基本介绍</h4>
+			<div class="help_row">
+				<h6>独龙是什么？</h6>
+				<div>
+					<p><em></em>独龙是以企业联盟和消费者的加盟为基础，以消费奖励积分换取对消费者的回报作为利益驱动机制的积分联盟系统。</p>
+				</div>
+			</div>
+			<div class="help_row">
+				<h6>独龙支持哪些收款方式？</h6>
+				<div>
+					<p><em></em>独龙目前支持微信、支付宝、银联卡的收款交易。</p>
+				</div>
+			</div>
+		</div>
+		
+		<div class="help_item">
+			<h4>交易相关</h4>
+			<div class="help_row">
+				<h6>如何确认收款结果？</h6>
+				<div>
+					<p><em></em>进入APP首页，在账单记录中，可在相应日期的收款记录及收款详情中，查看收款结果。 或者进入APP【服务】页面，在收款中的【账单管理】中查看。</p>
+				</div>
+			</div>
+			<div class="help_row">
+				<h6>如何查余额？</h6>
+				<div>
+					<p><em></em>进入APP【服务】页面，点击右上方【提现】按钮，进入提现页面，可提现金额即为目前余额，显示的余额不包含正在提现中金额。 </p>
+				</div>
+			</div>
+			<div class="help_row">
+				<h6>如何退款？</h6>
+				<div>
+					<p><em></em>进入APP首页或者APP【服务】页面，收款中的【账单管理】，找到准备退款的收款记录；<br />点按记录，进入【收款详情】页面，点按右上角【退款】按钮，进入退款页面；<br />输入退款金额，点按【确认退款】按钮，并输入密码后即可完成退款。</p>
+				</div>
+			</div>
+			<div class="help_row">
+				<h6>收款后，余额未更新显示，如何处理？</h6>
+				<div>
+					<p><em></em>请在【更多】页面，点按【退出账号】按钮退出APP，重新登录查看。</p>
+				</div>
+			</div>
+			<div class="help_row">
+				<h6>什么是提现？</h6>
+				<div>
+					<p><em></em>商户收到的款项会暂存到商户在独龙的账户上，商户可以通过提现，转到自己的银行卡账户。 </p>
+				</div>
+			</div>
+			<div class="help_row">
+				<h6>商户如何提现？</h6>
+				<div>
+					<p><em></em>提现前，请确保您已绑定银行卡。<br />进入APP【服务】页面；<br />点按页面上方的【提现】按钮，进入【余额转出（提现）】页面；<br />在【提现金额】处，输入您要提现的金额，按【确认转出】即可完成提现申请。<br />注意：<br />单笔提现金额必须大于10元；<br />每天仅可提现1次；</p>
+				</div>
+			</div>
+			<div class="help_row">
+				<h6>提现何时到账？</h6>
+				<div>
+					<p><em></em>提现一般是T+1个工作日到账，您申请的提现将在第二个工作日23：59分前到账。周末和节假日期间所提款项，将在节假日后第一个工作日到账。</p>
+				</div>
+			</div>
+			<div class="help_row">
+				<h6>结算账户可以绑定几张银行卡？</h6>
+				<div>
+					<p><em></em>最多可以绑定1张银行卡。</p>
+				</div>
+			</div>
+			<div class="help_row">
+				<h6 id="title-header">快捷支付支持的银行卡及信用卡列表</h6>
+			</div>
+		</div>
+		<div class="h20"></div>
+	</div>	
+</body>
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/pageBack.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+	});
+	
+	$(document).ready(function(){
+		$('.help_row').click(function(){
+			$(this).find('div').toggle();
+		});
+	});
+	
+	$("#title-header").on("tap", function() {
+		openWV('bank_quick.html', {});
+	})
+</script>

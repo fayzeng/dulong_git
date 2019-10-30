@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>活动名称</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			body{background: #eee;}
+			.active-content{width: 100%;padding: 15px 10px; background:#fff;}
+			.active-title{text-align: center;font-size: 20px;}
+			.notice_title .active-time{font-size: 13px;color: #a1a1a1;}
+			.activecont{padding: 10px 15px;text-indent:25px}
+		</style>
+	</head>
+
+	<body>
+		<!--		头部顶部通栏-->
+		<header class="mui-bar mui-bar-nav" style="height: 64px;">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="mui-title">消息</h1>
+		</header>
+		<!--		下面的那一个大框,有滚动条,不设高度,绝对定位-->
+		<div class="wrapper">
+			
+			<div class="noticebox" id="notice">
+				
+				<div class="active-content" v-cloak>
+					<p class="active-title">{{activiData.messTitle}}</p>
+					<div class="notice_title">
+						<span class="active-time">{{activiData.insertTime}}</span>
+					</div>
+					
+					<img class="activi-img" :src="activiData.urlPic"/>
+					
+					<div class="activecont">
+						<p>{{activiData.messDetail}}</p>
+					</div>
+				</div>
+			</div>
+			<div class="noticeheight"></div>
+		</div>
+	</body>
+	<script type="text/javascript" src="js/mui.min.js"           charset="utf-8"></script>
+	<script type="text/javascript" src="js/zepto.min.js"         charset="utf-8"></script>
+	<script type="text/javascript" src="js/vue.min.js"           charset="utf-8"></script>
+	<script type="text/javascript" src="js/jsencrypt.js"         charset="utf-8"></script>
+	<script type="text/javascript" src="js/api.ini.js"           charset="utf-8"></script>
+	<script type="text/javascript" src="js/style.js"             charset="utf-8"></script>
+
+	<script type="text/javascript">
+		//		对当前对象进行命名,并且有PID
+		var self = null,
+			pId = '',
+			vm = null;
+		
+		mui.plusReady(function() {
+			self = plus.webview.currentWebview();
+			vm = new Vue({
+				el: '#notice',
+				data:{
+					activiData: [],
+				},
+				created: function() {
+					bpAjax('/push/Index/OnePushinformationss', {
+						username: getUserInfo('username'),
+						token: getUserInfo('token'),
+						messId: self.messId,
+						sign: ''
+					}, function(d) {
+						vm.activiData = d.data;
+					}, function(d) {
+						mui.toast(d.info);
+					}, 1, '单独一条通知与活动');
+				},
+				methods: {
+				}
+			})
+		})
+		
+		
+	</script>
+
+</html>

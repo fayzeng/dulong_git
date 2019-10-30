@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>我的</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style>
+			.contact {
+				width: 100%;
+				padding: 30px;
+				background: #fff;
+				overflow: hidden;
+				-webkit-box-sizing: border-box;
+				-moz-box-sizing: border-box;
+				box-sizing: border-box;
+			}
+			
+			.contact_kefu,
+			.contact_qq {
+				float: left;
+				width: 50%;
+			}
+			
+			.contact_kefu p {
+				background-color: #53b24c;
+				overflow: hidden;
+				padding: 20px 0px;
+				text-align: center;
+				border-radius: 5px;
+				margin-left: 10px;
+			}
+			
+			.contact_qq p {
+				background-color: #4e8cd9;
+				overflow: hidden;
+				padding: 15px 0px 20px 0;
+				text-align: center;
+				border-radius: 5px;
+				margin-right: 10px;
+			}
+			
+			.contact_kefu i {
+				font-size: 70px;
+				color: #fff;
+			}
+			
+			.contact_qq i {
+				font-size: 70px;
+				color: #fff;
+			}
+			
+			.contact_kefu span,
+			.contact_qq span {
+				display: block;
+				color: #fff;
+				margin-top: 10px;
+			}
+			
+			.contact_qq span {
+				margin-top: 15px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">联系客服</h1>
+		</header>
+
+		<div class="wrapper">
+			<img src="images/contact_banner.png" width="100%" />
+			<div class="contact">
+				<div class="contact_qq">
+					<p><i class="iconfont icon-qq"></i><span>QQ咨询</span></p>
+				</div>
+				<div class="contact_kefu">
+					<p><i class="iconfont icon-kefu1"></i><span>电话咨询</span></p>
+				</div>
+				<!--<div class="contact_kefu">
+					<p><i class="iconfont icon-kefu1"></i><span>电话咨询</span></p>
+				</div>-->
+			</div>
+		</div>
+	</body>
+
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<!--<script src='//kefu.easemob.com/webim/easemob.js?configId=ba6180a7-d071-4623-8ff7-4ed1de562d75'></script>-->
+<script>
+</script>
+<script type="text/javascript">
+	var self = null;
+	var pId = '';
+	var t = 0;
+	var n = 0;
+	var online = [],
+		qqarr = [];
+		
+		
+//	bpAjax('/index/customer/getCustomerQQ', {
+//		username: getUserInfo('username'),
+//		token: getUserInfo('token'),
+//		sign: ''
+//	}, function(d) {
+//		qqarr = d.data;
+//		var qqurl = 'http://webpresence.qq.com/getonline?Type=1&';
+//		for(var i = 0; i < qqarr.length; i++) {
+//			qqurl += qqarr[i];
+//			qqurl += ':';
+//		}
+//		document.write('<scr' + 'ipt src="' + qqurl + '"></scr' + 'ipt>');
+//		console.log(qqurl)
+//
+//	}, function(d) {
+//		mui.toast(d.info);
+//	}, 3, '获取QQ客服号码');
+
+
+	var url = USERINFO.DL_HOST + '/index/customer/getCustomerQQ';
+	console.log(url)
+	mui.ajax(url, {
+		data: {},
+		dataType: 'json', //服务器返回json格式数据
+		type: 'post', //HTTP请求类型
+		async: false,
+		timeout: 10000, //超时时间设置为10秒；
+		success: function(data) {
+			console.log('获取QQ号码' + data)
+			var d = JSON.parse(data);
+			if(d.msg == '1') {
+				qqarr = d.data;
+				var qqurl = 'http://webpresence.qq.com/getonline?Type=1&';
+				for(var i = 0; i < qqarr.length; i++) {
+					qqurl += qqarr[i];
+					qqurl += ':';
+				}
+				document.write('<scr' + 'ipt src="' + qqurl + '"></scr' + 'ipt>');
+				console.log(qqurl)
+			} else if(d.msg == '3') {
+				loginView(d);
+			} else {
+				mui.toast(d.info)
+			}
+		},
+		error: function(xhr, type, errorThrown) {
+			console.log('获取QQ号码' + errorThrown)
+		}
+	});
+
+	mui.plusReady(function() {
+		document.addEventListener("resume", function() {
+			plus.nativeUI.closeWaiting();
+		})
+	});
+
+	$(function() {
+		$('.contact').on('tap', 'div', function() {
+			var index = $(this).parent().children().index(this);
+			if(index == 0) { //0为QQ 
+				openQQ();
+			} else if(index == 1) { //1为电话
+				plus.device.dial("4006770099", true);
+			}
+		})
+	})
+
+	function openQQ() {
+		getn();
+		if(n < 0) return false;
+		if(plus.os.name == "Android") {
+			var openUrl = 'mqqwpa://im/chat?chat_type=wpa&uin=' + qqarr[n - 1];
+			plus.nativeUI.showWaiting();
+			var main = plus.android.runtimeMainActivity();
+			var Intent = plus.android.importClass('android.content.Intent');
+			var Uri = plus.android.importClass('android.net.Uri');
+			var intent = new Intent(Intent.ACTION_VIEW, Uri.parse(openUrl));
+			main.startActivity(intent);
+		}
+		if(plus.os.name == "iOS") {
+
+			var openUrl = 'mqq://im/chat?chat_type=wpa&uin=' + qqarr[n - 1] + '&version=1&src_type=web';
+			plus.runtime.launchApplication({
+				action: openUrl
+			}, function(e) {
+				plus.nativeUI.confirm("检查到您未安装qq，请先到appstore搜索下载？", function(i) {
+					if(i.index == 0) {
+						iosAppstore("itunes.apple.com/cn/app/mqq/");
+					}
+				});
+			});
+		}
+	}
+
+	function getn() {
+		n = Math.round(Math.random() * (qqarr.length - 1) + 1);
+		t++;
+		console.log(n)
+		if(online[n - 1] == 0) {
+			if(t > 20) {
+				mui.toast('当前没有客服在线，请电话咨询！')
+				n = -1;
+			} else {
+				getn();
+			}
+		} else {
+			t = 0;
+		}
+	}
+</script>

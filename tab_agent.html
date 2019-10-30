@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>代理商</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*代理商下面的字样*/
+			
+			.agent-name {
+				width: 100%;
+				height: 50px;
+				border-bottom: 1px solid #eee;
+				line-height: 50px;
+				padding: 0 15px;
+				background: #fff;
+			}
+			
+			.agent-name .nameone {
+				float: left;
+			}
+			
+			.agent-name .nametwo {
+				float: right;
+			}
+			/*统计人数那一行字*/
+			
+			.vip-statistics {
+				width: 100%;
+				height: 40px;
+				line-height: 40px;
+				padding-left: 15px;
+			}
+			/*放4个大圆的那个div*/
+			
+			.statistics {
+				width: 100%;
+				height: 110px;
+				overflow: hidden;
+				background: #fff;
+			}
+			/*里面每个小div（第一个小div）*/
+			
+			.statistics-one {
+				width: 25%;
+				height: 100%;
+				float: left;
+			}
+			
+			.statistics-one .statistics-circle {
+				height: 45px;
+				width: 45px;
+				border-radius: 50%;
+				color: #fff;
+				background: #66ba40;
+				margin: 0 auto;
+				line-height: 45px;
+				text-align: center;
+				margin-top: 20px;
+			}
+			
+			.statistics-one p {
+				width: 100%;
+				text-align: center;
+				margin-top: 10px;
+			}
+			/*里面每个小div（第二个小div）*/
+			
+			.statistics-two {
+				width: 25%;
+				height: 100%;
+				float: left;
+			}
+			
+			.statistics-two .statistics-circle {
+				height: 45px;
+				width: 45px;
+				border-radius: 50%;
+				color: #fff;
+				background: #3db7aa;
+				margin: 0 auto;
+				line-height: 45px;
+				text-align: center;
+				margin-top: 20px;
+			}
+			
+			.statistics-two p {
+				width: 100%;
+				text-align: center;
+				margin-top: 10px;
+			}
+			/*交易流水统计*/
+			
+			.business-sum {
+				width: 100%;
+				height: 320px;
+				overflow: hidden;
+				position: relative;
+			}
+			/*最上面的那一行字*/
+			
+			.business-text {
+				width: 100%;
+				height: 40px;
+				line-height: 40px;
+				position: relative;
+			}
+			/*交易流水统计字样*/
+			
+			.business-introduce {
+				position: absolute;
+				top: 0;
+				left: 15px;
+			}
+			
+			.choose {
+				width: 60px;
+				height: 40px;
+				position: absolute;
+				top: 0;
+				right: 10px;
+			}
+			
+			.business-text .arrow14 {
+				position: absolute;
+				top: 14px;
+				right: 10px;
+			}
+			/*下面的图和文字的那个大框*/
+			
+			.stream-bill {
+				overflow: hidden;
+				background: #fff;
+				width: 100%;
+				height: 45px;
+				line-height: 45px;
+				padding: 0 10px;
+				border-bottom: 1px solid #e5e5e5;
+			}
+			
+			.stream-bill .under-stream {
+				float: left;
+			}
+			
+			.under-stream span {
+				font-weight: 800;
+			}
+			
+			.stream-bill .agent-stream {
+				float: right;
+			}
+			
+			.agent-stream span {
+				font-weight: 800;
+			}
+			/*下面的图的大小*/
+			
+			#container {
+				width: 100%;
+				height: 280px;
+				background: #ffffff;
+				text-align: center;
+				line-height: 280px;
+			}
+			
+			#containers {
+				width: 100%;
+				height: 280px;
+				background: #ffffff;
+				text-align: center;
+				line-height: 280px;
+			}
+			
+			.highcharts-credits {
+				display: none;
+			}
+			
+			.loading {
+				width: 100%;
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+				color: #7d7d7d;
+				display: none;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav">
+			<h1 class="head_title">代理商</h1>
+			<a data-href='c_myInfo.html' class="mySetup" id="mySetup">佣金明细</a>
+		</header>
+		<div class="wrapper" id="wrapper">
+			<div class="slideDown">
+				<span>下拉可刷新</span>
+			</div>
+			<div class="bill_cont">
+				<div class="bill_scroll">
+					<div id="wrapHead" v-cloak>
+						<!--最上面三个的信息-->
+						<div class="agent-name">
+							<span class="nameone">名称</span>
+							<span class="nametwo">{{alldata.bName}}</span>
+						</div>
+						<div class="agent-name">
+							<span class="nameone">代理等级</span>
+							<span class="nametwo">{{agentGrade(alldata.proxyGrade)}}</span>
+						</div>
+						<div class="agent-name">
+							<span class="nameone">所属代理</span>
+							<span class="nametwo">{{alldata.parentProxyBName}}</span>
+						</div>
+						<!--会员统计人数那一行字-->
+						<p class="vip-statistics">会员统计人数(人)</p>
+						<!--统计人数4个图的那个大框-->
+						<div class="statistics">
+							<!--包括圈和字的那个div-->
+							<div class="statistics-one">
+								<div class="statistics-circle">今日</div>
+								<p>{{allpeople.today}}</p>
+							</div>
+							<div class="statistics-two">
+								<div class="statistics-circle">本周</div>
+								<p>{{allpeople.week}}</p>
+							</div>
+							<div class="statistics-one">
+								<div class="statistics-circle">本月</div>
+								<p>{{allpeople.month}}</p>
+							</div>
+							<div class="statistics-two">
+								<div class="statistics-circle">全部</div>
+								<p>{{allpeople.all}}</p>
+							</div>
+						</div>
+					</div>
+
+					<!--交易流水统计-->
+					<div class="business-sum" id="businessSum">
+						<!--最上面的那一行字-->
+						<div class="business-text">
+							<span class="business-introduce">交易流水统计(元)</span>
+							<select class="choose" id="choose">
+								<option value="all">全部</option>
+								<option value="d">今日</option>
+								<option value="w">本周</option>
+								<option value="m">本月</option>
+								<option value="y">本年</option>
+							</select>
+							<em class="arrow14"></em>
+						</div>
+						<!--<div class="stream-bill">
+					<p class="under-stream">直属用户流水:<span>1000.00</span>万</p>
+					<p class="agent-stream">代理流水:<span>1000.00</span>万</p>
+				</div>-->
+						<div id="container"></div>
+					</div>
+
+					<!--佣金统计-->
+					<!--最上面的那一行字-->
+					<div class="business-sum" id="Commission">
+
+						<div class="business-text">
+							<span class="business-introduce">佣金统计(元)</span>
+							<select class="choose" id="chooseTwo">
+								<option value="all">全部</option>
+								<option value="d">今日</option>
+								<option value="w">本周</option>
+								<option value="m">本月</option>
+								<option value="y">本年</option>
+							</select>
+							<em class="arrow14"></em>
+						</div>
+						<div id="containers"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/upDownPull.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/highcharts.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var pId = '';
+	var vm = '';
+	var tradeData = '';
+	var charts;
+	var chart;
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		vm = new Vue({
+			el: '#wrapHead',
+			data: {
+				alldata: '', //后台传过来的页面数据
+				allpeople: ''
+			},
+			mounted: function() {
+				udp = new Updownpull({
+					el: ".bill_scroll",
+					downEl: ".slideDown",
+					upEl: ".loadMore",
+					downArea: 50,
+	        		downFn: function(){
+	        			console.log('下拉刷新');
+	        			allMethod();
+	        		},
+	        		upFn: function(){
+	        			
+	        		}
+				})
+			},			
+			methods: {
+				//银行卡的图片方法
+				bankLogos: function(n) {
+					return 'images/bank/bankLogo' + bankLogo(n) + '.png';
+				},
+				//简化下面佣金数目的方法，保留2位小数
+				simpleMath: function(Integral, num) {
+					return abbreviation(Integral, 2)
+				},
+				agentGrade: function(type) {
+					switch(type) {
+						case 10:
+							return '一级代理';
+							break;
+						case 20:
+							return '二级代理';
+							break;
+						case 30:
+							return '三级代理';
+							break;
+						default:
+							break;
+					}
+				}
+			}
+		})
+		agentAjax();
+		tradeAjax('all');
+		expenseAjax('all');
+		$('.agent-name').on('tap', function() {
+			//			agentAjax();
+		})
+	})
+
+	function allMethod() {
+		agentAjax();
+		tradeAjax('all');
+		expenseAjax('all');
+	}
+	//	切换流水选项会改变相应的饼图
+	$('#choose').on('change', function() {
+		var Choose = $(this).val();
+		console.log('Choose' + Choose);
+		tradeAjax(Choose);
+	})
+	//	切换佣金选项会改变相应的饼图
+	$('#chooseTwo').on('change', function() {
+		var Choose = $(this).val();
+		console.log('Choose' + Choose);
+		expenseAjax(Choose);
+	})
+
+	//	点击佣金提现跳到下个页面
+	$('#mySetup').on('tap', function() {
+		openWV('commission_bill.html', {
+			pUrl: pId
+		});
+	})
+
+	//	页面上面的数据显示	
+	function agentAjax() {
+		bpAjax('/index/proxy/getProxyInfo', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+		}, function(d) {
+			vm.alldata = d.data;
+			vm.allpeople = d.data.flagUserData;
+		}, function(d) {
+			mui.toast(d.info);
+			vm.alldata = {
+				'bName': "",
+				'proxyGrade': '',
+				'parentProxyBName': ''
+			};
+			vm.allpeople = {
+				"all": 0,
+				"today": 0,
+				"week": 0,
+				"month": 0
+			}
+		}, 3, '代理商界面显示')
+	}
+
+	//下面的第一个饼图数据
+	function tradeAjax(num) {
+		bpAjax('/index/proxy/getTransactionStatistics', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			time: num
+		}, function(d) {
+			$('#container').html('');
+			chart.redraw(true); //重新画并且会有效果
+			//			charts.reflow();//重新适应容器大小
+			charts.update({
+				series: [{
+					data: d.data
+				}]
+			})
+		}, function(d) {
+			$('#container').html('暂无数据');
+		}, 3, '交易流水统计')
+	}
+
+	//下面的第二个饼图数据
+	function expenseAjax(num) {
+		bpAjax('/index/proxy/getCommissionFlowStatistics', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			time: num
+		}, function(d) {
+			$('#containers').html('');
+			chart.redraw(true);
+			chart.update({
+				series: [{
+					data: d.data
+				}]
+			})
+		}, function(d) {
+			$('#containers').html('暂无数据');
+		}, 3, '佣金统计')
+	}
+
+	//	下面的第一个饼图
+	charts = new Highcharts.Chart('container', {
+		chart: {
+			//      	绘图区域的背景颜色或渐变颜色
+			plotBackgroundColor: null,
+			//          绘图区边框颜色
+			plotBorderWidth: null,
+			//          是否给绘图区增加阴影效果
+			plotShadow: false
+		},
+		//      饼形图的颜色
+		colors: [
+			'#a4d068', //第一个颜色
+			'#49c4ed', //第二个颜色
+			'#5ec2a7', //第三个颜色
+			'#fece5a', //第四个颜色
+			'#6697d2', //第五个颜色
+			'#5960ee',
+			'#111bed'
+			
+		],
+		//       大标题             
+		title: {
+			text: null
+		},
+		//      数据显示框,就是当鼠标指向区域时,在区域所显示的内容,比如该点的值,数据单位等
+		tooltip: {
+			//      	提示行中的HTML代码,变量用花括号包起来
+			headerFormat: '{series.name}<br>',
+			//          提示框中该店的HTML代码,变量用花括号包起来
+			pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+		},
+		//      数据列的配置,这是针对某种数据列有效
+		plotOptions: {
+			//      	饼图以二维或者三维格式显示每一数值相对于总数值的大小
+			pie: {
+				//          	允许此系列的点通过点击标记,条或圆形切片选择,就是点击会让他分离开来
+				allowPointSelect: true,
+				//              将光标变成指针(手指)
+				cursor: 'pointer',
+				//              饼形的分支所描述的内容
+				dataLabels: {
+					//              	是否显示
+					enabled: true,
+					//                  显示的格式
+					format: '{point.name} <br> {point.y}'
+				},
+				//              下面的数据列是否显示
+				showInLegend: true,
+			}
+		},
+		//      图例说明，包含图表中数列标志和名称的容器，
+		legend: {
+			//      	图例开关
+			enable: true,
+			//      	上边距
+			itemMarginTop: 5,
+			//      	每一个的距离
+			itemDistance: 2,
+			//      	前面的那个小圆圈的大小
+			symbolHeight: 10,
+			//      	图例标志和图例文本的间距
+			symbolPadding: 0,
+			//      	图例标志的圆的程度
+			symbolRadius: 0,
+			//      	图例文本的设置
+			itemStyle: {
+				//      		fontWeight:null,
+				fontSize: 10
+			},
+			//      	回调函数
+			labelFormatter: function() {
+				return this.name + '(' + this.percentage.toFixed(1) + '%)';
+			}
+		},
+		//'        图表的数据列,可以在每个数据例里面指定参数,他是针对某一个具体的来配置的'
+		series: [{
+			//      	饼图系列,如果没有指定类此选项,那么他就从chart.type里面继承
+			type: 'pie',
+			//          如图图例中序列的名称,工具提示等
+			name: '流水比例',
+			//          里面的空圆多大
+			innerSize: '40%',
+			//          具体数据
+			data: ''
+		}]
+	})
+
+	//	下面的第二个饼图
+	chart = new Highcharts.Chart('containers', {
+		chart: {
+			//      	绘图区域的背景颜色或渐变颜色
+			plotBackgroundColor: null,
+			//          绘图区边框颜色
+			plotBorderWidth: null,
+			//          是否给绘图区增加阴影效果
+			plotShadow: false
+		},
+		//      饼形图的颜色
+		colors: [
+			'#fb9daa', //第一个颜色，
+			'#ff6266', //第二个颜色
+			'#fbc92f', //第三个颜色
+			'#fd9e57', //第四个颜色
+			'#db4455', //第五个颜色
+			'#ee595c',
+			'#f7090f'
+		],
+		//       大标题             
+		title: {
+			text: null
+		},
+		//      数据显示框,就是当鼠标指向区域时,在区域所显示的内容,比如该点的值,数据单位等
+		tooltip: {
+			//      	提示行中的HTML代码,变量用花括号包起来
+			headerFormat: '{series.name}<br>',
+			//          提示框中该店的HTML代码,变量用花括号包起来
+			pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+		},
+		//      数据列的配置,这是针对某种数据列有效
+		plotOptions: {
+			//      	饼图以二维或者三维格式显示每一数值相对于总数值的大小
+			pie: {
+				//          	允许此系列的点通过点击标记,条或圆形切片选择,就是点击会让他分离开来
+				allowPointSelect: true,
+				//              将光标变成指针(手指)
+				cursor: 'pointer',
+				//              饼形的分支所描述的内容
+				dataLabels: {
+					//              	是否显示
+					enabled: true,
+					//                  显示的格式
+					format: '{point.name} <br> {point.y}'
+				},
+				//              下面的数据列是否显示
+				showInLegend: true,
+			}
+		},
+		//      图例说明，包含图表中数列标志和名称的容器，
+		legend: {
+			//      	图例开关
+			enable: true,
+			//      	上边距
+			itemMarginTop: 5,
+			//      	每一个的距离
+			itemDistance: 2,
+			//      	前面的那个小圆圈的大小
+			symbolHeight: 10,
+			//      	图例标志和图例文本的间距
+			symbolPadding: 0,
+			//      	图例标志的圆的程度
+			symbolRadius: 0,
+			//      	图例文本的设置
+			itemStyle: {
+				//      		fontWeight:null,
+				fontSize: 10
+			},
+			//      	回调函数
+			labelFormatter: function() {
+				return this.name + '(' + this.percentage.toFixed(1) + '%)';
+			}
+		},
+		//'        图表的数据列,可以在每个数据例里面指定参数,他是针对某一个具体的来配置的'
+		series: [{
+			//      	饼图系列,如果没有指定类此选项,那么他就从chart.type里面继承
+			type: 'pie',
+			//          如图图例中序列的名称,工具提示等
+			name: '佣金比例',
+			//          里面的空圆多大
+			innerSize: '40%',
+			//          具体数据
+			data: ''
+		}]
+	})
+</script>

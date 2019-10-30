@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	<title>添加银行卡</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+</head>
+
+<body>
+	<div class="ab_cont">
+<!--		<p class="abank_tip">只能添加本人实名认证的银行卡</p>-->
+
+
+		<form action="" name="subBank" method="post" onsubmit="return validate()">
+			<div class="abank_cont">
+				<div class="abank_row">
+					<span>持卡人</span>
+					<p>
+						<input id="abName" name="truename" type="text" placeholder="请输入持卡人姓名" value="" />
+					</p>
+				</div>
+				<div class="abank_row">
+					<span>手机号</span>
+					<p>
+						<input id="abPhone" name="phoneNo" type="tel" placeholder="请输入银行预留手机号" />
+					</p>
+				</div>
+				<div class="abank_row">
+					<span>身份证</span>
+					<p>
+						<input id="abIdent" name="certifId" type="text" placeholder="请输入身份证" />
+					</p>
+				</div>
+				<div class="abank_row">
+					<span>卡号</span>
+					<p>
+						<input id="addBank" name="accNo" type="tel" placeholder="请输入卡号" />
+					</p>
+				</div>
+				<input type="hidden" name="username" id="abUser" value="" />
+				<input type="hidden" name="token" id="abDeviceid" value="" />
+				<!--<input type="hidden" name="truename" id="hdName" value="" />-->
+				<input type="hidden" name="sign" id="signs" value="" />
+				
+				<input id="aBankSub" type="submit" value="提交" />
+			</div>
+		</form>
+		
+	</div>
+</body>
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var userN, oName, oPhone, oIdent, oBank;
+	
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		plus.webview.currentWebview().setStyle({
+		    softinputMode: "adjustResize"  // 弹出软键盘时自动改变webview的高度
+		});
+		userN = localStorage.getItem('nbname');
+		oName = document.getElementById('abName');
+		oPhone = document.getElementById('abPhone');
+		oIdent = document.getElementById('abIdent');
+		oBank = document.getElementById('addBank');
+		
+		document.getElementById('abUser').value = getUserInfo('username');
+		document.getElementById('abDeviceid').value =getUserInfo('token');
+//		document.getElementById('hdName').value =USERINFO.DL_DEVICEID;
+		
+
+		
+		//是否绑定过用户
+//		if(userN != null && userN != undefined){
+//			document.getElementById('hdName').value = userN;
+//			oName.value = userN;
+//			oName.disabled = true;
+//		}else{
+//			oName.value = '';
+//			oName.disabled = false;
+//		}
+	});
+	
+	//提交
+	function validate(){
+		document.subBank.action = USERINFO.DL_HOST + '/index/Scanpay/bindBank'
+		if(!oName.value){
+			mui.toast('持卡人姓名不能为空');
+			return false;
+		}
+//		else
+//		{
+//			//console.log('come here');
+//			document.getElementById('hdName').value = oName.value;
+//		}
+		
+		if(!isMobile(oPhone.value)){
+			mui.toast('手机格式错误');
+			return false;
+		}
+		
+		if(!isIdentity(oIdent.value)){
+			mui.toast('身份证格式错误');
+			return false;
+		}
+		
+		if(!isBank(oBank.value.replace(/\s/g,''))){
+			mui.toast('银行卡格式错误');
+			return false;
+		}else{
+			var encrypt = new JSEncrypt();
+			encrypt.setPublicKey(USERINFO.DL_PUBLIC_KEY); //设置公有key
+			var sign = encrypt.encrypt(oBank.value + oIdent.value +  oPhone.value + getUserInfo('token') + oName.value   + getUserInfo('username')  + 'DL_RED_PACKET');	
+			document.getElementById('signs').value =sign;			
+			console.log('提交表单');
+			var f = bankNumAjax();
+			console.log(f)
+			return f
+		}
+		
+	}
+	
+	function fnEval(){
+		bankNumAjax();
+	}
+	function bankNumAjax(){
+		var flag = false;
+		var url = USERINFO.DL_HOST + '/index/Member/checkBankCard';
+		var data = {
+	 			username: getUserInfo('username'),
+	 			card: oBank.value,
+	 			token: getUserInfo('token')
+		}
+		var sign = getRSA(data)
+		
+		mui.ajax(url, {
+			data: {
+	 			username: getUserInfo('username'),
+	 			card: oBank.value,
+	 			sign: sign,
+	 			token: getUserInfo('token')
+			},
+			dataType: 'json',
+			type: 'post',
+			timeout: 8000,
+			async: false,
+			success: function(data){
+				console.log(' '+data);
+				var d = JSON.parse(data);
+				
+				if(d.msg == '1'){
+					flag = true;
+					
+				}else if(d.msg == '3'){
+					loginView(d)
+				}else{
+					mui.toast(d.info);
+				}
+			},
+			error: function(xhr, type, errorThrown){
+				mui.toast('请求超时');
+			}
+		});
+		
+		return flag;
+	}
+	
+</script>

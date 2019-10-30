@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+ 	<!--<meta http-equiv="refresh" content="60">--> <!--每隔60秒刷新一次页面-->
+	
+	<title>转账</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+	<style type="text/css">
+		.dcash_r{margin-top: 10px; height: 55px;}
+		.dcash_accont{padding: 0 20px;}
+		.big_box {position: relative;background: #fff;margin-top: 10px;overflow: hidden;border-bottom:1px solid #d8d8d8 ;}
+		.dcash_accont span{display: inline-block;width: 70px;margin-top: 16px;font-size: 16px;color: #666;}
+		.dcash_p{margin-top: 0;padding: 10px 20px;padding-bottom: 0;}
+		.sd_price {width: 100%; padding: 10px 0 12px;border-bottom: none;}
+		.sd_price p,.sd_price h6{text-align: left;}
+		.sd_price p.withdrawal{padding-top: 10px;margin-top: 10px;width: 100%;border-top: 1px solid #D4D4D4; font-size: 13px;color: #666;}
+		.btnDiv { margin: 15px 20px 0;}
+		.arrow12{margin-top: -50px;}
+		#Shop{text-indent: 6.7rem;}
+		input.mplOlds{width: 85%; padding-left: 35px;margin-top: -58px;}
+		p.withdrawal{padding-top: 5px;margin-top: 5px;width: 100%;border-top: 1px solid #D4D4D4; font-size: 13px;color: #666;}
+		.eject{width: 100%;height: 100%;z-index: 99;background: rgba(0,0,0,.8);position: fixed;top: 66px;left: 0;}
+		.payment{width: 70%;height: 40%;background: #fff;margin: 0 auto;margin-top: 14%;border-radius: 5px;}
+		.payment_head{padding: 10px;border-bottom: 1px solid #C9C9C9;margin: 0 5px;}
+		.payment_head em{font-size: 22px;padding-top: 3px;}
+		.payment_head span{font-size: 15px;padding-left: 15px;}
+		.transaction_amount{text-align: center;padding: 15px 20px;border-bottom: 1px solid #C9C9C9;margin: 0 15px;}
+		.transaction_amount h1{font-size: 15px;}
+		.transaction_amount p{font-size: 30px;}
+		.sd_pwd{width: 85%;height: 17%;}
+		.sd_pwd .epay-item{width: 16.6%;height: 100%}
+		.icon-tongxunlu{color: #6198EB;font-size: 25px;position: absolute;top: 13px;right: 35px;}
+		.note{padding-left: 20px; height: 50px; width: 100%;line-height: 30px;color: #969696;}
+		.note .noteText{
+			float: left;
+			border-bottom: 1px #969696 solid;
+			height: 30px;
+			width: 80%;
+			line-height: 30px;
+			margin-left: 10px;
+		}
+		.notesp{
+			display: block;
+			height: 30px;
+			line-height: 30px;
+			float: left;
+			
+		}
+		.remaining{
+			width: 100%;
+			float: left;
+			text-align: right;
+			padding-right: 30px;
+			
+		}
+	</style>
+</head>
+
+<body>
+	<header class="bp_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">转账</h1>
+	    <!--<a id="dCash" class="headBtn" data-href="cash_record.html">提现记录</a>-->
+	</header>
+	
+	<div class="wrapper">
+		<div class="wrap_content">
+			<div class="dcash_r" id="dfTel">
+				<div class="dcash_accont">
+					<span>对方账户</span>
+					<p>
+						<input type="tel" class="mplOlds" placeholder='注册手机号/钱包卡号' />
+					</p>
+				</div>
+			</div>
+	
+			<div class="dcash_r" id="dfCard" style="display: none;">
+				<div class="dcash_accont">
+					<span>卡号</span>
+					<p>
+						<input type="tel" class="mplOlds" disabled placeholder='注册手机号/钱包卡号' />
+					</p>
+				</div>
+			</div>
+	
+			<div class="dcash_r" id="dfName" style="display: none;">
+				<div class="dcash_accont">
+					<span>姓名</span>
+					<p>
+						<input type="tel" class="mplOlds" disabled placeholder='注册手机号/钱包卡号' />
+					</p>
+				</div>
+			</div>
+	
+			<div class="big_box">
+				<span class="money">转账金额</span>
+				<img class="money_img" src="images/money.png" />
+				<h6 class="money_dox" id="spPri"><span id="spPrice">0</span><span class="cursor" style="display: none;"></span></h6>
+				<div class="dcash_p flex_card sd_price"></div>
+			</div>
+	
+			<p class="prompt">提示： 一经转账，将无法退款。</p>
+			<div class="note"> 
+				<span class="notesp">备注:</span>
+				<input type="text" name="" value="" placeholder="请在这里输入" class="noteText" id="noteText"/>
+				<div class="remaining">还可以输入<span class="remainingMath">15</span>个字</div>
+			</div>
+			<div class="btnDiv">
+				<input id="cashSub" type="button" value="确认转账" disabled="disabled" onclick="disabled=1;v=this;setTimeout('v.disabled=0',5000)" />
+			</div>
+		</div>
+	</div>	
+	<div id="psd" class="eject" style="display: none;">
+		<div class="payment">
+			<div class="payment_head">
+				<em class="iconfont icon-iconfontcha" id="psdClose"></em>
+				<span>请输入支付密码</span>
+			</div>
+			
+			<div class="transaction_amount">
+				<h1>转账金额</h1>
+				<p><em>¥</em><span id="psdAc">0.00</span></p>
+			</div>
+			
+			<div class="sd_pwd cl">
+				<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+			</div>
+		</div>	
+	</div>
+</body>
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/virtual-keyboard.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var flag = false; //是否固定金额
+	var len = 9; //最大金额位数
+	var yhCard = ''; // 卡号
+	var pwd = []; // 支付密码
+	var keyboard = null;
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		
+		self.setStyle({
+		    softinputMode: "adjustResize"  // 弹出软键盘时自动改变webview的高度
+		});
+		$("#cashSub").attr("disabled","disabled").css("background","#ccc");
+	});
+	
+	$(function(){
+		keyboard = new Keyboard({ //初始化键盘
+			add: function(k,type){
+				if(type == 'ac'){
+					var $spPrice = $("#spPrice");
+					var num = $spPrice.text();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					
+					if(!flag) {
+						if(!isPoint && num.length < len && k != '.'){ // 整数限制在len位
+							if(num != '0') {
+								num += k;
+							} else {
+								num = k;
+							}
+						}else if(isPoint && k != '.' && pLen < 2){ // 保留2位小数点
+							num += k;
+						}else if(!isPoint && num.length <= len && k == '.'){ // 整数达到上限加 小数点
+							num += k;
+						}
+						
+						if(k == '.' && num == '0'){ // 0后面加 小数点
+							num = '0' + k;
+						}
+						$spPrice.text(num);
+						checkBtn()
+					}
+				}else{
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = 0; i < els.length; i++) {
+						if(els[i].className === 'epay-pot') {
+							els[i].className = 'epay-pot act';
+							pwd.push(k);
+							if(i == 5) {
+								postAccounts();
+							}
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			},
+			del: function(key,type){
+				if(type == 'ac'){
+					var $spPrice = $("#spPrice");
+					var num = $spPrice.text();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					if(!flag) {
+						var m = num.indexOf('.');
+						var n = num.substr(m + 1);
+						var l = num.substr(0, m);
+			
+						if(isPoint && pLen == 1) {
+							num = num.substr(0, num.length - 2);
+							//oPrice.innerHTML = l;
+						} else {
+							if(num.length < 2) {
+								num = '0';
+							} else {
+								num = num.substr(0, num.length - 1);
+							}
+						}
+					}
+					$spPrice.text(num);
+					checkBtn()
+				}else{
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = els.length - 1; i >= 0; i--) {
+						if(els[i].className === 'epay-pot act') {
+							els[i].className = 'epay-pot';
+							pwd.pop();
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		})
+		
+		$('#cashSub').on('tap',function(){ // 点击提交按钮
+			$("input").blur();
+			$("#psd").show();
+			$("#psdAc").text($("#spPrice").text());
+			keyboard.show('psd');
+			$(".cursor").hide(); // 隐藏输入金额光标
+			$(".sd_pwd").find("em").removeClass("act"); // 清除密码
+			pwd = [];
+		})
+		
+		$("#psdClose").on("tap", function(){ // 关闭密码框
+			$("#psd").hide();
+			$(".sd_pwd").find("em").removeClass("act"); // 清除密码
+			pwd = [];
+		})
+		
+		$("#dfTel").find("input").on("focus", function(){
+			var $dfCard = $("#dfCard"), $dfName = $("#dfName");
+			keyboard.hide();
+			$(".cursor").hide();
+			$(".wrapper").css("bottom",'0');
+		})
+		
+		$("#dfTel").find("input").on("blur", function(){ // 账户失去焦点
+			var card = $(this).val();
+			if(!card) return false;
+			bpAjax('/index/purse/checkYLCard', {
+				username:getUserInfo('username'),
+				token:getUserInfo('token'),
+				key:card,
+				sign:''
+			}, function(d){
+				var $dfCard = $("#dfCard"), $dfName = $("#dfName");
+				if(card.length <= 11){
+					$dfCard.show();
+					$dfName.show();
+					yhCard = d.data.accountNo;
+					$dfCard.find("input").val(d.data.accountNo)
+					$dfName.find("input").val(d.data.accountName)
+				}else{
+					$dfCard.find("span").text("手机号")
+					$dfCard.show();
+					$dfName.show();
+					yhCard = card;
+					$dfCard.find("input").val(d.data.phoneNo)
+					$dfName.find("input").val(d.data.accountName)
+				}
+				checkBtn()
+			}, function(d){
+				mui.toast(d.info)
+				var $dfCard = $("#dfCard"), $dfName = $("#dfName");
+				$dfCard.hide().find("input").val('');
+				$dfName.hide().find("input").val('');
+				yhCard = '';
+				checkBtn()
+			}, 3, '检查手机钱包卡号')
+		})
+		
+		$("#spPri").on("tap", function(){ // 输入金额
+			$(".cursor").show();
+			$("#dfTel").find("input").blur();
+			$(".note").find("input").blur();
+			setTimeout(function(){
+				var $wrapper = $(".wrapper");
+				var winW = $wrapper.height() - 200;
+				if($(".wrap_content").height() > winW){
+					$wrapper.css("bottom",'200px')
+				}else{
+					$wrapper.css("bottom",'0')
+				}
+				keyboard.show('ac');
+			}, 300)
+			
+		})
+	})
+	
+	// 提交转账
+	function postAccounts(){ 
+		var acName = $("#dfTel").find("input").val();
+		var acCard = $("#dfCard").find("input").val();
+		var acNum = Number($("#spPrice").text());
+		var marks = $('.note').find('input').val();
+		bpAjax('/index/purse/transferAccounts', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			amount:acNum,
+			accNo:yhCard,
+			payPass:md5(pwd.join('')),
+			remark:marks,
+			sign:''
+		}, function(d){
+			mui.alert(d.info);
+			evalId('wallet.html',['moneyExchange']);
+			self.close();
+			$(".note").find("input").blur();
+		}, function(d){
+			mui.toast(d.info);
+			reset();
+			$(".epay-item").children().removeClass("act") ;
+			pwd = [];				
+		}, 3, '提交转账')
+	}
+	
+	// 检查是否填写完
+	function checkBtn(){ 
+		var acName = $("#dfTel").find("input").val(); // 手机号
+		var acCard = $("#dfCard").find("input").val(); // 卡号
+		var acNum = Number($("#spPrice").text()); // 金额
+		if(acName && acCard && acNum > 0 && acNum <= Number(self.walletMoney)){
+			$("#cashSub").removeAttr("disabled").css("background","#3e75c7");
+		}else{
+			if(acNum > Number(self.walletMoney)) mui.toast("可转账金额为" + self.walletMoney + '元');
+			$("#cashSub").attr("disabled","disabled").css("background","#ccc");
+		}
+	}
+	//备注获取焦点 
+	$(".note").find("input").on('focus', function() {
+		keyboard.hide();
+		$(".cursor").hide();
+		$(".wrapper").css("bottom", '0px');
+	})
+	$('#noteText').on('input propertychange', function() {
+		var textL = $('#noteText').val().length;
+		var vall = $('#noteText').val();
+		$('.remainingMath').html(15 - textL);
+		if(textL >= 15) {
+			$('#noteText').val(vall.substr(0, 14));
+			$('.remainingMath').html(0);
+		}
+	})
+	
+	function reset() { //清除密码
+		var els = document.querySelectorAll('.epay-pot');
+		for(var i = els.length - 1; i >= 0; i--) {
+			els[i].className = 'epay-pot';
+			pwd.pop();
+		}
+	}	
+</script>
+

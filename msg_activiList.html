@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>通知消息</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/mui.picker.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			body {
+				background: #eee;
+			}
+		</style>
+	</head>
+
+	<body>
+		<!--		头部顶部通栏-->
+		<header class="mui-bar mui-bar-nav" style="height: 64px;">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="mui-title">消息</h1>
+		</header>
+		<!--		下面的那一个大框,有滚动条,不设高度,绝对定位-->
+		<div class="wrapper" id="notice">
+			<p class="slideDown">
+				下拉可刷新
+			</p>
+			<div class="bill_cont">
+				<div class="bill_scroll" style="background: #eee; min-height: 100%;">
+					<div class="noticebox" @tap="noticelink(item)" v-for="item in noticeData" v-cloak>
+						<p class="notice-time">{{timeFormat(item.insertTime)}}</p>
+						<div class="notice-content">
+							<div class="notice_title">
+								<span>{{item.messTitle}}</span>
+								<em class="arrow12"></em>
+							</div>
+							<img v-if="item.messType == 20" class="activi-img" :src="item.urlPic" />
+							<div class="cont">
+								<p>{{item.messSummary}}</p>
+							</div>
+						</div>
+					</div>
+					<p class="loadMore" style="background: #eee;"></p>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/zepto.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/vue.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+	<script type="text/javascript" src="js/upDownPull.js" charset="utf-8"></script>
+	<script type="text/javascript">
+		//		对当前对象进行命名,并且有PID
+		var self = null,
+			pId = '',
+			vm = null,
+			udp = null;
+
+		mui.plusReady(function() {
+			self = plus.webview.currentWebview();
+			vm = new Vue({
+				el: '#notice',
+				data: {
+					noticeData: [],
+					PAGE: 1
+				},
+				mounted: function() {
+					var that = this;
+					
+
+					udp = new Updownpull({
+						el: ".bill_scroll",
+						downEl: ".slideDown",
+						upEl: ".loadMore",
+						downArea: 50,
+		        		downFn: function(){
+		        			that.PAGE = 1;
+		        			that.getData();
+		        		},
+		        		upFn: function(){
+		        			that.PAGE++;
+		        			that.getData("add");
+		        		}
+					})
+					
+					that.getData();
+				},
+				methods: {
+					getData: function(type) {
+						var that = this;
+						var size = 10;
+						bpAjax('/push/Index/Pushinformationss', {
+							username: getUserInfo('username'),
+							token: getUserInfo('token'),
+							messType: self.messType,
+							page: that.PAGE,
+							pageSize: size,
+							sign: ''
+						}, function(d) {
+							var len = d.data.length;
+							if(type == "add"){
+								vm.noticeData.push.apply(vm.noticeData, d.data)
+							}else{
+								vm.noticeData = d.data;
+								
+							}
+							
+							udp.setIsBt(that.PAGE, size, len)
+						}, function(d) {
+							udp.setIsBt(that.PAGE, size)
+							if(that.PAGE == 1){
+								vm.noticeData = [];
+							}
+						}, 1, '通知消息');
+					},
+					noticelink: function(d) {
+						openWV('msg_activiDetails.html', {
+							pUrl: pId,
+							messId: d.messId
+						})
+					},
+					timeFormat: function(t) { //根据当前时间显示通知时间
+						var d = new Date();
+						var year = d.getFullYear();
+						var month = (d.getMonth() + 1) < 10 ? ("0" + (d.getMonth() + 1)) : (d.getMonth() + 1);
+						var day = d.getDate() < 10 ? ("0" + d.getDate()) : d.getDate();
+						var newDate = year + "-" + month + "-" + day;
+						var ts = t.split(" ");
+						if(newDate == ts[0]) { // 判断年月日是否相同，如相同则返回时间
+							return ts[1].substr(0, 5);
+						} else {
+							if(year == ts[0].substr(0, 4)) { // 判断当前年份是否相同，如相同则返回月日
+								return ts[0].substr(5, ts[0].length);
+							} else {
+								return ts[0]; // 否则返回年月日
+							}
+						}
+					}
+				}
+			})
+
+			setRedDot();						
+		})
+
+		// 设置此消息为已读
+		function setRedDot() {
+			plus.runtime.setBadgeNumber(0);
+			var msg = JSON.parse(localStorage.getItem("DL_MESSAGE"));
+			if(msg) {
+				for(var i = 0; i < msg.length; i++) {
+					if(msg[i].type == self.messType) {
+						msg[i].state = '1';
+					}
+				}
+				localStorage.setItem("DL_MESSAGE", JSON.stringify(msg))
+			}
+			evalId("wallet.html", ["isRedDotbill"]);
+			evalId("msg_index.html", ["isRedDot"]);
+		}
+		
+		
+	</script>
+
+</html>

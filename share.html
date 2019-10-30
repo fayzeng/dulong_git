@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	
+	<title>分享下载</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+	<style type="text/css">
+		.expect{
+			color:#52B149 ;
+			text-align: center;
+			font-size: 30px;
+			margin-top: 50px;
+		}
+	</style>
+</head>
+	
+<body style="background: #2d5fa9;">
+<!--	<div class="expect">敬请期待</div>-->
+	<header class="bp_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">分享下载</h1>
+	</header>
+	
+	<div class="wrapper shareWrap">
+		<div class="recom_bg">
+			<div class="recom_cont" id="recom_cont"></div>
+			<p id="invite">我的专属邀请码：<em></em></p>
+		</div>
+								<!--<p class="share_tip">注:可直接扫描二维码分享下载</p>-->
+		<p id="shareBtn"><img src="images/shareBtn.png"/></p>
+		<div class="share_t">
+			<p>可通过扫描二维码直接分享下载</p>
+			<p>可通过微信、微博分享</p>
+			<p>分享并下载成功，有额外奖励</p>
+		</div>
+	</div>
+	
+</body>
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jquery.qrcode.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/pageBack.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/share.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var shareData = {}, shareUrl;
+	
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		updateSerivces();
+		shareAjax();
+	});
+	
+	function shareAjax(){
+		bpAjax('/app/user/getBrcode', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:''
+		}, function(d){
+			$('#recom_cont').qrcode({width: 200,height: 200,text: d.data});//二维码的变化
+			$("#invite").children("em").html(d.invite)
+			shareData.title = '分享下载';
+			shareData.share_url = d.data + "&invite=" + d.invite;
+		}, function(d){
+			mui.toast(d.info);
+		} , 3, '银行卡')
+	}
+	
+	
+//	function shareAjax(){
+//		var url = host + '/app/user/getBrcode';
+//		var dataType = 'json';
+//		var type = 'post';
+//		var data = {
+//			deviceid: deviceid,
+//			username: JSON.parse(localStorage.getItem('userInfo')).username
+//		}
+//		
+//		mui.post(url, data, function(data){
+//			console.log('121212'+data); 
+//			var d = JSON.parse(data); 
+//			
+//			if(d.msg == '1'){
+//				$('#recom_cont').qrcode({width: 200,height: 200,text: d.data});//二维码的变化
+//				$("#invite").children("em").html(d.invite)
+//				shareData.title = '分享下载';
+//				shareData.share_url = d.data + "&invite=" + d.invite;
+//			}else if(d.msg == '3'){
+//				plus.nativeUI.closeWaiting();
+//				mui.toast(d.info);
+//				localStorage.removeItem('userInfo');
+//				localStorage.removeItem('identType');
+//				clearTimeout(wtTimer);
+//							
+//				var loginView = plus.webview.getWebviewById('login.html');
+//				if(loginView){
+//					plus.webview.show(loginView, 300);
+//				}else{
+//					mui.openWindow({
+//						id: 'login.html',
+//						url: 'login.html',
+//						waiting:{
+//							autoShow: true,
+//							options:{
+//								background:'rgba(100,100,100,0.8)'
+//							}
+//						}
+//					});
+//				}
+//				return false;
+//			}else{
+//				console.log(d.info);
+//			}
+//		});
+//	}
+	
+	document.getElementById('shareBtn').addEventListener('tap', function(){
+		shareData.author = '湖南华普';
+		shareShow(shareData);
+	});
+	
+//$(function(){	
+//	$('#recom_cont').qrcode(host + '/index/download/app'); 
+////		$("#recom_cont").qrcode({
+////			render: "canvas",
+////			ecLevel: 'H', //识别度
+////			fill: '#000', //二维码颜色
+////			background: '#ffffff', //背景颜色
+////			quiet: 2, //边距
+////			width: 125, //宽度		
+////			height: 125,
+////			text:host + 'index/download/app',
+////			mode: 4,
+////			image: $('#logo.png')[0], //logo图片
+////		})
+//	})		-->
+</script>

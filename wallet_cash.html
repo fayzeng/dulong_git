@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>钱包提现</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			#over {display: block;height: 3rem;line-height: 3rem;margin-left: 0.9rem;font-size: 15px;}
+			.bankselect{width: 100%;height: 50px;background: #fff; position: relative; border-bottom: 1px solid #E5E5E5;}
+			#Shop {width: 70%;height: 50px; position: absolute; right: 0; top: 0; text-align: left;}
+			.arrow12{position: absolute;top: 22px;right: 20px;z-index: 99999;}
+			#bankInfo{width: 100%;height: 50px;background: #fff; line-height: 50px; color: #e05453; display: none;}
+			.all_in {font-size: 15px;width: 100px; line-height: 50px; padding-left: 20px; float: left;}
+			#triangle-down {width: 0;height: 0;border-left: 6px solid transparent;border-right: 6px solid transparent;border-top: 8px solid #ccc;position: absolute;top: 22px;right: 20px;z-index: 99999;}
+			.dcash_p{padding: 30px 20px; position: relative;}
+			.dcash_p span{    margin-top: -20px;}
+			.dcash_rr {position: absolute;background: #fff;height: 60px;overflow: hidden;-webkit-box-shadow: 0 0 3px #dfdfdf;box-shadow: 0 0 3px #dfdfdf;top: 0;display: none;}
+			.dcash_tip{width: 100%;height:40px;background: #fff;border-top: 1px solid #E5E5E5;font-size: 14px;}
+			.dcash_p .money_img{width: 30px;position: absolute;top: 50px;left: 13px;}
+			.flex_box input{height: 50px;line-height: 50px;}
+			#spPrice {display: inline-block;height: 70px;line-height: 70px;font-size: 40px;text-align: center;padding-top: 10px;padding-left: 10px;}
+			.eject{width: 100%;height: 100%;z-index: 99;background: rgba(0,0,0,.8);position: fixed;top: 66px;left: 0;}
+			.payment{width: 70%;height: 40%;background: #fff;margin: 0 auto;margin-top: 14%;border-radius: 5px;}
+			.payment_head{padding: 10px;border-bottom: 1px solid #C9C9C9;margin: 0 5px;}
+			.payment_head em{font-size: 22px;padding-top: 3px;}
+			.payment_head span{font-size: 15px;padding-left: 15px;}
+			.transaction_amount{text-align: center;padding: 15px 20px;border-bottom: 1px solid #C9C9C9;margin: 0 15px;}
+			.transaction_amount h1{font-size: 15px;}
+			.transaction_amount p{font-size: 30px;}
+			.sd_pwd{width: 85%;height: 17%;}
+			.sd_pwd .epay-item{width: 16.6%;height: 100%}
+			.icon-tongxunlu{color: #6198EB;font-size: 25px;position: absolute;top: 13px;right: 35px;}
+			.money_dox{width: 70%;}
+			.dash_add{
+				color:#e05453 ;
+				margin-left: 20px;
+				margin-top: 10px;
+			}
+			.instruction{ float: right; color: #3E75C7;}
+			/*提现方式*/
+			.cash_way{
+				width: 100%;height: 50px;background: #fff; position: relative; border-bottom: 1px solid #E5E5E5; 
+			}
+			/*提现方式字样*/
+			.cash_all{
+				float: left;
+				padding-left:20px;
+				line-height: 50px;
+				float: left;			
+			}
+			.cash_way .cash_choose{
+				width:70%;
+				height: 50px;
+				position: absolute;
+				top: 0;
+				right: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="DL_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">钱包提现</h1>
+		</header>
+
+		<div class="wrapper">
+			<div class="wrap_content">
+				<div class="cash_way">
+					<em class="arrow12"></em>	
+					<p class="cash_all">提现方式</p>
+					<select class="cash_choose" id="cash_choose">
+						<option value="0">单卡提现</option>
+						<option value="1">多卡提现</option>
+					</select>
+				</div>
+				<div class="bankselect" id="bankselect">
+					<em class="arrow12"></em>
+					<p class="all_in">选择银行卡</p>					
+					<select class="" id="Shop"></select>
+					<p id="bankInfo">未绑定提现卡，点击绑卡</p>
+				</div>				
+	
+				<div class="dcash_p flex_card">
+					<span>提现金额</span>
+					<img class="money_img" src="images/money.png" />
+					<h6 class="money_dox" id="cashTxt" ><span id="spPrice">0</span><span class="cursor"></span></h6>
+				</div>
+				<p class="dcash_tip">可提现金额为 : <span class="dcash_mon"> </span><a class="instruction" id="bankExplain" data-href="bank_explain.html">支持银行说明</a></p>
+				<p class="dash_add">提示：</p>
+				<p class="dash_add">1、“不支持该银行卡”时<br>请尝试切换其它银行卡（不支持信用卡提现）</p>
+				<p class="dash_add">2、提现金额为T+1到账(法定节假日顺延)</p>
+				<div class="btnDiv">
+					<input id="cashSub" type="button" value="下一步" disabled="disabled"  />
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
+
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/pageBack.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/ws.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/virtual-keyboard.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var inPrice, maxPrice = 0,
+		minPrice = 0;
+	var oCash, cashSub, totalM = 0;
+	var comp = '';
+	var cashTxtt=document.querySelector('#cashTxt');
+	var maxmoney=0;
+	var flag = false; //是否固定金额
+	var len = 9; //最大金额位数
+	var bankID=0;
+	var pId = '';	
+	var pwd = []; // 支付密码
+	var keyboard = null;
+	var states = '';
+
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		walletMoney = self.walletMoney;
+		oCash = document.getElementById('cashTxt');
+		cashSub = document.getElementById('cashSub');
+		document.querySelector('.dcash_mon').innerHTML=walletMoney + "元";
+		checkSel();//检测客户是否为特权用户，并且设定select是否可以被选择
+		bankCardAjax();
+		
+	});
+	
+	
+	
+	$(function(){
+		keyboard = new Keyboard({
+			add: function(k,type){
+//				console.log(type)
+				if(type == 'bank'){
+					var $spPrice = $("#spPrice");
+					var num = $spPrice.text();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					
+					if(!flag) {
+						if(!isPoint && num.length < len && k != '.'){ // 整数限制在len位
+							if(num != '0') {
+								num += k;
+							} else {
+								num = k;
+							}
+						}else if(isPoint && k != '.' && pLen < 2){ // 保留2位小数点
+							num += k;
+						}else if(!isPoint && num.length <= len && k == '.'){ // 整数达到上限加 小数点
+							num += k;
+						}
+						
+						if(k == '.' && num == '0'){ // 0后面加 小数点
+							num = '0' + k;
+						}
+						$spPrice.text(num);
+					}
+				}else{
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = 0; i < els.length; i++) {
+						if(els[i].className === 'epay-pot') {
+							els[i].className = 'epay-pot act';
+							pwd.push(k);
+			
+							if(i == 5) {
+								possDraw();
+							}
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			},
+			del: function(key,type){
+				if(type == 'bank'){
+					var $spPrice = $("#spPrice");
+					var num = $spPrice.text();
+					var isPoint = ~num.indexOf(".");
+					var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+					if(!flag) {
+						var m = num.indexOf('.');
+						var n = num.substr(m + 1);
+						var l = num.substr(0, m);
+			
+						if(isPoint && pLen == 1) {
+							num = num.substr(0, num.length - 2);
+							//oPrice.innerHTML = l;
+						} else {
+							if(num.length < 2) {
+								num = '0';
+							} else {
+								num = num.substr(0, num.length - 1);
+							}
+						}
+					}
+					$spPrice.text(num);
+				}else{
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = els.length - 1; i >= 0; i--) {
+						if(els[i].className === 'epay-pot act') {
+							els[i].className = 'epay-pot';
+							pwd.pop();
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		})
+		
+	})
+	//选择单卡还是多卡提现的行为
+	$('#cash_choose').on('change', function(){
+		if($('#cash_choose').val() == '0'){
+			$('#bankselect').show();	
+			bankCardAjax();
+		} else{
+			bankID = '';
+			$('#bankselect').hide();
+		}
+	})
+	
+	//点击可提现金额按钮
+	mui('body').on('tap', '#cashSub', function() {		
+		var acNum = Number($("#spPrice").text());
+		console.log('bankID=' + bankID + 'acNum' + acNum);
+		if(!isBank()){
+			return false;
+		} 
+		if(acNum > Number(walletMoney)) {
+			mui.toast('可提现金额为' + walletMoney + '元');
+			acNum = ''; //this.value.substring(0,this.value.length-1);
+		} else if(acNum <= 0) {
+			mui.toast('提现金额要大于0元');
+		} else {
+			document.getElementById('cashSub').disabled = '';
+			openWV('manycard.html', {
+				pUrl: pId,
+				amount: acNum,
+				bankID: bankID
+			});
+		}	
+
+	})
+	// 看用户是否绑定了银行卡银行卡		
+		function isBank() {
+			var url = USERINFO.DL_HOST + '/index/member/checkBindCard';
+			var sign = getRSA({
+				username: getUserInfo('username'),
+				token: getUserInfo('token')		
+			});			
+			var data = {
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				sign: sign					
+			}
+			mui.ajax(url,{
+				data: data,
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				async:false,
+				success:function(data){
+					console.log('验证银行卡' + data);
+					var d = JSON.parse(data);
+					if(d.msg == '1'){
+						states = true;
+					} else if(d.msg == '3'){
+						loginView(d);
+					} else{
+						mui.toast(d.info);
+						states = false;
+					}
+				},
+				error:function(xhr,type,errorThrown){
+					mui.toast('当前网络不佳');
+				}
+			});
+			return states;
+			
+			
+//			bpAjax('/index/member/checkBindCard', {
+//				username: getUserInfo('username'),
+//				token: getUserInfo('token'),
+//				sign: ''
+//			}, function(d) {
+//				console.log('0000');
+//				return false;
+//			}, function(d) {
+//				console.log('11111');
+//				mui.toast(d.info);
+//				return true;
+//			}, 1, '银行卡')
+		}	
+	
+	//获取银行卡列表
+	function bankCardAjax() {
+		bpAjax('/purse/quickpay/cardInfo', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:'',
+			qrCode:'TX'
+		}, function(d){
+			var selectH='';
+			var _shop = document.getElementById('Shop');
+			var _bankInfo = document.getElementById('bankInfo');
+			
+			_bankInfo.style.display = 'none';
+			for(var i=0;i<d.data.length;i++){
+				selectH += '<option value ="'+ d.data[i].bankid +'">'+ d.data[i].bankname+ "-尾号" +d.data[i].accountNo + '</option>';	
+				bankID=d.data[0].bankid;
+			}
+			_shop.innerHTML=selectH;
+			_shop.style.display = 'block';
+			
+		}, function(d){
+			var _shop = document.getElementById('Shop');
+			var _bankInfo = document.getElementById('bankInfo');
+			
+			_shop.style.display = 'none';
+			_bankInfo.style.display = 'block';
+			_bankInfo.addEventListener('tap', function(){
+				var id = this.getAttribute('data-href');
+				openWV('c_bankCard.html', {pUrl: pId})
+			})
+		} , 3, '钱包提现银行卡')
+	}
+//	点击切换银行卡绑定不同的bangId
+	$('#Shop').on('change', function(){
+		bankID = $(this).val();
+	})
+	
+	mui("body").on("tap",'#cashTxt',function(){
+		document.getElementById('cashSub').disabled='';
+		document.getElementById('cashSub').style.background='#3e75c7';
+		$(".cursor").show();
+		setTimeout(function(){
+			var $wrapper = $(".wrapper");
+			var winW = $wrapper.height() - 200;
+			if($(".wrap_content").height() >= winW){
+				$wrapper.css("bottom",'200px')
+				keyboard.show('bank');
+			}else{
+				$wrapper.css("bottom",'0')
+				keyboard.show('bank');
+			}
+		}, 300)
+	})
+	//判断用户是否为特权用户
+	function checkSel(){
+		var privilegeConfig = getUserInfo('privilegeConfig');
+		console.log('privilegeConfig'+privilegeConfig);
+		if(privilegeConfig.indexOf('1') == '-1'){
+			$('#cash_choose').attr('disabled', 'disabled');
+		} else{
+			$('#cash_choose').removeAttr('disabled');
+		}
+	}
+	
+	
+//	function possDraw(){
+//		var acNum = Number($("#spPrice").text());
+//		bpAjax('/index/purse/withdrawCashApply', {
+//			username:getUserInfo('username'),
+//			token:getUserInfo('token'),
+//			sign:'',
+//			amount:acNum,
+//			bankid: bankID,
+//			payPass:md5(pwd.join(''))
+//		}, function(d){
+//			mui.toast(d.info);
+//			evalId('wallet.html', ['moneyExchange']);
+//			self.close();
+//		}, function(d){
+//			mui.toast(d.info);
+//		} , 3, '点击提现')	
+//	}
+	
+	mui('.wrapper').on('tap','a',function(){		
+		var id = this.getAttribute('data-href');
+		openWV(id, {pUrl: pId});
+	});	
+	
+	
+</script>

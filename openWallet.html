@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	
+	<title>开通钱包</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+<style type="text/css">
+</style>
+</head>
+
+<body>
+	<header class="bp_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">开通钱包</h1>
+	</header>
+	
+	<div class="wrapper">
+		<p class="abank_tip">请添加本人实名认证 的银行卡</p>
+		
+		<div class="abank_cont">
+			<div class="abank_row">
+				<span>姓名</span>
+				<p>
+					<input id="abName" name="truename" type="text" placeholder="输入本人姓名" value="" />
+				</p>
+			</div>
+			<div class="abank_row">
+				<span>手机号</span>
+				<p>
+					<input id="abPhone" name="phoneNo" type="tel" placeholder="输入银行预留手机号" value="" />
+				</p>
+			</div>
+			<div class="abank_row">
+				<span>身份证</span>
+				<p>
+					<input id="abIdent" name="certifId" type="text" placeholder="输入持卡人身份证号码" value="" />
+				</p>
+			</div>
+			<div class="abank_row">
+				<span>卡号</span>
+				<p>
+					<input id="addBank" name="accNo" type="tel" placeholder="输入持卡人银行卡号" value="" />
+				</p>
+			</div>
+			<input id="aBankSub" type="submit" value="提交" />
+		</div>
+	</div>
+</body>
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/reconnecting-websocket.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/ws.js" type="text/javascript" charset="utf-8"></script>
+<!--<script src="js/pageBack.js" type="text/javascript" charset="utf-8"></script>-->
+<script type="text/javascript">
+	var self = null;
+	var oName, oPhone, oIdent, oBank;
+	
+//	mui.init({
+//		subpages: [{
+//			id: 'cashBankCardSub.html',
+//			url: 'cashBankCardSub.html',
+//			styles: {
+//				top: '44px',
+//				bottom: '0',
+//				bounce: 'vertical'
+//			}
+//		}]
+//	});
+	
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		plus.webview.currentWebview().setStyle({
+		    softinputMode: "adjustResize"  // 弹出软键盘时自动改变webview的高度
+		});
+		oName = document.getElementById('abName');
+		oPhone = document.getElementById('abPhone');
+		oIdent = document.getElementById('abIdent');
+		oBank = document.getElementById('addBank');
+	});
+	
+	//提交
+	document.getElementById('aBankSub').addEventListener('tap', function(){
+		if(!oName.value){
+			mui.toast('持卡人姓名不能为空');
+			return false;
+		}
+		
+		if(!isMobile(oPhone.value)){
+			mui.toast('手机格式错误');
+			return false;
+		}
+		
+		if(!isIdentity(oIdent.value)){
+			mui.toast('身份证格式错误');
+			return false;
+		}
+		
+		if(!isBank(oBank.value.replace(/\s/g,''))){
+			mui.toast('银行卡格式错误');
+			return false;
+		}
+		
+		bankAjax();
+	});
+	
+	function bankAjax(){
+		bpAjax('/app/user/saveBankInfo', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:'',
+			truename: oName.value,
+			phone: oPhone.value,
+			accNo: oBank.value,
+			userCard: oIdent.value,
+			b01id: self.comId
+		}, function(d){
+			mui.toast(d.info);
+			self.close();
+			
+			var com = plus.webview.getWebviewById('completeInfo.html');
+			var draw = plus.webview.getWebviewById('draw_cash.html');
+			var sec = plus.webview.getWebviewById('secondTo.html');
+			var code = plus.webview.getWebviewById('income_code.html');
+			var three = plus.webview.getWebviewById('Three_separate.html');
+			var informationList = plus.webview.getWebviewById('infomation.html');
+			if(com){
+				com.close();
+			}
+			if(draw){
+				draw.evalJS('drawRefresh()');
+			}
+			if(sec){
+				sec.evalJS('drawRefresh()');
+			}
+			if(code){
+				code.evalJS('drawRefresh()');
+			}
+			if(three){
+				three.close();
+			}
+			if(informationList){
+				informationList.evalJS('companyAjax()');
+			}
+		}, function(d){
+			mui.toast(d.info);
+		} , 3, '开通钱包')
+	}
+	
+	var oldBack = mui.back;
+	mui.back = function() {
+		oldBack();
+	};
+	
+	
+	
+//	function bankAjax(){
+//		console.log('333333');
+//		var url = host + '/app/user/saveBankInfo';
+//		var dataType = 'json';
+//		timeout:30000;
+//		var data = {
+//			deviceid: deviceid,
+//			username: JSON.parse(localStorage.getItem('userInfo')).username,
+//			truename: oName.value,
+//			phone: oPhone.value,
+//			accNo: oBank.value,
+//			userCard: oIdent.value,
+//			b01id: self.comId
+//		}
+//		console.log('111111'+JSON.stringify(data))
+//		mui.post(url, data, function(data){
+//			console.log('22222222'+data); 
+//			var d = JSON.parse(data);
+//			console.log('44444'+d.info);
+//			
+//			if(d.msg == '1'){
+//				mui.toast(d.info);
+//				self.close();
+//				
+//				var com = plus.webview.getWebviewById('completeInfo.html');
+//				var draw = plus.webview.getWebviewById('draw_cash.html');
+//				var sec = plus.webview.getWebviewById('secondTo.html');
+//				var code = plus.webview.getWebviewById('income_code.html');
+//				var three = plus.webview.getWebviewById('Three_separate.html');
+//				var informationList = plus.webview.getWebviewById('infomation.html');
+//				if(com){
+//					com.close();
+//				}
+//				if(draw){
+//					draw.evalJS('drawRefresh()');
+//				}
+//				if(sec){
+//					sec.evalJS('drawRefresh()');
+//				}
+//				if(code){
+//					code.evalJS('drawRefresh()');
+//				}
+//				if(three){
+//					three.close();
+//				}
+//				if(informationList){
+//					informationList.evalJS('companyAjax()');
+//				}
+//				
+//			}else if(d.msg == '3'){
+//				plus.nativeUI.closeWaiting();
+//				mui.toast(d.info);
+//				localStorage.removeItem('userInfo');
+//				localStorage.removeItem('identType');
+//				clearTimeout(wtTimer);
+//							
+//				var loginView = plus.webview.getWebviewById('login.html');
+//				if(loginView){
+//					plus.webview.show(loginView, 300);
+//				}else{
+//					mui.openWindow({
+//						id: 'login.html',
+//						url: 'login.html',
+//						waiting:{
+//							autoShow: true,
+//							options:{
+//								background:'rgba(100,100,100,0.8)'
+//							}
+//						}
+//					});
+//				}
+//				return false;
+//			}else{
+//				console.log('77777777'+d.info);
+//				mui.toast(d.info);
+//			}
+//			
+//		});
+//	}
+</script>
+

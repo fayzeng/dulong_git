@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+ 	<meta name="format-detection" content="telephone=no" />
+	
+	<title>用户注册</title>
+	<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	<link rel="stylesheet" type="text/css" href="css/base.css" />
+</head>
+
+<body style="background: #fff;">
+	<header class="DL_bar mui-bar-nav">
+		<a class="mui-action-back iconfont icon-fanhui"></a>
+	    <h1 class="head_title">用户注册</h1>
+	</header>
+
+	<div class="wrapper">
+		<ul class="reg_item">
+			<li>
+				<p>
+					<input id="regPhone" type="tel" placeholder="请输入手机号码" />
+				</p>
+			</li>
+			<li>
+				<input id="regVerify" class="getVerify" type="button" value="获取验证码" disabled="disabled" />
+				<p>
+					<input id="regGetv" type="tel" placeholder="请输入验证码" />
+				</p>
+			</li>
+			<li>
+				<p>
+					<input id="regPwd1" type="password" placeholder="请输入密码" />
+				</p>
+			</li>
+			<li>
+				<p>
+					<input id="regPwd2" type="password" placeholder="请输入确认密码" />
+				</p>
+			</li>
+			<li>
+				<p>
+					<input id="invite" type="text" placeholder="邀请码" />
+				</p>
+			</li>
+		</ul>
+		<!--<p class="reg_protrol">
+				<input id="regProtrol" type="checkbox" checked="checked" />&nbsp;&nbsp;我同意<a id="protocolPage" data-href="sc_protocol.html">独龙用户协议</a>
+		</p>-->
+			
+		<div class="btnDiv">
+			<a id="registerSub" type="button" >注册</a>
+		</div>
+		
+	</div>
+
+</body>
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var oPhone, oVerify, oGetv, oPwd1, oPwd2, oInvite, oProtrol;
+	var phNum;
+	var btn = true;
+	var pId = '';
+	var timerY;
+	mui.plusReady(function(){
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		plus.webview.currentWebview().setStyle({
+		    softinputMode: "adjustResize"  // 弹出软键盘时自动改变webview的高度
+		});
+		
+		oPhone = document.getElementById('regPhone');//输入手机号
+		oVerify = document.getElementById('regVerify');//获取验证码
+		oGetv = document.getElementById('regGetv');//输入验证码
+		oPwd1 = document.getElementById('regPwd1');//输入密码
+		oPwd2 = document.getElementById('regPwd2');//确认密码
+		oProtrol = document.getElementById('regProtrol');//同意独龙用户协议
+		oInvite = document.getElementById('invite');//邀请码
+		
+		//监听手机输入
+		document.getElementById('regPhone').addEventListener('keyup',function(){
+			phNum = oPhone.value;			
+			if(isMobile(phNum)){
+				oVerify.style.color = '#448aca';
+				oVerify.disabled="";
+				
+			}else{
+				oVerify.style.color = '#999';
+				oVerify.disabled="disabled";
+			}
+		});
+		//验证码的计时器
+		document.getElementById('regVerify').addEventListener('tap',function(){
+			clearInterval(timerY);	
+			if(isMobile(phNum)){
+//				clearInterval(timerY);
+				var tn = 60;
+				oVerify.style.color = '#999';
+				oVerify.disabled = "disabled";
+				timerY = setInterval(function(){
+					oVerify.value = '重发验证码('+ tn +'s)';
+					tn --;
+					if(tn < 1){
+						oVerify.value = '重发验证码';
+						oVerify.style.color = '#448aca';
+						oVerify.disabled="";
+						clearInterval(timerY);
+					}
+				},1000);
+				ajaxVerify();    //发送验证码
+			}
+		}, false);
+		//注册
+		document.getElementById('registerSub').addEventListener('tap',function(){
+			if(!isMobile(oPhone.value)){
+				mui.toast('手机格式错误');
+				return;
+			}
+			if(!oGetv.value){
+				mui.toast('验证码不能为空');
+				return;
+			}
+			if(oPwd1.value.length < 3){
+				mui.toast('密码不能少于3个字符');
+				return;
+			}
+			if(oPwd1.value != oPwd2.value){
+				mui.toast('两次输入密码不致');
+				return;
+			}
+//			if(!oProtrol.checked){
+//				mui.toast('请勾选用户协议');
+//				return;
+//			}
+//			if(!oInvite.value){
+//				mui.toast('请填写邀请码');
+//				return;
+//			}
+			if(btn){
+				btn = false;
+				ajaxRegister();
+				
+				var aTimer = setTimeout(function(){
+					btn = true;
+					clearTimeout(aTimer);
+				}, 2000);
+			}
+		});
+	});
+	//user protocol
+//	document.getElementById('protocolPage').addEventListener('tap',function(){
+//		var id = this.getAttribute('data-href');
+//		mui.openWindow({
+//			id: id,
+//			url: id,
+//			waiting:{
+//				autoShow: true,
+//				options:{
+//					background:'rgba(100,100,100,0.8)'
+//				}
+//			}
+//		});
+//	});
+	//verify request
+	function ajaxVerify(){
+		bpAjax('/index/login/sendCode', {
+			deviceid: USERINFO.DL_DEVICEID,
+			phone : phNum,
+			sign:''
+		}, function(d){
+			mui.toast(d.info);
+		}, function(d){
+			mui.toast(d.info);
+		}, 3, '注册发送验证码')
+	}
+	function ajaxRegister(){
+		var invite = document.getElementById("invite").value;
+		bpAjax('/auth/register/register', {
+			deviceid: USERINFO.DL_DEVICEID,
+			username : oPhone.value,
+			password : md5(oPwd1.value),
+			verify : oGetv.value,
+			invite:invite,
+			sign:''
+		}, function(d){
+			mui.toast(d.info);
+			var lv = plus.webview.getWebviewById('login.html');
+			if(lv) lv.evalJS("follow('"+oPhone.value+"')");
+			openWV('login.html', {})
+			setTimeout(function(){
+				self.close();
+			},300)
+		}, function(d){
+			mui.toast(d.info);
+		}, 3, '提交用户注册')
+	}
+	
+
+</script>
+

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+		<title>多卡提现</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			/*刷新按钮图标*/			
+			.refresh {
+				/*width: 60px;
+				height: 44px;*/
+				display: block;
+				position: absolute;
+				top: 20px;
+				right: 5px;
+				font-size: 20px;
+				text-align: right;
+				line-height: 44px;
+				color: #FFFFFF;
+/*				transition: all 2s;*/
+			}
+			.demoone{
+				animation: refreshs 1s linear;
+				-webkit-animation: refreshs 1s linear;
+				-moz-animation: refreshs 1s linear;
+				-o-animation: refreshs 1s linear;
+			}
+			@keyframes refreshs{
+				50%{
+					transform: rotate(180deg);
+				}
+				100%{
+					transform: rotate(360deg);
+				}
+			}			
+			@-moz-keyframes refreshs{
+				50%{
+					transform: rotate(180deg);
+				}
+				100%{
+					transform: rotate(360deg);
+				}
+			}
+			@-webkit-keyframes refreshs{
+				50%{
+					transform: rotate(180deg);
+				}
+				100%{
+					transform: rotate(360deg);
+				}
+			}
+			@-o-keyframes refreshs{
+				50%{
+					transform: rotate(180deg);
+				}
+				100%{
+					transform: rotate(360deg);
+				}
+			}			
+			/*总金额*/			
+			.all_cash {
+				width: 100%;
+				height: 45px;
+				padding: 0 15px;
+				line-height: 45px;
+				font-size: 15px;
+				color: #666666;
+			}
+			/*下面分配的4张卡的大div*/			
+			.many_all {
+				width: 100%;
+				position: relative;
+				background: #FFFFFF;
+				padding: 0 15px;
+			}
+			/*每一个小div*/			
+			.money_details {
+				width: 100%;
+				height: 54px;
+				line-height: 54px;
+				border-bottom: 1px solid #EEEEEE;
+			}
+			/*那个图片*/			
+			.money_img {
+				width: 25px;
+				height: 25px;
+				border-radius: 50%;
+			}
+			/*右边的那个金额*/
+			.money_right {
+				float: right;
+			}
+			/*提现按钮*/
+			.wrap_content .money_submit{
+				display: block;
+				width: 90%;
+				height: 46px;
+				background: #3e75c7;
+				margin: 0 auto;
+				margin-top: 40px;
+			}
+			.eject{width: 100%;height: 100%;z-index: 99;background: rgba(0,0,0,.8);position: fixed;top: 66px;left: 0;}
+			.payment{width: 70%;height: 40%;background: #fff;margin: 0 auto;margin-top: 14%;border-radius: 5px;}
+			.payment_head{padding: 10px;border-bottom: 1px solid #C9C9C9;margin: 0 5px;}
+			.payment_head em{font-size: 22px;padding-top: 3px;}
+			.payment_head span{font-size: 15px;padding-left: 15px;}
+			.transaction_amount{text-align: center;padding: 15px 20px;border-bottom: 1px solid #C9C9C9;margin: 0 15px;}
+			.transaction_amount h1{font-size: 15px;}
+			.transaction_amount p{font-size: 30px;}
+			.sd_pwd{width: 85%;height: 17%;}
+			.sd_pwd .epay-item{width: 16.6%;height: 100%}
+			.icon-tongxunlu{color: #6198EB;font-size: 25px;position: absolute;top: 13px;right: 35px;}
+			.money_dox{width: 70%;}
+			.dash_add{
+				color:#e05453 ;
+				margin-left: 20px;
+				margin-top: 10px;
+			}			
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title" id="head_title">多卡提现</h1>
+			<span class="iconfont icon-shuaxin refresh"></span>
+		</header>
+		<div class="wrapper">
+			<div class="wrap_content" id ="wrap_content">
+				<p class="all_cash">提现总金额 <span id="money_number">500.00</span> 元</p>
+				<!--下面的分配的卡-->
+				<div class="many_all" v-cloak>				
+					<div class="money_details" v-for="item in myall">
+						<img :src="bankLogos(item.bankName)" class="money_img" />
+						<span>{{item.accountName}}-</span>
+						<span>{{item.bankName}}-</span>
+						<span>{{item.accountNo}}</span>
+						<span class="money_right"> <span>{{item.money/100}}</span> 元</span>
+					</div>
+				</div>
+				<input type="submit"  id="money_submit" class="money_submit" value="确认提现" />
+			</div>
+		</div>
+	<div id="passd" class="eject" style="display: none;">
+		<div class="payment">
+			<div class="payment_head">
+				<em class="iconfont icon-iconfontcha" id="psdClose"></em>
+				<span>请输入支付密码</span>
+			</div>
+			
+			<div class="transaction_amount">
+				<h1>交易金额</h1>
+				<p><em>¥</em><span id="drawmoney">29.99</span></p>
+			</div>
+			
+			<div class="sd_pwd cl">
+				<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+					<span class="epay-item">
+					<em class="epay-pot"></em>
+				</span>
+			</div>
+		</div>	
+	</div>
+	</body>
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/virtual-keyboard.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var pwd = [];
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		$('#money_number').html(self.amount);
+		distributionAjax();
+		titlejudge();
+	});	
+	
+	var vm = new Vue({
+		el: '#wrap_content',
+		data:{
+			myall:''
+		},
+		methods:{
+			bankLogos:function(n){
+				return 'images/bank/bankLogo'+ bankLogo(n) + '.png';
+			}
+		}
+	})
+	$(function(){
+		keyboard = new Keyboard({
+			add: function(k,type){
+				if(type == 'pass'){
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = 0; i < els.length; i++) {
+						if(els[i].className === 'epay-pot') {
+							els[i].className = 'epay-pot act';
+							pwd.push(k);
+							if(i == 5) {
+								possDraw();
+							}
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			},
+			del: function(key,type){
+				if(type == 'pass'){
+					var els = document.querySelectorAll('.epay-pot');
+					for(var i = els.length - 1; i >= 0; i--) {
+						if(els[i].className === 'epay-pot act') {
+							els[i].className = 'epay-pot';
+							pwd.pop();
+							break;
+						} else {
+							continue;
+						}
+					}
+				}
+			}
+		})
+		//点击弹出来的x
+		$("#psdClose").on("tap", function(){
+			$(".epay-item").children().removeClass("act") ;
+			$(".cursor").hide();
+			$("#passd").hide();
+			keyboard.hide();
+			pwd = [];
+		})					
+	})
+	function titlejudge(){
+		if(self.bankID == ''){
+			$('#head_title').html('多卡提现');
+		} else{
+			$('#head_title').html('单卡提现');
+		}
+	} 
+
+	
+	//分配卡
+	function distributionAjax(){
+		bpAjax('/index/purse/randWithdrawCash', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:'',
+			amount:self.amount,
+			bankId:self.bankID
+		}, function(d){
+			$('#money_submit').removeAttr('disabled');
+			vm.myall = d.data;
+		}, function(d){
+			$('#money_submit').attr('disabled', 'disabled');
+			mui.toast(d.info);
+		}, 3, '分配银行卡')
+	};	
+	//点击提现
+	function possDraw(){
+		bpAjax('/index/purse/withdrawCashApplyMulticard', {
+			username:getUserInfo('username'),
+			token:getUserInfo('token'),
+			sign:'',
+			remark:'',
+			payPass:md5(pwd.join(''))
+		}, function(d){
+			mui.toast(d.info);
+			evalId('wallet.html', ['moneyExchange']);	
+			setTimeout(function(){
+				self.close();	
+			}, 200)					
+		}, function(d){
+			mui.toast(d.info);			
+			reset();
+			$(".epay-item").children().removeClass("act") ;
+			pwd = [];		
+		}, 3, '提现接口')
+	}
+	
+	function reset() { //清除密码
+		var els = document.querySelectorAll('.epay-pot');
+		for(var i = els.length - 1; i >= 0; i--) {
+			els[i].className = 'epay-pot';
+			pwd.pop();
+		}
+	}		
+	
+	$('.refresh').on('tap', function(){
+		var thst = $(this);
+//		if($(this).hasClass('demoone')){
+//			$(this).removeClass('demoone');
+//		} else{
+//			$(this).addClass('demoone');
+//		}
+		thst.addClass('demoone');
+		setTimeout(function(){
+			thst.removeClass('demoone');
+		},1000);
+		distributionAjax();
+//		$(this).css('animation', 'refreshs 2s linear');
+//		$(this).addClass('demoone');
+//		setTimeout(function(){
+//			$(this).removeClass('demoone');
+//		},2000)
+		
+//		$(this).css('transition', 'all 2s');
+//		$(this).css('transform', 'rotateZ(360deg)')
+	})
+//	点击提现按钮
+	$('#money_submit').on('tap', function(){
+		$(".epay-item").children().removeClass("act") ;
+		$("#drawmoney").text(self.amount);
+		$("#passd").show();
+		keyboard.show('pass');	
+		closeId(['wallet_cash.html'])
+	})
+	
+</script>

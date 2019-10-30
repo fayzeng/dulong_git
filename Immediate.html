@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>实名认证</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.zhizhao {
+				height: 28px;
+				line-height: 38px;
+				font-size: 15px;
+			}
+			
+			.imgtwo {
+				width: 80%;
+			    height: 150px;
+			     border: 1px dotted #96A8CC; 
+			    border-radius: 10px;
+			    margin: 0 auto;
+			    position: absolute;
+			    top: 15px;
+			    left: 10%;
+			    text-align: center;
+			    line-height: 46px;
+			    z-index: 3;
+			}
+			
+			/*.identity_close {
+				position: absolute;
+				top: 0;
+				right: 0;
+				color: #FF0000;
+				font-size: 25px;
+				display: block;
+				z-index: 999;
+			}*/
+			
+			/*.identity {
+				position: absolute;
+				top: 0;
+				right: 0;
+				width: 100%;
+				height: 125px;
+				padding-top: 30px;
+			}*/
+			.threebox{margin-top: 0;}
+			.icon-paizhao{color: #FFf;font-size: 44px;}
+			.img_border{background: #0085cb;}
+			.box_shi{background: url(images/shiming_03.png)no-repeat;background-size: 100% 100%;}
+			.box_ming{background: url(images/shiming_06.png)no-repeat;background-size: 100% 100%;}
+			.upload{color: #0085cb; }
+			.identity_close {color: #0085cb;font-size: 20px;font-weight: bold;}
+		</style>
+	</head>
+
+	<body style="background: #EEEEEE;">
+		<header class="mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">实名认证</h1>
+		</header>
+
+		<div class="wrapper" style="text-align: center;">
+				<div class="threebox">
+					<em class="upion_close identity_close iconfont icon-iconfontcha"></em>
+					<div class="box_img box_shi identity">
+						<div class="img_border">
+							<i class="iconfont icon-paizhao"></i>
+						</div>
+						<span class="upload">请拍摄身份证正面</span>
+					</div>
+				</div>
+				<div class="threebox ">
+					<em class="upion_close identity_close iconfont icon-iconfontcha"></em>
+					<div class="box_img box_ming identity">
+						<div class="img_border">
+							<i class="iconfont icon-paizhao"></i>
+						</div>
+						<span class="upload">请拍摄身份证反面</span>
+					</div>
+				</div>
+			
+
+				<!--<div class="identity_img imgtwo">
+					<em class="identity_close iconfont icon-iconfontcha"></em>
+					<div class="identity">
+						<div>
+							<i class="iconfont icon-paizhao" style="color: #FFf;font-size: 30px;"></i>
+							<p style="font-size: 13px;">+身份证正面</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="identity_img imgtwo">
+					<em class="identity_close iconfont icon-iconfontcha"></em>
+					<div class="identity">
+						<div>
+							<i class="iconfont icon-paizhao" style="color: #FFf;font-size: 30px;"></i>
+							<p style="font-size: 13px;">+身份证反面</p>
+						</div>
+					</div>
+				</div>-->
+
+			<div style="background: #fff;margin-top: 10px;">
+				<div class="rgf_row">
+					<span>真实姓名</span>
+					<p>
+						<input id="rgfAddress" name="smater" type="text" placeholder="请输入真实姓名" />
+					</p>
+				</div>
+				<div class="rgf_row">
+					<span>身份证号</span>
+					<p>
+						<input id="rgfTel" name="Customer " type="text" placeholder="请输入身份证号" />
+					</p>
+				</div>
+			</div>
+
+			<!--<div class="h20"></div>-->
+			<div class="btnDiv">
+				<a id="rgfSub" type="button">提交</a>
+			</div>
+
+		</div>
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/upLoaderImg.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var pId = '';
+	var btn = true;
+	var sign = '';
+	var rgfAddres = document.getElementById('rgfAddress');
+	var rgfTel = document.getElementById('rgfTel');
+	var upLoader = new UpLoader();
+	var userName = document.getElementById('rgfAddress').value;
+	var userAddr = document.getElementById('rgfTel').value;
+	var $identity = $('.identity');
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		plus.screen.lockOrientation("portrait-primary");
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		fillAjax();
+		
+
+	});
+	//	如果填完资料提交后再进入页面,那么页面上面就会显示你之前填的资料
+	function fillAjax() {
+		bpAjax('/app/Riskmanagement/getUserAuthInfo', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: ''
+		}, function(d) {
+			if(JSON.parse(localStorage.getItem('DL_USERINFO')).auditStatus !== -10) {
+				var imgUrl = [unescape(d.idCardPicFace), unescape(d.idCardPicBack)];
+				console.log(imgUrl)
+				upLoader.addImg(imgUrl)
+				$('#rgfAddress').val(d.idCardName);
+				$('#rgfTel').val(d.idCard);
+			}
+		}, function(d) {
+			mui.toast(d.info)
+		}, 3, '填充照片页面');
+	}
+
+	//	function fillAjax() {
+	//		var url = host + '/app/Riskmanagement/getUserAuthInfo';
+	//		var data = {
+	//			deviceid: deviceid,
+	//			username: JSON.parse(localStorage.getItem('userInfo')).username
+	//		}
+	//		mui.ajax(url, {
+	//			data: data,
+	//			dataType: 'json', //服务器返回json格式数据
+	//			type: 'post', //HTTP请求类型
+	//			timeout: 10000, //超时时间设置为10秒；
+	//			success: function(data) {
+	//				console.log('后台返回的照片信息' + data);
+	//				var data = JSON.parse(data);
+	//				if(JSON.parse(localStorage.getItem('userInfo')).auditStatus !== -10) {
+	//					var imgUrl = [unescape(data.idCardPicFace), unescape(data.idCardPicBack)];
+	//					console.log(imgUrl)
+	//					upLoader.addImg(imgUrl)
+	//					$('#rgfAddress').val(data.idCardName);
+	//					$('#rgfTel').val(data.idCard);
+	//
+	//				}
+	//			},
+	//			error: function(xhr, type, errorThrown) {
+	//				console.log(errorThrown);
+	//			}
+	//		});
+	//	}
+
+	mui.init({
+		gestureConfig: {
+			tap: true, //默认为true
+			doubletap: true, //默认为false
+			longtap: true, //默认为false
+			swipe: true, //默认为true
+			drag: true, //默认为true
+			hold: false, //默认为false，不监听
+			release: false //默认为false，不监听
+		}
+	});
+	upLoader.init({
+		el: ".identity",
+		closeId: ".identity_close",
+		bg: "boxground",
+		submitId: "#rgfSub",
+		size: 204800,
+		addData: function() { // 添加数据的回调
+			var userName = document.getElementById('rgfAddress').value;
+			var userAddr = document.getElementById('rgfTel').value;
+			var $identity = $('.identity');
+			sign = getRSA({
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				name: userName,
+				idcard: userAddr
+			})
+			if($identity.eq(0).hasClass('boxground') && $identity.eq(1).hasClass('boxground')) {
+				console.log('上传完整的资料');
+			} else {
+				mui.toast('请上传身份证正反面');
+				return false;
+			}
+			if(!userName) {
+				mui.toast('姓名不能为空')
+				return false;
+			}
+			if(!isIdentity(userAddr)) {
+				mui.toast('请填写正确的身份证') 
+				return false;
+			}
+			console.log(rgfAddres.value+rgfTel.value);
+			var data = {
+				username: getUserInfo('username'),
+				token: getUserInfo('token'),
+				name: userName,
+				idcard: userAddr,
+				sign: sign
+			}
+			return data;
+
+		},
+		url: USERINFO.DL_HOST + '/app/riskmanagement/getuserauthphoto', //getUserAuthPhoto
+		success: function(t, status) {
+			console.log('这是t' + JSON.stringify(t.responseText));
+			var d = JSON.parse(t.responseText);
+
+			if(d.msg == 1) {
+				var auditStatus = d.data.auditStatus;
+				mui.toast(d.info);
+				plus.webview.getWebviewById('c_myInfo.html').evalJS('mstrong(' + auditStatus + ')');
+				plus.webview.getWebviewById('tab_personal.html').evalJS('mstrong(' + auditStatus + ')');
+				self.close();
+				mui.back();
+			} else if(d.msg == 0) {
+				mui.toast(d.info);
+			} else if(d.msg == 3) {
+				loginView(d)
+			}
+
+		},
+		error: function(t, status) {
+			mui.toast("失败" + status)
+		}
+	});
+</script>

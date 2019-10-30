@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>用户登录</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+	</head>
+
+	<body style="background: #fff;">
+		<header class="DL_bar mui-bar-nav">
+			<h1 class="head_title">用户登录</h1>
+		</header>
+
+		<div class="wrapper">
+			<div class="login_tab">
+				<div class="login_row flex_card">
+					<span class="iconfont icon-wode"></span>
+					<p class="flex_box">
+						<input id="lgPhone" type="text" placeholder="手机号/昵称/邮箱" />
+						<!--					<i id="btn_cancel" class="iconfont icon-shibai" style="float: right;padding-right: 20px;margin-top: -23px;color: #3E75C7;font-size: 20px;z-index: 99;"></i>-->
+					</p>
+				</div>
+				<div class="login_row flex_card">
+					<span class="iconfont icon-mima"></span>
+					<p class="flex_box">
+						<input id="lgPassword" type="password" placeholder="请输入您的密码" />
+					</p>
+				</div>
+			</div>
+
+			<div class="btnDiv">
+				<a id="loginSub" type="button">登录</a>
+			</div>
+
+			<p class="loginB">
+				<a data-href="register.html" id="register">注册账号</a>
+				<a data-href="password_back.html" id="passwordBack">找回密码</a>
+			</p>
+		</div>
+
+	</body>
+
+</html>
+<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/api.ini.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jsencrypt.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/MD5.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/style.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null;
+	var oLgPhone, oLgPwd;
+	
+//	var now = function(){
+//		console.log('1111');
+//	}();
+//	!function AAA(){
+//		console.log(222);
+//	}();
+
+	mui.plusReady(function() {
+		plus.nativeUI.closeWaiting();
+		plus.webview.currentWebview().setStyle({
+			softinputMode: "adjustResize" // 弹出软键盘时自动改变webview的高度
+		});
+		clearTimeout(wtTimer);
+		self = plus.webview.currentWebview();
+		oLgPhone = document.getElementById('lgPhone');
+		oLgPwd = document.getElementById('lgPassword');
+
+		// 关闭侧滑返回功能
+		self.setStyle({
+			'popGesture': 'none'
+		});
+		checkPhone(); //检测手机号码
+	});
+	//login
+	document.getElementById('loginSub').addEventListener('tap', function() {
+		if(!oLgPhone.value) {
+			mui.toast('用户名不能为空');
+			return;
+		}
+		if(!oLgPwd.value) {
+			mui.toast('密码不能为空');
+			return;
+		}
+		loginAjax();
+
+	});
+
+	function loginAjax() {
+		localStorage.setItem('DL_DEVICEID',plus.device.uuid);
+		localStorage.setItem('DL_APPID', plus.runtime.appid);
+		
+		var encrypt = new JSEncrypt();
+		encrypt.setPublicKey(USERINFO.DL_PUBLIC_KEY); //设置公有key
+		var sign = encrypt.encrypt(plus.runtime.appid + plus.device.uuid + plus.push.getClientInfo().clientid + md5(oLgPwd.value) + oLgPhone.value + 'DL_RED_PACKET');
+		console.log('sign' + plus.runtime.appid + plus.device.uuid + plus.push.getClientInfo().clientid + md5(oLgPwd.value) + oLgPhone.value + 'DL_RED_PACKET');
+		bpAjax('/auth/login/login', {
+			username: oLgPhone.value,
+			password: md5(oLgPwd.value),
+			appid: plus.runtime.appid,
+			deviceid: plus.device.uuid,
+			geTuiCid: plus.push.getClientInfo().clientid,
+			sign:sign
+		}, function(d){
+			oLgPwd.value = '';
+			mui.toast(d.info);
+			localStorage.setItem('DL_USERINFO',JSON.stringify(d.data));
+			localStorage.setItem('DL_TOKEN',JSON.stringify(d.data.token));
+			localStorage.setItem('DL_YIFLAG',JSON.stringify(d.data.yiFlag));
+			openWV('index.html', {});
+			closeId(['c_myInfo.html']);
+			closeId(['tab_agent.html']);
+			evalId('index.html', ['isAdmin']);
+			evalId('wallet.html', ['moneyExchange']);
+			evalId('tab_agent.html', ['allMethod']);
+			evalId('tab_personal.html', ['userAjax', 'mstrong']);
+			setTimeout(function(){
+				plus.webview.close(self, "none", 0)
+			}, 500)
+		}, function(d){
+			mui.toast(d.info);
+		}, 1, '登录')
+	}
+
+	function follow(accounts) {
+		document.getElementById('lgPhone').value = accounts;
+	}
+
+	function checkPhone() {
+		if(localStorage.getItem('nearPhone')) {
+			oLgPhone.value = localStorage.getItem('nearPhone');
+		} else {
+			oLgPhone.value = '';
+		}
+
+		oLgPwd.value = '';
+	}
+
+	mui('.loginB').on('tap', 'a', function() {
+		var id = this.getAttribute('data-href');
+		$('#lgPhone').blur();
+		$('#lgPassword').blur();
+		$('#lgPhone').html('');
+		$('#lgPassword').html('');
+		if(id && ~id.indexOf('.html')) {
+			openWV(id, {});
+		}
+	});
+
+	//首页返回键处理
+	var first = null;
+	mui.back = function() {
+		if(!first) {
+			first = new Date().getTime();
+			mui.toast('再按一次退出应用');
+			setTimeout(function() {
+				first = null;
+			}, 1000);
+		} else {
+			if(new Date().getTime() - first < 1000) {
+				plus.runtime.quit();
+			}
+		}
+	};
+</script>

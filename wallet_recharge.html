@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<meta name="format-detection" content="telephone=no" />
+
+		<title>钱包充值</title>
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/base.css" />
+		<style type="text/css">
+			.sd_price p,
+			.sd_price h6 {
+				text-align: left;
+			}
+			
+			.tihead {
+				text-align: center;
+				color: #000;
+			}
+			
+			.big_box {
+				position: relative;
+				height: 70px;
+				background: #fff;
+				margin-top: 10px;
+				overflow: hidden;
+				border-bottom: 1px solid #d8d8d8;
+			}
+			
+			.money {
+				position: absolute;
+				top: 10px;
+				left: 15px;
+				font-size: 11px;
+				z-index: 3;
+			}
+			
+			.money_img {
+				width: 30px;
+				position: absolute;
+				top: 30px;
+				left: 13px;
+			}
+			
+			.big_box .money_box {
+				position: absolute;
+				top: 0;
+				left: 92px;
+				width: 65%;
+				font-size: 28px;
+				font-weight: bold;
+			}
+			
+			.pay_box {
+				display: block;
+				/*				height: 60px;*/
+				width: 100%;
+				margin-top: 5px;
+				background: #FFFFFF;
+				/*max-height: 100px;*/
+				overflow-y: auto;
+			}
+			
+			.pay_box li {
+				width: 100%;
+				position: relative;
+				height: 50px;
+				border-bottom: 1px solid #DCDCDC;
+			}
+			
+			.pay_box li:last-child {
+				border-bottom: none;
+			}
+			
+			.check_box {
+				width: 20px;
+				height: 20px;
+				background: #fff;
+				border: 1px solid #4178C8;
+				border-radius: 50%;
+				position: absolute;
+				top: 18px;
+				right: 20px;
+			}
+			
+			.cur {
+				background: url(images/check.png)no-repeat;
+				background-size: 22px 22px;
+				background-position: -2px;
+			}
+			
+			.check_img {
+				width: 15px;
+				height: 15px;
+				position: absolute;
+				top: 20px;
+				left: 0;
+			}
+			
+			.check_zhi {
+				background: #fff;
+				width: 75%;
+				height: 30px;
+				/*				border: 1px solid #D8D8D8;*/
+				/*				border-radius: 5px;*/
+				position: absolute;
+				top: 10px;
+				left: 0px;
+			}
+			
+			.check_zhiimg {
+				width: 20px;
+				height: 20px;
+				position: absolute;
+				top: 4px;
+				left: 7px;
+				background: #00A1E9;
+				color: #fff;
+				border-radius: 50%;
+			}
+			
+			.check_zhiimgtwo {
+				width: 20px;
+				height: 20px;
+				position: absolute;
+				top: 4px;
+				left: 7px;
+				background: #00A1E9;
+				color: #fff;
+				border-radius: 50%;
+				padding-left: 2px;
+			}
+			.check_zhiimgthree{
+				width: 20px;
+				height: 20px;
+				position: absolute;
+				top: 4px;
+				left: 7px;
+				background: #18C1CB;
+				color: #FFFFFF;
+				border-radius: 50%;
+				padding-left: 2px;			
+				padding-top: 2px;	
+			}
+			.check_zhiimgfour{
+				width: 20px;
+				height: 20px;
+				position: absolute;
+				top: 4px;
+				left: 7px;
+				background: #ed0082;
+				color: #fdfc0e;
+				border-radius: 50%;
+				/*padding-left: 2px;*/
+				text-align: center;			
+/*				padding-top: 2px;*/
+			}	
+			.check_zhiimgfour	i{
+				font-size: 13px;
+			}
+			.check_zhico {
+				position: absolute;
+				top: 6px;
+				left: 30px;
+				font-size: 11px;
+			}
+			
+			.icon-zhifubao {
+				padding-top: 3px;
+			}
+			
+			.icon-zhifubao {
+				padding-top: 3px;
+			}
+			
+			#cashSub {
+				background: #3E75C7;
+			}
+			.not-available .check_zhico{
+				color: #C8C8C8;
+			}
+			.not-available .check_box{
+				background:#C8C8C8;
+			}
+			.not-available .check_zhiimg{
+			    -webkit-filter: grayscale(100%);
+			    -moz-filter: grayscale(100%);
+			    -ms-filter: grayscale(100%);
+			    -o-filter: grayscale(100%);
+			    filter: grayscale(100%);
+			    filter: gray;					
+				background:#C8C8C8;
+			}
+			.not-available .check_zhiimgtwo{
+				background:#C8C8C8;
+			}
+			.not-available .check_zhiimgthree{
+				background:#C8C8C8;
+			}
+			.not-available .check_zhiimgfour{
+				background:#C8C8C8;
+				color: #fff;
+			}				
+			.support-Bank{
+				position: absolute;
+				font-size: 11px;
+				top: 6px;
+				left: 140px;
+				color: #3399FF;
+				text-decoration: underline;
+			}					
+		</style>
+	</head>
+
+	<body>
+		<header class="bp_bar mui-bar-nav">
+			<a class="mui-action-back iconfont icon-fanhui"></a>
+			<h1 class="head_title">钱包充值</h1>
+		</header>
+
+		<div class="wrapper" style="bottom: 200px;">
+			<div class="wrap_content">
+					<div class="sd_cont">
+						<div class="big_box">
+							<span class="money">充值金额</span>
+							<img class="money_img" src="images/money.png" />
+							<h6 class="money_dox" id="spPri"><span id="spPrice">0</span><span class="cursor" id="cs"></span></h6>
+						</div>
+						<div style="margin-top: 10px;font-weight: bold;">支付方式：</div>
+						<div class="pay_box">
+							<!--<li>
+					<span class="check_box cur" data-type="2"></span>
+					<p class="check_zhi lian">
+						<img src="images/lian.png" class="check_zhiimg" />
+						<span class="check_zhico">银联</span>
+					</p>
+				</li>
+				<li>
+					<span class="check_box" data-type="1"></span>
+					<p class="check_zhi lian">
+						<img src="images/wei.png" class="check_zhiimg" />
+						<span class="check_zhico">微信</span>
+					</p>
+				</li>
+				<li>
+					<span class="check_box" data-type="0"></span>
+					<p class="check_zhi">
+						<span class="check_zhiimg iconfont icon-zhifubao"></span>
+						<span class="check_zhico">支付宝</span>
+					</p>
+				</li>-->
+						</div>
+					</div>
+
+					<div class="btnDiv">
+						<input id="cashSub" type="button" value="充值" />
+						<!--disabled="disabled" onclick="disabled=1;v=this;setTimeout('v.disabled=0',5000)"-->
+					</div>
+				</div>
+		</div>
+	</body>
+
+</html>
+
+<script type="text/javascript" src="js/mui.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/zepto.min.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/style.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/channelPay.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/api.ini.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/jsencrypt.js" charset="utf-8"></script>
+<script type="text/javascript" src="js/virtual-keyboard.js" charset="utf-8"></script>
+<script type="text/javascript">
+	var self = null,
+		timer2 = null,
+		timer3 = null;
+	var stCode, str = '0',
+		len = 9,
+		flag = false,
+		qrCode = '',
+		vp = null;
+	var pwd = [];
+	var pId = '';
+	var keyboard = null;
+	var oPrice = document.getElementById("spPrice");
+	var ipS = '';
+	mui.plusReady(function() {
+		self = plus.webview.currentWebview();
+		if(self.getURL()) {
+			pId = getPage(self.getURL());
+		}
+		getChannel();
+		iscode();
+		accessIp();
+		keyboard = new Keyboard({
+			add: function(k) {
+				var num = oPrice.innerHTML;
+				var isPoint = ~num.indexOf(".");
+				var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+
+				if(!flag) {
+					if(!isPoint && num.length < len && k != '.') { // 整数限制在len位
+						if(num != '0') {
+							num += k;
+						} else {
+							num = k;
+						}
+					} else if(isPoint && k != '.' && pLen < 2) { // 保留2位小数点
+						num += k;
+					} else if(!isPoint && num.length <= len && k == '.') { // 整数达到上限加 小数点
+						num += k;
+					}
+
+					if(k == '.' && num == '0') { // 0后面加 小数点
+						num = '0' + k;
+					}
+					oPrice.innerHTML = num;
+				}
+			},
+			del: function(k) {
+				var num = oPrice.innerHTML;
+				var isPoint = ~num.indexOf(".");
+				var pLen = isPoint ? num.length - num.indexOf(".") - 1 : 0;
+				if(!flag) {
+					var m = str.indexOf('.');
+					var n = str.substr(m + 1);
+					var l = str.substr(0, m);
+
+					if(isPoint && pLen == 1) {
+						num = num.substr(0, num.length - 2);
+					} else {
+						if(num.length < 2) {
+							num = '0';
+						} else {
+							num = num.substr(0, num.length - 1);
+						}
+					}
+				}
+				oPrice.innerHTML = num;
+			}
+		});
+		
+		keyboard.show();
+
+		document.addEventListener("resume", function() {
+//			vp.queryAliPay();
+		   console.log('支付宝回调');
+		   self.close();
+		    evalId('wallet.html', ['moneyExchange']);
+		}, false);
+	});
+
+	function getChannel() {
+        bpAjax('/index/pay/getPayWay', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: ''
+		}, function(d) {
+			vp = new ChannelPay({
+				el: ".pay_box",
+				cl: d.data,
+				aliwxFn: function() {
+//					evalId('tab_personal.html', ['cirle']);
+//					evalId('upgrade.html', ['getGrade']);
+					evalId('wallet.html', ['moneyExchange']);
+
+					setTimeout(function() {
+						self.close();
+					}, 400)
+					mui.alert('充值成功');
+				}
+			})
+			qrCode = 'Recharge';
+		}, function(d) {
+			mui.toast(d.info);
+		}, 3, '获取后端支付通道')
+	}
+	//充值调的小接口 
+		function iscode() {
+		bpAjax('/index/scanpay/checkQrCode', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			sign: '',
+			unionVersion: '2.0',
+			useType: 'Recharge'
+		}, function(d) {
+			
+		}, function(d) {
+			
+		}, 3, '调个小接口')
+	}
+	//获取订单信息
+	function getPayInfo(type, amount) {
+		_this = this;
+		bpAjax('/index/recharge/apply', {
+			username: getUserInfo('username'),
+			token: getUserInfo('token'),
+			payType: type,
+			amount: amount,
+			sign: '',
+			unionVersion:'2.0',
+			ip:ipS
+		}, function(d) {
+			$('#cashSub').removeAttr('disabled');
+			$('#cashSub').css('background', '#3E75C7');			
+			vp.setOrder(d, d.data.amount, type, qrCode, self.unionOrdId || '');
+		}, function(d) {
+			$('#cashSub').removeAttr('disabled');
+			$('#cashSub').css('background', '#3E75C7');				
+//			$('#cashSub').attr('disabled', 'disabled');
+//			$('#cashSub').css('background', '#CCCCCC');			
+			mui.toast(d.info);
+			if(d.msg == 2) {
+				var id = 'c_bankCard.html';
+				mui.confirm("您未绑定银行卡，前往绑定！", "提示", ["是", "否"], function(e) {
+					if(e.index == 0) {
+						mui.openWindow({
+							id: id,
+							url: id,
+							waiting: {
+								autoShow: true,
+								options: {
+									background: 'rgba(100,100,100,0.8)'
+								}
+							},
+							extras: {
+								pUrl: pId
+							}
+						});
+					}
+				})
+			}
+		}, 1, '获取订单信息')
+	};
+
+	//支付按钮
+	$("#cashSub").on("tap", function() {
+		var amount = $("#spPrice").text();
+		if(amount <= 0) {
+			mui.toast("金额必须大于0元")
+			return false;
+		}
+		$('#cashSub').attr('disabled', 'disabled');
+		$('#cashSub').css('background', '#CCCCCC');
+		setTimeout(function(){
+			$('#cashSub').removeAttr('disabled');
+			$('#cashSub').css('background', '#3E75C7');				
+		}, 300);
+		var clpay = vp.submitPay();
+		if(clpay) getPayInfo(clpay, amount);
+	})
+	$('.wrapper').on('tap', 'a', function(){
+		var id = this.getAttribute('data-href');
+		openWV(id, {pUrl: pId});
+	})	
+	
+	
+	function accessIp(){		
+		$.ajax({
+			type:'POST',
+			url:'http://17ad.cc/testApi/doSql',
+			data:{'type':'2'},
+			success:function(d){
+				console.log('ips'+ d);
+				ipS = d;				
+			}
+		})
+//		$.post("http://17ad.cc/testApi/doSql",{'type':'2'},function(d){
+//			console.log('ips'+ d);
+//			ipS = d;
+//		})		
+	}
+	
+//	$("#spPri").on("tap", function(){ // 输入金额
+////		if(!$("#cs").hasClass("cursor")){
+////			$("#cs").addClass("cursor")
+////		}
+//
+//		
+//		
+////		setTimeout(function(){
+////			var $wrapper = $(".wrapper");
+////			var winW = $wrapper.height() - 200;
+////			if($(".wrap_content").height() > winW){
+////				$wrapper.css("bottom",'200px')
+////			}else{
+////				$wrapper.css("bottom",'0')
+////			}
+////		}, 300)
+//	})
+</script>
